@@ -1,0 +1,37 @@
+# General
+.DS_Store
+.idea
+.vscode
+*.log
+*.swp
+
+# Frontend (Node/React)
+frontend/node_modules
+frontend/build
+frontend/dist
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Backend (Go)
+backend/bin/
+backend/vendor/
+backend/*.exe
+backend/*.exe~
+backend/*.dll
+backend/*.so
+backend/*.dylib
+backend/test.db
+backend/.env
+*.test
+*.out
+coverage.*
+*.coverprofile
+
+# Deployment
+deployment/.env

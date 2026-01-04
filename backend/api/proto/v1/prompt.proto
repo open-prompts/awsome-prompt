@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package v1;
+
+option go_package = "awsome-prompt/backend/api/proto/v1";
+
+service PromptService {
+  rpc CreatePrompt(CreatePromptRequest) returns (CreatePromptResponse);
+  rpc GetPrompt(GetPromptRequest) returns (GetPromptResponse);
+  rpc ListPrompts(ListPromptsRequest) returns (ListPromptsResponse);
+}
+
+message Prompt {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  string author_id = 4;
+}
+
+message CreatePromptRequest {
+  string title = 1;
+  string content = 2;
+}
+
+message CreatePromptResponse {
+  Prompt prompt = 1;
+}
+
+message GetPromptRequest {
+  string id = 1;
+}
+
+message GetPromptResponse {
+  Prompt prompt = 1;
+}
+
+message ListPromptsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListPromptsResponse {
+  repeated Prompt prompts = 1;
+  string next_page_token = 2;
+}

@@ -1,0 +1,59 @@
+name: Release
+
+# Trigger the workflow on push events to the main branch
+# This ensures that a release is only attempted when code is merged or pushed to the main branch
+on:
+  push:
+    branches:
+      - main
+
+# Define permissions required for the GITHUB_TOKEN
+# contents: write - Required to create git tags and releases
+# issues: write - Required to post comments on issues related to the release
+# pull-requests: write - Required to post comments on pull requests related to the release
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository code
+      # fetch-depth: 0 is crucial for semantic-release to access the full git history
+      # to determine the version number based on commit messages
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Node.js environment
+      # Semantic-release is a Node.js tool, so we need Node.js installed
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      # Run semantic-release using the cycjimmy/semantic-release-action
+      # This action simplifies running semantic-release in GitHub Actions
+      # It automatically installs semantic-release and any plugins specified
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          # Specify the version of semantic-release to use
+          semantic_version: 19
+          # Define the branches that trigger a release
+          branches: |
+            [
+              "main"
+            ]
+          # Install extra plugins for changelog generation and git commit
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+        env:
+          # Pass the GITHUB_TOKEN to semantic-release
+          # This token is automatically provided by GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

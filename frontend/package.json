@@ -1,0 +1,36 @@
+{
+  "name": "awsome-prompt-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@carbon/react": "^1.0.0",
+    "@reduxjs/toolkit": "^1.9.0",
+    "i18next": "^22.4.9",
+    "i18next-browser-languagedetector": "^7.0.1",
+    "i18next-http-backend": "^2.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^12.1.5",
+    "react-redux": "^8.0.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint src"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
