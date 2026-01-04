@@ -1,0 +1,85 @@
+-- Enable UUID extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- -----------------------------------------------------------------------------
+-- Table: templates
+-- Description: Stores the metadata for prompt templates.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS templates (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    owner_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    visibility TEXT NOT NULL CHECK (visibility IN ('public', 'private')),
+    type TEXT NOT NULL CHECK (type IN ('system', 'user')),
+    tags TEXT[], -- Array of strings for tags
+    category TEXT,
+    liked_by TEXT[], -- Array of user IDs who liked this template
+    favorited_by TEXT[], -- Array of user IDs who favorited this template
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Add comments for documentation
+COMMENT ON TABLE templates IS 'Stores metadata for prompt templates';
+COMMENT ON COLUMN templates.id IS 'Unique identifier for the template';
+COMMENT ON COLUMN templates.owner_id IS 'ID of the user who owns the template';
+COMMENT ON COLUMN templates.title IS 'Title of the template';
+COMMENT ON COLUMN templates.visibility IS 'Visibility status: public or private';
+COMMENT ON COLUMN templates.type IS 'Type of template: system or user';
+COMMENT ON COLUMN templates.tags IS 'List of tags associated with the template';
+COMMENT ON COLUMN templates.liked_by IS 'List of user IDs who liked the template';
+COMMENT ON COLUMN templates.favorited_by IS 'List of user IDs who favorited the template';
+
+-- Indexes for templates
+CREATE INDEX IF NOT EXISTS idx_templates_owner_id ON templates(owner_id);
+CREATE INDEX IF NOT EXISTS idx_templates_visibility ON templates(visibility);
+CREATE INDEX IF NOT EXISTS idx_templates_category ON templates(category);
+CREATE INDEX IF NOT EXISTS idx_templates_tags ON templates USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_templates_created_at ON templates(created_at);
+
+-- -----------------------------------------------------------------------------
+-- Table: template_versions
+-- Description: Stores the actual content and version history of templates.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS template_versions (
+    id SERIAL PRIMARY KEY,
+    template_id UUID NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+    version INT NOT NULL, -- Logical version number (1, 2, 3...)
+    content TEXT NOT NULL, -- The prompt content with $$ placeholders
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (template_id, version)
+);
+
+-- Add comments for documentation
+COMMENT ON TABLE template_versions IS 'Stores content versions for templates';
+COMMENT ON COLUMN template_versions.template_id IS 'Reference to the parent template';
+COMMENT ON COLUMN template_versions.version IS 'Logical version number of the template';
+COMMENT ON COLUMN template_versions.content IS 'The actual prompt text containing placeholders';
+
+-- Indexes for template_versions
+CREATE INDEX IF NOT EXISTS idx_template_versions_template_id ON template_versions(template_id);
+
+-- -----------------------------------------------------------------------------
+-- Table: prompts
+-- Description: Stores instantiated prompts created by users from templates.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS prompts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    template_id UUID NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+    version_id INT NOT NULL REFERENCES template_versions(id) ON DELETE CASCADE,
+    owner_id TEXT NOT NULL, -- User who created/saved this prompt instance
+    variables JSONB NOT NULL, -- List of strings used to replace placeholders
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Add comments for documentation
+COMMENT ON TABLE prompts IS 'Stores instantiated prompts saved by users';
+COMMENT ON COLUMN prompts.template_id IS 'Reference to the template used';
+COMMENT ON COLUMN prompts.version_id IS 'Reference to the specific version of the template used';
+COMMENT ON COLUMN prompts.variables IS 'JSON array of strings replacing the placeholders';
+COMMENT ON COLUMN prompts.owner_id IS 'ID of the user who saved this prompt';
+
+-- Indexes for prompts
+CREATE INDEX IF NOT EXISTS idx_prompts_owner_id ON prompts(owner_id);
+CREATE INDEX IF NOT EXISTS idx_prompts_template_id ON prompts(template_id);

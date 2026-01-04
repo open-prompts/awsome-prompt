@@ -2,43 +2,226 @@ syntax = "proto3";
 
 package v1;
 
-option go_package = "awsome-prompt/backend/api/proto/v1";
+import "google/protobuf/timestamp.proto";
 
+option go_package = "awsome-prompt/backend/api/proto/v1;v1";
+
+// PromptService defines the RPC methods for managing templates and prompts.
 service PromptService {
+  // Template RPCs
+
+  // CreateTemplate creates a new prompt template.
+  rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse);
+
+  // UpdateTemplate updates an existing template, creating a new version.
+  rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse);
+
+  // GetTemplate retrieves a template by ID.
+  rpc GetTemplate(GetTemplateRequest) returns (GetTemplateResponse);
+
+  // ListTemplates lists templates with optional filtering.
+  rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse);
+
+  // DeleteTemplate deletes a template.
+  rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse);
+
+  // Prompt RPCs
+
+  // CreatePrompt creates a new prompt instance from a template.
   rpc CreatePrompt(CreatePromptRequest) returns (CreatePromptResponse);
+
+  // GetPrompt retrieves a prompt by ID.
   rpc GetPrompt(GetPromptRequest) returns (GetPromptResponse);
+
+  // ListPrompts lists prompts belonging to a user.
   rpc ListPrompts(ListPromptsRequest) returns (ListPromptsResponse);
 }
 
-message Prompt {
+// Visibility defines who can see the template.
+enum Visibility {
+  VISIBILITY_UNSPECIFIED = 0;
+  VISIBILITY_PRIVATE = 1;
+  VISIBILITY_PUBLIC = 2;
+}
+
+// TemplateType defines the origin/type of the template.
+enum TemplateType {
+  TEMPLATE_TYPE_UNSPECIFIED = 0;
+  TEMPLATE_TYPE_SYSTEM = 1;
+  TEMPLATE_TYPE_USER = 2;
+}
+
+// Template represents a prompt template metadata.
+message Template {
+  // Unique identifier for the template (UUID).
   string id = 1;
+  // ID of the user who owns the template.
+  string owner_id = 2;
+  // Title of the template.
+  string title = 3;
+  // Description of the template.
+  string description = 4;
+  // Visibility status (public or private).
+  Visibility visibility = 5;
+  // Type of the template (system or user).
+  TemplateType type = 6;
+  // List of tags associated with the template.
+  repeated string tags = 7;
+  // Category of the template.
+  string category = 8;
+  // List of user IDs who liked the template.
+  repeated string liked_by = 9;
+  // List of user IDs who favorited the template.
+  repeated string favorited_by = 10;
+  // Timestamp when the template was created.
+  google.protobuf.Timestamp created_at = 11;
+  // Timestamp when the template was last updated.
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// TemplateVersion represents a specific version of a template's content.
+message TemplateVersion {
+  // Unique identifier for the version record.
+  int32 id = 1;
+  // ID of the parent template.
+  string template_id = 2;
+  // Logical version number (1, 2, 3...).
+  int32 version = 3;
+  // The actual prompt content with placeholders (e.g., $$).
+  string content = 4;
+  // Timestamp when this version was created.
+  google.protobuf.Timestamp created_at = 5;
+}
+
+// Prompt represents an instantiated prompt saved by a user.
+message Prompt {
+  // Unique identifier for the prompt (UUID).
+  string id = 1;
+  // ID of the template used.
+  string template_id = 2;
+  // ID of the specific version used.
+  int32 version_id = 3;
+  // ID of the user who saved this prompt.
+  string owner_id = 4;
+  // List of variable values used to replace placeholders.
+  repeated string variables = 5;
+  // Timestamp when the prompt was created.
+  google.protobuf.Timestamp created_at = 6;
+}
+
+// CreateTemplateRequest is the request message for CreateTemplate.
+message CreateTemplateRequest {
+  string owner_id = 1;
   string title = 2;
-  string content = 3;
-  string author_id = 4;
+  string description = 3;
+  Visibility visibility = 4;
+  TemplateType type = 5;
+  repeated string tags = 6;
+  string category = 7;
+  // Initial content for the first version.
+  string content = 8;
 }
 
+// CreateTemplateResponse is the response message for CreateTemplate.
+message CreateTemplateResponse {
+  Template template = 1;
+  TemplateVersion version = 2;
+}
+
+// UpdateTemplateRequest is the request message for UpdateTemplate.
+message UpdateTemplateRequest {
+  string template_id = 1;
+  string owner_id = 2; // For authorization check
+  string title = 3;
+  string description = 4;
+  Visibility visibility = 5;
+  repeated string tags = 6;
+  string category = 7;
+  // New content, which triggers a new version creation.
+  string content = 8;
+}
+
+// UpdateTemplateResponse is the response message for UpdateTemplate.
+message UpdateTemplateResponse {
+  Template template = 1;
+  TemplateVersion new_version = 2;
+}
+
+// GetTemplateRequest is the request message for GetTemplate.
+message GetTemplateRequest {
+  string id = 1;
+}
+
+// GetTemplateResponse is the response message for GetTemplate.
+message GetTemplateResponse {
+  Template template = 1;
+  // Optionally return the latest version or all versions.
+  // For simplicity, let's return the latest version.
+  TemplateVersion latest_version = 2;
+}
+
+// ListTemplatesRequest is the request message for ListTemplates.
+message ListTemplatesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  // Filter by visibility (e.g., public only, or my private ones).
+  Visibility visibility = 3;
+  // Filter by owner.
+  string owner_id = 4;
+  // Filter by category.
+  string category = 5;
+  // Filter by tags.
+  repeated string tags = 6;
+}
+
+// ListTemplatesResponse is the response message for ListTemplates.
+message ListTemplatesResponse {
+  repeated Template templates = 1;
+  string next_page_token = 2;
+}
+
+// DeleteTemplateRequest is the request message for DeleteTemplate.
+message DeleteTemplateRequest {
+  string id = 1;
+  string owner_id = 2; // For auth
+}
+
+// DeleteTemplateResponse is the response message for DeleteTemplate.
+message DeleteTemplateResponse {
+  bool success = 1;
+}
+
+// CreatePromptRequest is the request message for CreatePrompt.
 message CreatePromptRequest {
-  string title = 1;
-  string content = 2;
+  string template_id = 1;
+  int32 version_id = 2;
+  string owner_id = 3;
+  repeated string variables = 4;
 }
 
+// CreatePromptResponse is the response message for CreatePrompt.
 message CreatePromptResponse {
   Prompt prompt = 1;
 }
 
+// GetPromptRequest is the request message for GetPrompt.
 message GetPromptRequest {
   string id = 1;
 }
 
+// GetPromptResponse is the response message for GetPrompt.
 message GetPromptResponse {
   Prompt prompt = 1;
 }
 
+// ListPromptsRequest is the request message for ListPrompts.
 message ListPromptsRequest {
   int32 page_size = 1;
   string page_token = 2;
+  string owner_id = 3;
 }
 
+// ListPromptsResponse is the response message for ListPrompts.
 message ListPromptsResponse {
   repeated Prompt prompts = 1;
   string next_page_token = 2;
