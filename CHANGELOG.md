@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/open-prompts/awsome-prompt/compare/v1.0.0...v1.1.0) (2026-01-05)
+
+
+### Features
+
+* implemented index page ([0ff2654](https://github.com/open-prompts/awsome-prompt/commit/0ff26546c1f4cc80a0bdbf93a364946105cd0232))
+
 # 1.0.0 (2026-01-05)
 
 
