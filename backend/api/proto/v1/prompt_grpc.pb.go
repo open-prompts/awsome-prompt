@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v6.31.1
-// source: api/proto/v1/prompt.proto
+// source: backend/api/proto/v1/prompt.proto
 
 package v1
 
@@ -203,7 +203,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/v1/prompt.proto",
+	Metadata: "backend/api/proto/v1/prompt.proto",
 }
 
 const (
@@ -214,7 +214,9 @@ const (
 	PromptService_DeleteTemplate_FullMethodName = "/v1.PromptService/DeleteTemplate"
 	PromptService_CreatePrompt_FullMethodName   = "/v1.PromptService/CreatePrompt"
 	PromptService_GetPrompt_FullMethodName      = "/v1.PromptService/GetPrompt"
-	PromptService_ListPrompts_FullMethodName    = "/v1.PromptService/ListPrompts"
+	PromptService_DeletePrompt_FullMethodName   = "/v1.PromptService/DeletePrompt"
+	PromptService_ListCategories_FullMethodName = "/v1.PromptService/ListCategories"
+	PromptService_ListTags_FullMethodName       = "/v1.PromptService/ListTags"
 )
 
 // PromptServiceClient is the client API for PromptService service.
@@ -237,8 +239,12 @@ type PromptServiceClient interface {
 	CreatePrompt(ctx context.Context, in *CreatePromptRequest, opts ...grpc.CallOption) (*CreatePromptResponse, error)
 	// GetPrompt retrieves a prompt by ID.
 	GetPrompt(ctx context.Context, in *GetPromptRequest, opts ...grpc.CallOption) (*GetPromptResponse, error)
-	// ListPrompts lists prompts belonging to a user.
-	ListPrompts(ctx context.Context, in *ListPromptsRequest, opts ...grpc.CallOption) (*ListPromptsResponse, error)
+	// DeletePrompt deletes a prompt.
+	DeletePrompt(ctx context.Context, in *DeletePromptRequest, opts ...grpc.CallOption) (*DeletePromptResponse, error)
+	// ListCategories lists all categories with their template counts.
+	ListCategories(ctx context.Context, in *ListCategoriesRequest, opts ...grpc.CallOption) (*ListCategoriesResponse, error)
+	// ListTags lists all tags with their template counts.
+	ListTags(ctx context.Context, in *ListTagsRequest, opts ...grpc.CallOption) (*ListTagsResponse, error)
 }
 
 type promptServiceClient struct {
@@ -319,10 +325,30 @@ func (c *promptServiceClient) GetPrompt(ctx context.Context, in *GetPromptReques
 	return out, nil
 }
 
-func (c *promptServiceClient) ListPrompts(ctx context.Context, in *ListPromptsRequest, opts ...grpc.CallOption) (*ListPromptsResponse, error) {
+func (c *promptServiceClient) DeletePrompt(ctx context.Context, in *DeletePromptRequest, opts ...grpc.CallOption) (*DeletePromptResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListPromptsResponse)
-	err := c.cc.Invoke(ctx, PromptService_ListPrompts_FullMethodName, in, out, cOpts...)
+	out := new(DeletePromptResponse)
+	err := c.cc.Invoke(ctx, PromptService_DeletePrompt_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *promptServiceClient) ListCategories(ctx context.Context, in *ListCategoriesRequest, opts ...grpc.CallOption) (*ListCategoriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCategoriesResponse)
+	err := c.cc.Invoke(ctx, PromptService_ListCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *promptServiceClient) ListTags(ctx context.Context, in *ListTagsRequest, opts ...grpc.CallOption) (*ListTagsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListTagsResponse)
+	err := c.cc.Invoke(ctx, PromptService_ListTags_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -349,8 +375,12 @@ type PromptServiceServer interface {
 	CreatePrompt(context.Context, *CreatePromptRequest) (*CreatePromptResponse, error)
 	// GetPrompt retrieves a prompt by ID.
 	GetPrompt(context.Context, *GetPromptRequest) (*GetPromptResponse, error)
-	// ListPrompts lists prompts belonging to a user.
-	ListPrompts(context.Context, *ListPromptsRequest) (*ListPromptsResponse, error)
+	// DeletePrompt deletes a prompt.
+	DeletePrompt(context.Context, *DeletePromptRequest) (*DeletePromptResponse, error)
+	// ListCategories lists all categories with their template counts.
+	ListCategories(context.Context, *ListCategoriesRequest) (*ListCategoriesResponse, error)
+	// ListTags lists all tags with their template counts.
+	ListTags(context.Context, *ListTagsRequest) (*ListTagsResponse, error)
 	mustEmbedUnimplementedPromptServiceServer()
 }
 
@@ -382,8 +412,14 @@ func (UnimplementedPromptServiceServer) CreatePrompt(context.Context, *CreatePro
 func (UnimplementedPromptServiceServer) GetPrompt(context.Context, *GetPromptRequest) (*GetPromptResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPrompt not implemented")
 }
-func (UnimplementedPromptServiceServer) ListPrompts(context.Context, *ListPromptsRequest) (*ListPromptsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListPrompts not implemented")
+func (UnimplementedPromptServiceServer) DeletePrompt(context.Context, *DeletePromptRequest) (*DeletePromptResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeletePrompt not implemented")
+}
+func (UnimplementedPromptServiceServer) ListCategories(context.Context, *ListCategoriesRequest) (*ListCategoriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCategories not implemented")
+}
+func (UnimplementedPromptServiceServer) ListTags(context.Context, *ListTagsRequest) (*ListTagsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListTags not implemented")
 }
 func (UnimplementedPromptServiceServer) mustEmbedUnimplementedPromptServiceServer() {}
 func (UnimplementedPromptServiceServer) testEmbeddedByValue()                       {}
@@ -532,20 +568,56 @@ func _PromptService_GetPrompt_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PromptService_ListPrompts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListPromptsRequest)
+func _PromptService_DeletePrompt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePromptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PromptServiceServer).ListPrompts(ctx, in)
+		return srv.(PromptServiceServer).DeletePrompt(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PromptService_ListPrompts_FullMethodName,
+		FullMethod: PromptService_DeletePrompt_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PromptServiceServer).ListPrompts(ctx, req.(*ListPromptsRequest))
+		return srv.(PromptServiceServer).DeletePrompt(ctx, req.(*DeletePromptRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PromptService_ListCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCategoriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PromptServiceServer).ListCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PromptService_ListCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PromptServiceServer).ListCategories(ctx, req.(*ListCategoriesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PromptService_ListTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTagsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PromptServiceServer).ListTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PromptService_ListTags_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PromptServiceServer).ListTags(ctx, req.(*ListTagsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -586,10 +658,18 @@ var PromptService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PromptService_GetPrompt_Handler,
 		},
 		{
-			MethodName: "ListPrompts",
-			Handler:    _PromptService_ListPrompts_Handler,
+			MethodName: "DeletePrompt",
+			Handler:    _PromptService_DeletePrompt_Handler,
+		},
+		{
+			MethodName: "ListCategories",
+			Handler:    _PromptService_ListCategories_Handler,
+		},
+		{
+			MethodName: "ListTags",
+			Handler:    _PromptService_ListTags_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/v1/prompt.proto",
+	Metadata: "backend/api/proto/v1/prompt.proto",
 }

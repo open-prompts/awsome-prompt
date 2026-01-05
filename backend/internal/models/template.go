@@ -23,3 +23,13 @@ type Template struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
+
+// TemplateVersion represents a version of a template.
+// It maps to the "template_versions" table.
+type TemplateVersion struct {
+	ID         int32     `json:"id"`
+	TemplateID string    `json:"template_id"`
+	Version    int32     `json:"version"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"created_at"`
+}

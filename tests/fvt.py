@@ -32,10 +32,12 @@ def wait_for_service(url, timeout=60):
 def test_lifecycle():
     print("--- Starting Lifecycle Test ---")
     
+    owner_id = f"user_{int(time.time())}"
+
     # 1. Create Template
     print("1. Creating Template...")
     create_payload = {
-        "owner_id": "user_123",
+        "owner_id": owner_id,
         "title": "My First Template",
         "description": "A test template",
         "visibility": "VISIBILITY_PUBLIC",
@@ -68,7 +70,7 @@ def test_lifecycle():
     # 3. Update Template
     print("3. Updating Template...")
     update_payload = {
-        "owner_id": "user_123",
+        "owner_id": owner_id,
         "title": "Updated Template Title",
         "description": "Updated description",
         "visibility": "VISIBILITY_PRIVATE",
@@ -104,7 +106,7 @@ def test_lifecycle():
 
     # 5. Delete Template
     print("5. Deleting Template...")
-    resp = requests.delete(f"{BASE_URL}/{template_id}?owner_id=user_123")
+    resp = requests.delete(f"{BASE_URL}/{template_id}?owner_id={owner_id}")
     if resp.status_code != 200:
         print(f"Delete failed: {resp.status_code} - {resp.text}")
         return False
@@ -112,10 +114,9 @@ def test_lifecycle():
     # 6. Verify Deletion
     print("6. Verifying Deletion...")
     resp = requests.get(f"{BASE_URL}/{template_id}")
-    # Expecting 404 or 500 (since we return error) depending on implementation details
-    # In our service implementation, Get returns error if not found, which main.go maps to 500 usually or we can check message
-    if resp.status_code == 200:
-        print("Get after delete should fail, but got 200")
+    # Expecting 404
+    if resp.status_code != 404:
+        print(f"Get after delete should fail with 404, but got {resp.status_code}")
         return False
     
     print("--- Lifecycle Test Passed ---")
@@ -126,8 +127,9 @@ def test_auth():
     REGISTER_URL = "http://localhost:8080/api/v1/register"
     LOGIN_URL = "http://localhost:8080/api/v1/login"
 
-    user_id = "fvt_user_1"
-    email = "fvt_user_1@example.com"
+    ts = int(time.time())
+    user_id = f"fvt_user_{ts}"
+    email = f"fvt_user_{ts}@example.com"
     password = "password123"
 
     # 1. Register
@@ -177,8 +179,8 @@ def test_auth():
     # 3. Duplicate Register
     print("3. Testing Duplicate Register...")
     resp = requests.post(REGISTER_URL, json=register_payload)
-    if resp.status_code == 200:
-        print("Duplicate register should fail, but got 200")
+    if resp.status_code != 409:
+        print(f"Duplicate register should fail with 409, but got {resp.status_code}")
         return False
     print("Duplicate register failed as expected.")
 
@@ -189,12 +191,161 @@ def test_auth():
         "password": "wrongpassword"
     }
     resp = requests.post(LOGIN_URL, json=invalid_payload)
-    if resp.status_code == 200:
-        print("Invalid login should fail, but got 200")
+    if resp.status_code != 401:
+        print(f"Invalid login should fail with 401, but got {resp.status_code}")
         return False
     print("Invalid login failed as expected.")
 
     print("--- Auth Test Passed ---")
+    return True
+
+def test_prompt_lifecycle():
+    print("--- Starting Prompt Lifecycle Test ---")
+    
+    # 1. Register & Login User 1
+    user1_id = f"user1_{int(time.time())}"
+    email = f"user1_{int(time.time())}@example.com"
+    password = "password"
+    
+    register_payload = {
+        "id": user1_id,
+        "email": email,
+        "password": password,
+        "display_name": "User 1"
+    }
+    resp = requests.post("http://localhost:8080/api/v1/register", json=register_payload)
+    if resp.status_code != 200:
+        print(f"Register failed: {resp.status_code} - {resp.text}")
+        return False
+    
+    # 2. Create Template (User 1)
+    tpl_payload = {
+        "owner_id": user1_id,
+        "title": "My Template",
+        "description": "Desc",
+        "visibility": 1, # Private
+        "type": 2, # User
+        "tags": ["test"],
+        "category": "test",
+        "content": "Hello {{name}}"
+    }
+    resp = requests.post("http://localhost:8080/api/v1/templates", json=tpl_payload)
+    if resp.status_code != 200:
+        print(f"Create Template failed: {resp.status_code} - {resp.text}")
+        return False
+    tpl_data = resp.json()
+    template_id = tpl_data.get("template", {}).get("id")
+    version_id = tpl_data.get("version", {}).get("id")
+    
+    print(f"Created Template: {template_id}")
+    
+    # 3. Create Prompt (User 1)
+    prompt_payload = {
+        "template_id": template_id,
+        "version_id": version_id,
+        "owner_id": user1_id,
+        "variables": ["World"]
+    }
+    resp = requests.post("http://localhost:8080/api/v1/prompts", json=prompt_payload)
+    if resp.status_code != 200:
+        print(f"Create Prompt failed: {resp.status_code} - {resp.text}")
+        return False
+    prompt_data = resp.json()
+    prompt_id = prompt_data.get("prompt", {}).get("id")
+    print(f"Created Prompt: {prompt_id}")
+    
+    # 4. Get Prompt (User 1)
+    resp = requests.get(f"http://localhost:8080/api/v1/prompts/{prompt_id}")
+    if resp.status_code != 200:
+        print(f"Get Prompt failed: {resp.status_code} - {resp.text}")
+        return False
+    if resp.json().get("prompt", {}).get("id") != prompt_id:
+        print("Get Prompt returned wrong ID")
+        return False
+        
+    # 5. List Prompts (User 1)
+    resp = requests.get(f"http://localhost:8080/api/v1/prompts?owner_id={user1_id}")
+    if resp.status_code != 200:
+        print(f"List Prompts failed: {resp.status_code} - {resp.text}")
+        return False
+    prompts = resp.json().get("prompts", [])
+    if not any(p["id"] == prompt_id for p in prompts):
+        print("List Prompts did not find created prompt")
+        return False
+        
+    # 6. Delete Prompt (User 1)
+    resp = requests.delete(f"http://localhost:8080/api/v1/prompts/{prompt_id}?owner_id={user1_id}")
+    if resp.status_code != 200:
+        print(f"Delete Prompt failed: {resp.status_code} - {resp.text}")
+        return False
+        
+    # 7. Verify Deletion
+    resp = requests.get(f"http://localhost:8080/api/v1/prompts/{prompt_id}")
+    if resp.status_code != 404:
+        print(f"Prompt still exists after deletion or wrong status: {resp.status_code}")
+        return False
+
+    print("--- Prompt Lifecycle Test Passed ---")
+    return True
+
+def test_stats():
+    print("--- Starting Stats Test ---")
+    
+    # Create a template with specific category and tags
+    owner_id = f"stats_user_{int(time.time())}"
+    payload = {
+        "owner_id": owner_id,
+        "title": "Stats Template",
+        "description": "Desc",
+        "visibility": "VISIBILITY_PUBLIC",
+        "type": "TEMPLATE_TYPE_USER",
+        "tags": ["stats_tag_1", "stats_tag_2"],
+        "category": "stats_cat"
+    }
+    resp = requests.post(BASE_URL, json=payload)
+    if resp.status_code != 200:
+        print(f"Create Template failed: {resp.status_code}")
+        return False
+    
+    # Test Categories
+    print("Testing Categories...")
+    resp = requests.get("http://localhost:8080/api/v1/categories")
+    if resp.status_code != 200:
+        print(f"List Categories failed: {resp.status_code}")
+        return False
+    cats = resp.json().get("categories", [])
+    found_cat = False
+    for c in cats:
+        if c["name"] == "stats_cat":
+            found_cat = True
+            if c["count"] < 1:
+                print(f"Category count incorrect: {c['count']}")
+                return False
+            break
+    if not found_cat:
+        print("Created category not found in stats")
+        return False
+
+    # Test Tags
+    print("Testing Tags...")
+    resp = requests.get("http://localhost:8080/api/v1/tags")
+    if resp.status_code != 200:
+        print(f"List Tags failed: {resp.status_code}")
+        return False
+    tags = resp.json().get("tags", [])
+    found_tag = False
+    for t in tags:
+        if t["name"] == "stats_tag_1":
+            found_tag = True
+            if t["count"] < 1:
+                print(f"Tag count incorrect: {t['count']}")
+                return False
+            break
+    if not found_tag:
+        print("Created tag not found in stats")
+        return False
+
+    print("--- Stats Test Passed ---")
     return True
 
 def main():
@@ -216,6 +367,10 @@ def main():
     success = test_lifecycle()
     if success:
         success = test_auth()
+    if success:
+        success = test_prompt_lifecycle()
+    if success:
+        success = test_stats()
 
     # Cleanup
     print("Cleaning up...")

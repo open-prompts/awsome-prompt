@@ -45,8 +45,14 @@ service PromptService {
   // GetPrompt retrieves a prompt by ID.
   rpc GetPrompt(GetPromptRequest) returns (GetPromptResponse);
 
-  // ListPrompts lists prompts belonging to a user.
-  rpc ListPrompts(ListPromptsRequest) returns (ListPromptsResponse);
+  // DeletePrompt deletes a prompt.
+  rpc DeletePrompt(DeletePromptRequest) returns (DeletePromptResponse);
+
+  // ListCategories lists all categories with their template counts.
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
+
+  // ListTags lists all tags with their template counts.
+  rpc ListTags(ListTagsRequest) returns (ListTagsResponse);
 }
 
 // Visibility defines who can see the template.
@@ -239,6 +245,17 @@ message ListPromptsResponse {
   string next_page_token = 2;
 }
 
+// DeletePromptRequest is the request message for DeletePrompt.
+message DeletePromptRequest {
+  string id = 1;
+  string owner_id = 2; // For auth
+}
+
+// DeletePromptResponse is the response message for DeletePrompt.
+message DeletePromptResponse {
+  bool success = 1;
+}
+
 // RegisterRequest is the request message for Register.
 message RegisterRequest {
   string id = 1;
@@ -271,4 +288,32 @@ message LoginResponse {
 message LoginWithOAuthRequest {
   string provider = 1;
   string code = 2;
+}
+
+// ListCategoriesRequest is the request message for ListCategories.
+message ListCategoriesRequest {}
+
+// CategoryStats represents a category and its usage count.
+message CategoryStats {
+  string name = 1;
+  int32 count = 2;
+}
+
+// ListCategoriesResponse is the response message for ListCategories.
+message ListCategoriesResponse {
+  repeated CategoryStats categories = 1;
+}
+
+// ListTagsRequest is the request message for ListTags.
+message ListTagsRequest {}
+
+// TagStats represents a tag and its usage count.
+message TagStats {
+  string name = 1;
+  int32 count = 2;
+}
+
+// ListTagsResponse is the response message for ListTags.
+message ListTagsResponse {
+  repeated TagStats tags = 1;
 }

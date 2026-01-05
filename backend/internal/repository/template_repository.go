@@ -17,6 +17,8 @@ type TemplateRepository interface {
 	Update(ctx context.Context, template *models.Template) error
 	Delete(ctx context.Context, id string) error
 	Get(ctx context.Context, id string) (*models.Template, error)
+	ListCategories(ctx context.Context) ([]*models.CategoryStat, error)
+	ListTags(ctx context.Context) ([]*models.TagStat, error)
 }
 
 // templateRepository implements TemplateRepository.
@@ -156,4 +158,55 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 	}
 
 	return templates, nil
+}
+
+// ListCategories retrieves all categories and their template counts.
+func (r *templateRepository) ListCategories(ctx context.Context) ([]*models.CategoryStat, error) {
+	query := `
+		SELECT category, COUNT(*) as count
+		FROM templates
+		WHERE category IS NOT NULL AND category != ''
+		GROUP BY category
+		ORDER BY count DESC
+	`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list categories: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var stats []*models.CategoryStat
+	for rows.Next() {
+		var s models.CategoryStat
+		if err := rows.Scan(&s.Name, &s.Count); err != nil {
+			return nil, fmt.Errorf("failed to scan category stat: %w", err)
+		}
+		stats = append(stats, &s)
+	}
+	return stats, nil
+}
+
+// ListTags retrieves all tags and their template counts.
+func (r *templateRepository) ListTags(ctx context.Context) ([]*models.TagStat, error) {
+	query := `
+		SELECT unnest(tags) as tag, COUNT(*) as count
+		FROM templates
+		GROUP BY tag
+		ORDER BY count DESC
+	`
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list tags: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	var stats []*models.TagStat
+	for rows.Next() {
+		var s models.TagStat
+		if err := rows.Scan(&s.Name, &s.Count); err != nil {
+			return nil, fmt.Errorf("failed to scan tag stat: %w", err)
+		}
+		stats = append(stats, &s)
+	}
+	return stats, nil
 }

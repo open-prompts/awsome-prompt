@@ -15,8 +15,42 @@ import (
 	"awsome-prompt/backend/internal/service"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 )
+
+func writeError(w http.ResponseWriter, err error) {
+	st, ok := status.FromError(err)
+	if !ok {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var code int
+	switch st.Code() {
+	case codes.OK:
+		code = http.StatusOK
+	case codes.InvalidArgument:
+		code = http.StatusBadRequest
+	case codes.NotFound:
+		code = http.StatusNotFound
+	case codes.AlreadyExists:
+		code = http.StatusConflict
+	case codes.PermissionDenied:
+		code = http.StatusForbidden
+	case codes.Unauthenticated:
+		code = http.StatusUnauthorized
+	case codes.Unimplemented:
+		code = http.StatusNotImplemented
+	case codes.Unavailable:
+		code = http.StatusServiceUnavailable
+	default:
+		code = http.StatusInternalServerError
+	}
+
+	http.Error(w, st.Message(), code)
+}
 
 func main() {
 	// Database connection
@@ -30,8 +64,11 @@ func main() {
 	}
 
 	// Repository and Service
-	repo := repository.NewTemplateRepository(pgConn.DB)
-	svc := service.NewPromptService(repo)
+	templateRepo := repository.NewTemplateRepository(pgConn.DB)
+	promptRepo := repository.NewPromptRepository(pgConn.DB)
+	templateVersionRepo := repository.NewTemplateVersionRepository(pgConn.DB)
+
+	svc := service.NewPromptService(promptRepo, templateRepo, templateVersionRepo)
 
 	// User Service
 	userRepo := repository.NewUserRepository(pgConn.DB)
@@ -66,6 +103,54 @@ func main() {
 	}
 
 	// HTTP Server for FVT/REST
+	http.HandleFunc("/api/v1/categories", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
+
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		resp, err := svc.ListCategories(context.Background(), &pb.ListCategoriesRequest{})
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		b, _ := marshaler.Marshal(resp)
+		_, _ = w.Write(b)
+	})
+
+	http.HandleFunc("/api/v1/tags", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
+
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		resp, err := svc.ListTags(context.Background(), &pb.ListTagsRequest{})
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		b, _ := marshaler.Marshal(resp)
+		_, _ = w.Write(b)
+	})
+
 	http.HandleFunc("/api/v1/templates", func(w http.ResponseWriter, r *http.Request) {
 		// Enable CORS
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -81,7 +166,7 @@ func main() {
 			req := &pb.ListTemplatesRequest{}
 			resp, err := svc.ListTemplates(context.Background(), req)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				writeError(w, err)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -101,7 +186,7 @@ func main() {
 			}
 			resp, err := svc.CreateTemplate(context.Background(), &req)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				writeError(w, err)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -134,7 +219,7 @@ func main() {
 			req := &pb.GetTemplateRequest{Id: id}
 			resp, err := svc.GetTemplate(context.Background(), req)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				writeError(w, err)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -155,7 +240,7 @@ func main() {
 			req.TemplateId = id
 			resp, err := svc.UpdateTemplate(context.Background(), &req)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				writeError(w, err)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -167,7 +252,7 @@ func main() {
 			req := &pb.DeleteTemplateRequest{Id: id, OwnerId: ownerID}
 			resp, err := svc.DeleteTemplate(context.Background(), req)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				writeError(w, err)
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
@@ -206,7 +291,7 @@ func main() {
 		}
 		resp, err := userSvc.Register(context.Background(), &req)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			writeError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -240,12 +325,103 @@ func main() {
 		}
 		resp, err := userSvc.Login(context.Background(), &req)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			writeError(w, err)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		b, _ := marshaler.Marshal(resp)
 		_, _ = w.Write(b)
+	})
+
+	// Prompt Handlers
+	http.HandleFunc("/api/v1/prompts", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
+
+		switch r.Method {
+		case http.MethodGet:
+			ownerID := r.URL.Query().Get("owner_id")
+			req := &pb.ListPromptsRequest{OwnerId: ownerID}
+			resp, err := svc.ListPrompts(context.Background(), req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+
+		case http.MethodPost:
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				http.Error(w, "Failed to read body", http.StatusBadRequest)
+				return
+			}
+			var req pb.CreatePromptRequest
+			if err := unmarshaler.Unmarshal(body, &req); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			resp, err := svc.CreatePrompt(context.Background(), &req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	http.HandleFunc("/api/v1/prompts/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
+
+		id := strings.TrimPrefix(r.URL.Path, "/api/v1/prompts/")
+		if id == "" {
+			http.Error(w, "ID required", http.StatusBadRequest)
+			return
+		}
+
+		switch r.Method {
+		case http.MethodGet:
+			req := &pb.GetPromptRequest{Id: id}
+			resp, err := svc.GetPrompt(context.Background(), req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+
+		case http.MethodDelete:
+			ownerID := r.URL.Query().Get("owner_id")
+			req := &pb.DeletePromptRequest{Id: id, OwnerId: ownerID}
+			resp, err := svc.DeletePrompt(context.Background(), req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 	})
 
 	log.Println("HTTP server listening at :8080")
