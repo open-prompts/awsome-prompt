@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	pb "awsome-prompt/backend/api/proto/v1"
@@ -164,6 +165,24 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			req := &pb.ListTemplatesRequest{}
+			q := r.URL.Query()
+			if v := q.Get("page_size"); v != "" {
+				if i, err := strconv.Atoi(v); err == nil {
+					req.PageSize = int32(i)
+				}
+			}
+			req.PageToken = q.Get("page_token")
+			req.OwnerId = q.Get("owner_id")
+			req.Category = q.Get("category")
+			if v := q.Get("visibility"); v != "" {
+				if v == "VISIBILITY_PUBLIC" {
+					req.Visibility = pb.Visibility_VISIBILITY_PUBLIC
+				} else if v == "VISIBILITY_PRIVATE" {
+					req.Visibility = pb.Visibility_VISIBILITY_PRIVATE
+				}
+			}
+			req.Tags = q["tags"] // Supports ?tags=a&tags=b
+
 			resp, err := svc.ListTemplates(context.Background(), req)
 			if err != nil {
 				writeError(w, err)

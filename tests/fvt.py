@@ -348,6 +348,50 @@ def test_stats():
     print("--- Stats Test Passed ---")
     return True
 
+def test_pagination():
+    print("--- Starting Pagination Test ---")
+    owner_id = f"user_page_{int(time.time())}"
+    
+    # Create 3 templates
+    for i in range(3):
+        payload = {
+            "owner_id": owner_id,
+            "title": f"Page Template {i}",
+            "description": "Pagination test",
+            "visibility": "VISIBILITY_PUBLIC",
+            "type": "TEMPLATE_TYPE_USER",
+            "tags": ["page_test"],
+            "category": "page_cat"
+        }
+        requests.post(BASE_URL, json=payload)
+    
+    # Request page 1 (size 2)
+    params = {"page_size": 2, "owner_id": owner_id}
+    resp = requests.get(BASE_URL, params=params)
+    if resp.status_code != 200:
+        print(f"List Page 1 failed: {resp.status_code}")
+        return False
+    data = resp.json()
+    if len(data.get("templates", [])) != 2:
+        print(f"Page 1 size incorrect: {len(data.get('templates', []))}")
+        return False
+    
+    # Request page 2 (size 2, offset 2)
+    # Frontend sends page_token as stringified offset
+    params = {"page_size": 2, "owner_id": owner_id, "page_token": "2"}
+    resp = requests.get(BASE_URL, params=params)
+    if resp.status_code != 200:
+        print(f"List Page 2 failed: {resp.status_code}")
+        return False
+    data = resp.json()
+    if len(data.get("templates", [])) != 1:
+        print(f"Page 2 size incorrect: {len(data.get('templates', []))}")
+        return False
+
+    print("--- Pagination Test Passed ---")
+    return True
+
+
 def main():
     # Start containers
     print("Starting containers...")
@@ -371,6 +415,8 @@ def main():
         success = test_prompt_lifecycle()
     if success:
         success = test_stats()
+    if success:
+        success = test_pagination()
 
     # Cleanup
     print("Cleaning up...")

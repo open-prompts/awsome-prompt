@@ -159,7 +159,12 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 	if limit <= 0 {
 		limit = 10
 	}
-	offset := 0 // TODO: parse page_token
+	offset := 0
+	if req.PageToken != "" {
+		if parsedOffset, err := strconv.Atoi(req.PageToken); err == nil {
+			offset = parsedOffset
+		}
+	}
 
 	filters := make(map[string]interface{})
 	if req.OwnerId != "" {

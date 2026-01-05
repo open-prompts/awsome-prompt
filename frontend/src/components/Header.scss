@@ -1,0 +1,63 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  height: 60px;
+  background-color: #161616; // Carbon Gray 100
+  color: #ffffff;
+  border-bottom: 1px solid #393939;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .logo {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .main-nav {
+      a {
+        color: #c6c6c6;
+        text-decoration: none;
+        &:hover {
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .header-right {
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+
+      button {
+        padding: 8px 16px;
+        cursor: pointer;
+        border: none;
+        font-weight: bold;
+      }
+
+      .btn-login {
+        background-color: transparent;
+        color: #ffffff;
+        &:hover {
+          background-color: #393939;
+        }
+      }
+
+      .btn-register {
+        background-color: #0f62fe; // Carbon Blue 60
+        color: #ffffff;
+        &:hover {
+          background-color: #0353e9;
+        }
+      }
+    }
+  }
+}

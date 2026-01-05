@@ -1,0 +1,18 @@
+.home-page {
+  height: 100%;
+  overflow-y: auto; // Enable scrolling within the content area
+
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding-bottom: 20px;
+  }
+
+  .loading, .no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+  }
+}

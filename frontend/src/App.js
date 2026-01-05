@@ -1,20 +1,22 @@
 import React from 'react';
-import { Content } from '@carbon/react';
-import { useTranslation } from 'react-i18next';
-import TemplateList from './components/TemplateList';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import './index.scss'; // Global styles
 
+/**
+ * Main App component.
+ * Sets up the router and defines the routes.
+ */
 function App() {
-  const { t } = useTranslation();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src="/images/logo.jpg" className="App-logo" alt="logo" />
-        <h1>{t('welcome')}</h1>
-      </header>
-      <Content>
-        <TemplateList />
-      </Content>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* Add more routes here as needed, e.g., /login, /register, /template/:id */}
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

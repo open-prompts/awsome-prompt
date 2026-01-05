@@ -1,0 +1,18 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  .app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden; // Prevent body scroll, let content scroll
+
+    .app-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #ffffff;
+    }
+  }
+}

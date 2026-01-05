@@ -1,0 +1,72 @@
+.app-sidebar {
+  width: 250px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  height: calc(100vh - 60px); // Full height minus header
+  overflow-y: auto;
+  border-right: 1px solid #e0e0e0;
+
+  .sidebar-section {
+    margin-bottom: 30px;
+
+    h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        padding: 8px 0;
+        cursor: pointer;
+        color: #555;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+
+        &:hover {
+          color: #0f62fe;
+        }
+
+        .count {
+          font-size: 0.8rem;
+          color: #888;
+        }
+      }
+    }
+
+    .btn-more {
+      background: none;
+      border: none;
+      color: #0f62fe;
+      cursor: pointer;
+      padding: 5px 0;
+      font-size: 0.9rem;
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .tag {
+        background-color: #e0e0e0;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        color: #333;
+
+        &:hover {
+          background-color: #d0d0d0;
+        }
+      }
+    }
+  }
+}
