@@ -1,0 +1,95 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { TextInput, PasswordInput, Button, Form, InlineNotification } from '@carbon/react';
+import { login } from '../services/api';
+import './Login.scss';
+
+/**
+ * Login Page Component
+ * Allows users to authenticate with their email and password.
+ */
+const Login = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  /**
+   * Handles the form submission.
+   * @param {Event} e - The form submission event.
+   */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await login({ email, password });
+      // Assuming the response contains the token and user info
+      const { token, id, displayName } = response.data;
+      
+      // Store token and user info in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', id);
+      localStorage.setItem('displayName', displayName);
+
+      // Redirect to home page
+      navigate('/');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(t('login.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-page">
+      <div className="login-form-container">
+        <h2>{t('login.title')}</h2>
+        {error && (
+          <InlineNotification
+            kind="error"
+            title="Error"
+            subtitle={error}
+            lowContrast
+            hideCloseButton
+          />
+        )}
+        <Form onSubmit={handleSubmit}>
+          <TextInput
+            id="email"
+            labelText={t('login.email')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="user@example.com"
+            required
+          />
+          <PasswordInput
+            id="password"
+            labelText={t('login.password')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+            isSelected={loading}
+          >
+            {loading ? 'Logging in...' : t('login.submit')}
+          </Button>
+        </Form>
+        <Link to="/register" className="register-link">
+          {t('login.register_link')}
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

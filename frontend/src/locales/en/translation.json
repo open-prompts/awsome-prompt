@@ -1,4 +1,22 @@
 {
   "welcome": "Welcome to Awsome Prompt Manager",
-  "hello_carbon": "Hello Carbon"
+  "hello_carbon": "Hello Carbon",
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Login",
+    "register_link": "Don't have an account? Register here.",
+    "error": "Login failed. Please check your credentials."
+  },
+  "register": {
+    "title": "Register",
+    "id": "User ID",
+    "email": "Email",
+    "password": "Password",
+    "display_name": "Display Name",
+    "submit": "Register",
+    "login_link": "Already have an account? Login here.",
+    "error": "Registration failed. Please try again."
+  }
 }

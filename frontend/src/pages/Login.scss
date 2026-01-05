@@ -1,0 +1,41 @@
+@use '@carbon/react/scss/type';
+@use '@carbon/react/scss/spacing';
+@use '@carbon/react/scss/theme';
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: theme.$layer-01;
+
+  .login-form-container {
+    width: 100%;
+    max-width: 400px;
+    padding: spacing.$spacing-05;
+    background-color: theme.$layer-02;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    h2 {
+      @include type.type-style('heading-03');
+      margin-bottom: spacing.$spacing-05;
+      text-align: center;
+    }
+
+    .cds--form-item {
+      margin-bottom: spacing.$spacing-05;
+    }
+
+    .login-button {
+      width: 100%;
+      margin-top: spacing.$spacing-05;
+    }
+
+    .register-link {
+      display: block;
+      margin-top: spacing.$spacing-05;
+      text-align: center;
+      @include type.type-style('body-01');
+    }
+  }
+}

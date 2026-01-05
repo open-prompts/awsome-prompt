@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Header.scss';
 
 /**
@@ -7,6 +7,7 @@ import './Header.scss';
  * Displays the logo, navigation links, and user authentication status.
  */
 const Header = () => {
+  const navigate = useNavigate();
   // Placeholder for user authentication state
   // In a real app, this would come from a context or redux store
   const user = null; // const user = { name: 'John Doe', avatar: '...' };
@@ -30,8 +31,8 @@ const Header = () => {
           </div>
         ) : (
           <div className="auth-buttons">
-            <button className="btn-login">Login</button>
-            <button className="btn-register">Register</button>
+            <button className="btn-login" onClick={() => navigate('/login')}>Login</button>
+            <button className="btn-register" onClick={() => navigate('/register')}>Register</button>
           </div>
         )}
       </div>

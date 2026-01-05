@@ -1,4 +1,22 @@
 {
   "welcome": "欢迎来到 Awsome Prompt 管理器",
-  "hello_carbon": "你好 Carbon"
+  "hello_carbon": "你好 Carbon",
+  "login": {
+    "title": "登录",
+    "email": "邮箱",
+    "password": "密码",
+    "submit": "登录",
+    "register_link": "没有账号？点击注册",
+    "error": "登录失败，请检查您的凭证。"
+  },
+  "register": {
+    "title": "注册",
+    "id": "用户ID",
+    "email": "邮箱",
+    "password": "密码",
+    "display_name": "显示名称",
+    "submit": "注册",
+    "login_link": "已有账号？点击登录",
+    "error": "注册失败，请重试。"
+  }
 }
