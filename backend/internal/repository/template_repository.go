@@ -13,6 +13,10 @@ import (
 // TemplateRepository defines the interface for template data access.
 type TemplateRepository interface {
 	List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Template, error)
+	Create(ctx context.Context, template *models.Template) error
+	Update(ctx context.Context, template *models.Template) error
+	Delete(ctx context.Context, id string) error
+	Get(ctx context.Context, id string) (*models.Template, error)
 }
 
 // templateRepository implements TemplateRepository.
@@ -23,6 +27,71 @@ type templateRepository struct {
 // NewTemplateRepository creates a new instance of TemplateRepository.
 func NewTemplateRepository(db *sql.DB) TemplateRepository {
 	return &templateRepository{db: db}
+}
+
+// Create inserts a new template into the database.
+func (r *templateRepository) Create(ctx context.Context, t *models.Template) error {
+	query := `
+		INSERT INTO templates (
+			owner_id, title, description, visibility, type, tags, category, created_at, updated_at
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8, $9
+		) RETURNING id
+	`
+	err := r.db.QueryRowContext(ctx, query,
+		t.OwnerID, t.Title, t.Description, t.Visibility, t.Type, pq.Array(t.Tags), t.Category, t.CreatedAt, t.UpdatedAt,
+	).Scan(&t.ID)
+	if err != nil {
+		return fmt.Errorf("failed to create template: %w", err)
+	}
+	return nil
+}
+
+// Update updates an existing template in the database.
+func (r *templateRepository) Update(ctx context.Context, t *models.Template) error {
+	query := `
+		UPDATE templates
+		SET title = $1, description = $2, visibility = $3, tags = $4, category = $5, updated_at = $6
+		WHERE id = $7
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		t.Title, t.Description, t.Visibility, pq.Array(t.Tags), t.Category, t.UpdatedAt, t.ID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update template: %w", err)
+	}
+	return nil
+}
+
+// Delete removes a template from the database.
+func (r *templateRepository) Delete(ctx context.Context, id string) error {
+	query := `DELETE FROM templates WHERE id = $1`
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete template: %w", err)
+	}
+	return nil
+}
+
+// Get retrieves a template by ID.
+func (r *templateRepository) Get(ctx context.Context, id string) (*models.Template, error) {
+	query := `
+		SELECT id, owner_id, title, description, visibility, type, tags, category, liked_by, favorited_by, created_at, updated_at
+		FROM templates
+		WHERE id = $1
+	`
+	var t models.Template
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&t.ID, &t.OwnerID, &t.Title, &t.Description, &t.Visibility, &t.Type,
+		&t.Tags, &t.Category, &t.LikedBy, &t.FavoritedBy, &t.CreatedAt, &t.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("template not found")
+		}
+		return nil, fmt.Errorf("failed to get template: %w", err)
+	}
+	return &t, nil
 }
 
 // List retrieves a list of templates based on filters and pagination.
@@ -66,7 +135,9 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 	if err != nil {
 		return nil, fmt.Errorf("failed to query templates: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	var templates []*models.Template
 	for rows.Next() {

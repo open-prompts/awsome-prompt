@@ -6,6 +6,18 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "awsome-prompt/backend/api/proto/v1;v1";
 
+// UserService defines the RPC methods for user management.
+service UserService {
+  // Register creates a new user account.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Login authenticates a user and returns a token.
+  rpc Login(LoginRequest) returns (LoginResponse);
+
+  // LoginWithOAuth authenticates a user via an OAuth provider.
+  rpc LoginWithOAuth(LoginWithOAuthRequest) returns (LoginResponse);
+}
+
 // PromptService defines the RPC methods for managing templates and prompts.
 service PromptService {
   // Template RPCs
@@ -225,4 +237,38 @@ message ListPromptsRequest {
 message ListPromptsResponse {
   repeated Prompt prompts = 1;
   string next_page_token = 2;
+}
+
+// RegisterRequest is the request message for Register.
+message RegisterRequest {
+  string id = 1;
+  string email = 2;
+  string mobile = 3;
+  string password = 4;
+  string display_name = 5;
+}
+
+// RegisterResponse is the response message for Register.
+message RegisterResponse {
+  string id = 1;
+  string token = 2; // JWT token
+}
+
+// LoginRequest is the request message for Login.
+message LoginRequest {
+  string email = 1; // Or mobile/id
+  string password = 2;
+}
+
+// LoginResponse is the response message for Login.
+message LoginResponse {
+  string id = 1;
+  string token = 2;
+  string display_name = 3;
+}
+
+// LoginWithOAuthRequest is the request message for LoginWithOAuth.
+message LoginWithOAuthRequest {
+  string provider = 1;
+  string code = 2;
 }

@@ -26,6 +26,7 @@ services:
 
   backend:
     build: ../backend
+    restart: on-failure
     ports:
       - "50051:50051"
       - "8080:8080"

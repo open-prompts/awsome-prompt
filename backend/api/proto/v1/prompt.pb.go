@@ -1408,6 +1408,303 @@ func (x *ListPromptsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// RegisterRequest is the request message for Register.
+type RegisterRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Mobile        string                 `protobuf:"bytes,3,opt,name=mobile,proto3" json:"mobile,omitempty"`
+	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	DisplayName   string                 `protobuf:"bytes,5,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterRequest) Reset() {
+	*x = RegisterRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterRequest) ProtoMessage() {}
+
+func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
+func (*RegisterRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *RegisterRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetMobile() string {
+	if x != nil {
+		return x.Mobile
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+// RegisterResponse is the response message for Register.
+type RegisterResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"` // JWT token
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterResponse) Reset() {
+	*x = RegisterResponse{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterResponse) ProtoMessage() {}
+
+func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
+func (*RegisterResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *RegisterResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RegisterResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+// LoginRequest is the request message for Login.
+type LoginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"` // Or mobile/id
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginRequest) Reset() {
+	*x = LoginRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginRequest) ProtoMessage() {}
+
+func (x *LoginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
+func (*LoginRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *LoginRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+// LoginResponse is the response message for Login.
+type LoginResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
+	DisplayName   string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginResponse) Reset() {
+	*x = LoginResponse{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginResponse) ProtoMessage() {}
+
+func (x *LoginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
+func (*LoginResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *LoginResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LoginResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *LoginResponse) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+// LoginWithOAuthRequest is the request message for LoginWithOAuth.
+type LoginWithOAuthRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginWithOAuthRequest) Reset() {
+	*x = LoginWithOAuthRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginWithOAuthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginWithOAuthRequest) ProtoMessage() {}
+
+func (x *LoginWithOAuthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginWithOAuthRequest.ProtoReflect.Descriptor instead.
+func (*LoginWithOAuthRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *LoginWithOAuthRequest) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+func (x *LoginWithOAuthRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
 var File_api_proto_v1_prompt_proto protoreflect.FileDescriptor
 
 const file_api_proto_v1_prompt_proto_rawDesc = "" +
@@ -1525,7 +1822,26 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x13ListPromptsResponse\x12$\n" +
 	"\aprompts\x18\x01 \x03(\v2\n" +
 	".v1.PromptR\aprompts\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*W\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x8e\x01\n" +
+	"\x0fRegisterRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x16\n" +
+	"\x06mobile\x18\x03 \x01(\tR\x06mobile\x12\x1a\n" +
+	"\bpassword\x18\x04 \x01(\tR\bpassword\x12!\n" +
+	"\fdisplay_name\x18\x05 \x01(\tR\vdisplayName\"8\n" +
+	"\x10RegisterResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05token\x18\x02 \x01(\tR\x05token\"@\n" +
+	"\fLoginRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"X\n" +
+	"\rLoginResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05token\x18\x02 \x01(\tR\x05token\x12!\n" +
+	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\"G\n" +
+	"\x15LoginWithOAuthRequest\x12\x1a\n" +
+	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code*W\n" +
 	"\n" +
 	"Visibility\x12\x1a\n" +
 	"\x16VISIBILITY_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -1534,7 +1850,11 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\fTemplateType\x12\x1d\n" +
 	"\x19TEMPLATE_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14TEMPLATE_TYPE_SYSTEM\x10\x01\x12\x16\n" +
-	"\x12TEMPLATE_TYPE_USER\x10\x022\xad\x04\n" +
+	"\x12TEMPLATE_TYPE_USER\x10\x022\xb2\x01\n" +
+	"\vUserService\x125\n" +
+	"\bRegister\x12\x13.v1.RegisterRequest\x1a\x14.v1.RegisterResponse\x12,\n" +
+	"\x05Login\x12\x10.v1.LoginRequest\x1a\x11.v1.LoginResponse\x12>\n" +
+	"\x0eLoginWithOAuth\x12\x19.v1.LoginWithOAuthRequest\x1a\x11.v1.LoginResponse2\xad\x04\n" +
 	"\rPromptService\x12G\n" +
 	"\x0eCreateTemplate\x12\x19.v1.CreateTemplateRequest\x1a\x1a.v1.CreateTemplateResponse\x12G\n" +
 	"\x0eUpdateTemplate\x12\x19.v1.UpdateTemplateRequest\x1a\x1a.v1.UpdateTemplateResponse\x12>\n" +
@@ -1558,7 +1878,7 @@ func file_api_proto_v1_prompt_proto_rawDescGZIP() []byte {
 }
 
 var file_api_proto_v1_prompt_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_proto_v1_prompt_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_api_proto_v1_prompt_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_api_proto_v1_prompt_proto_goTypes = []any{
 	(Visibility)(0),                // 0: v1.Visibility
 	(TemplateType)(0),              // 1: v1.TemplateType
@@ -1581,15 +1901,20 @@ var file_api_proto_v1_prompt_proto_goTypes = []any{
 	(*GetPromptResponse)(nil),      // 18: v1.GetPromptResponse
 	(*ListPromptsRequest)(nil),     // 19: v1.ListPromptsRequest
 	(*ListPromptsResponse)(nil),    // 20: v1.ListPromptsResponse
-	(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
+	(*RegisterRequest)(nil),        // 21: v1.RegisterRequest
+	(*RegisterResponse)(nil),       // 22: v1.RegisterResponse
+	(*LoginRequest)(nil),           // 23: v1.LoginRequest
+	(*LoginResponse)(nil),          // 24: v1.LoginResponse
+	(*LoginWithOAuthRequest)(nil),  // 25: v1.LoginWithOAuthRequest
+	(*timestamppb.Timestamp)(nil),  // 26: google.protobuf.Timestamp
 }
 var file_api_proto_v1_prompt_proto_depIdxs = []int32{
 	0,  // 0: v1.Template.visibility:type_name -> v1.Visibility
 	1,  // 1: v1.Template.type:type_name -> v1.TemplateType
-	21, // 2: v1.Template.created_at:type_name -> google.protobuf.Timestamp
-	21, // 3: v1.Template.updated_at:type_name -> google.protobuf.Timestamp
-	21, // 4: v1.TemplateVersion.created_at:type_name -> google.protobuf.Timestamp
-	21, // 5: v1.Prompt.created_at:type_name -> google.protobuf.Timestamp
+	26, // 2: v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	26, // 3: v1.Template.updated_at:type_name -> google.protobuf.Timestamp
+	26, // 4: v1.TemplateVersion.created_at:type_name -> google.protobuf.Timestamp
+	26, // 5: v1.Prompt.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 6: v1.CreateTemplateRequest.visibility:type_name -> v1.Visibility
 	1,  // 7: v1.CreateTemplateRequest.type:type_name -> v1.TemplateType
 	2,  // 8: v1.CreateTemplateResponse.template:type_name -> v1.Template
@@ -1604,24 +1929,30 @@ var file_api_proto_v1_prompt_proto_depIdxs = []int32{
 	4,  // 17: v1.CreatePromptResponse.prompt:type_name -> v1.Prompt
 	4,  // 18: v1.GetPromptResponse.prompt:type_name -> v1.Prompt
 	4,  // 19: v1.ListPromptsResponse.prompts:type_name -> v1.Prompt
-	5,  // 20: v1.PromptService.CreateTemplate:input_type -> v1.CreateTemplateRequest
-	7,  // 21: v1.PromptService.UpdateTemplate:input_type -> v1.UpdateTemplateRequest
-	9,  // 22: v1.PromptService.GetTemplate:input_type -> v1.GetTemplateRequest
-	11, // 23: v1.PromptService.ListTemplates:input_type -> v1.ListTemplatesRequest
-	13, // 24: v1.PromptService.DeleteTemplate:input_type -> v1.DeleteTemplateRequest
-	15, // 25: v1.PromptService.CreatePrompt:input_type -> v1.CreatePromptRequest
-	17, // 26: v1.PromptService.GetPrompt:input_type -> v1.GetPromptRequest
-	19, // 27: v1.PromptService.ListPrompts:input_type -> v1.ListPromptsRequest
-	6,  // 28: v1.PromptService.CreateTemplate:output_type -> v1.CreateTemplateResponse
-	8,  // 29: v1.PromptService.UpdateTemplate:output_type -> v1.UpdateTemplateResponse
-	10, // 30: v1.PromptService.GetTemplate:output_type -> v1.GetTemplateResponse
-	12, // 31: v1.PromptService.ListTemplates:output_type -> v1.ListTemplatesResponse
-	14, // 32: v1.PromptService.DeleteTemplate:output_type -> v1.DeleteTemplateResponse
-	16, // 33: v1.PromptService.CreatePrompt:output_type -> v1.CreatePromptResponse
-	18, // 34: v1.PromptService.GetPrompt:output_type -> v1.GetPromptResponse
-	20, // 35: v1.PromptService.ListPrompts:output_type -> v1.ListPromptsResponse
-	28, // [28:36] is the sub-list for method output_type
-	20, // [20:28] is the sub-list for method input_type
+	21, // 20: v1.UserService.Register:input_type -> v1.RegisterRequest
+	23, // 21: v1.UserService.Login:input_type -> v1.LoginRequest
+	25, // 22: v1.UserService.LoginWithOAuth:input_type -> v1.LoginWithOAuthRequest
+	5,  // 23: v1.PromptService.CreateTemplate:input_type -> v1.CreateTemplateRequest
+	7,  // 24: v1.PromptService.UpdateTemplate:input_type -> v1.UpdateTemplateRequest
+	9,  // 25: v1.PromptService.GetTemplate:input_type -> v1.GetTemplateRequest
+	11, // 26: v1.PromptService.ListTemplates:input_type -> v1.ListTemplatesRequest
+	13, // 27: v1.PromptService.DeleteTemplate:input_type -> v1.DeleteTemplateRequest
+	15, // 28: v1.PromptService.CreatePrompt:input_type -> v1.CreatePromptRequest
+	17, // 29: v1.PromptService.GetPrompt:input_type -> v1.GetPromptRequest
+	19, // 30: v1.PromptService.ListPrompts:input_type -> v1.ListPromptsRequest
+	22, // 31: v1.UserService.Register:output_type -> v1.RegisterResponse
+	24, // 32: v1.UserService.Login:output_type -> v1.LoginResponse
+	24, // 33: v1.UserService.LoginWithOAuth:output_type -> v1.LoginResponse
+	6,  // 34: v1.PromptService.CreateTemplate:output_type -> v1.CreateTemplateResponse
+	8,  // 35: v1.PromptService.UpdateTemplate:output_type -> v1.UpdateTemplateResponse
+	10, // 36: v1.PromptService.GetTemplate:output_type -> v1.GetTemplateResponse
+	12, // 37: v1.PromptService.ListTemplates:output_type -> v1.ListTemplatesResponse
+	14, // 38: v1.PromptService.DeleteTemplate:output_type -> v1.DeleteTemplateResponse
+	16, // 39: v1.PromptService.CreatePrompt:output_type -> v1.CreatePromptResponse
+	18, // 40: v1.PromptService.GetPrompt:output_type -> v1.GetPromptResponse
+	20, // 41: v1.PromptService.ListPrompts:output_type -> v1.ListPromptsResponse
+	31, // [31:42] is the sub-list for method output_type
+	20, // [20:31] is the sub-list for method input_type
 	20, // [20:20] is the sub-list for extension type_name
 	20, // [20:20] is the sub-list for extension extendee
 	0,  // [0:20] is the sub-list for field type_name
@@ -1638,9 +1969,9 @@ func file_api_proto_v1_prompt_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_v1_prompt_proto_rawDesc), len(file_api_proto_v1_prompt_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   19,
+			NumMessages:   24,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_api_proto_v1_prompt_proto_goTypes,
 		DependencyIndexes: file_api_proto_v1_prompt_proto_depIdxs,

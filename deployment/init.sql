@@ -2,6 +2,45 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- -----------------------------------------------------------------------------
+-- Table: users
+-- Description: Stores user account information.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY CHECK (id ~ '^[a-zA-Z0-9_]+$'),
+    email TEXT UNIQUE NOT NULL,
+    mobile TEXT UNIQUE,
+    password_hash TEXT NOT NULL, -- For local auth
+    display_name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE users IS 'Stores user account information';
+COMMENT ON COLUMN users.id IS 'Unique user ID (alphanumeric + underscore)';
+COMMENT ON COLUMN users.email IS 'Unique email address';
+COMMENT ON COLUMN users.mobile IS 'Unique mobile number';
+COMMENT ON COLUMN users.password_hash IS 'Bcrypt hash of the password';
+COMMENT ON COLUMN users.display_name IS 'User display name';
+
+-- -----------------------------------------------------------------------------
+-- Table: user_identities
+-- Description: Stores OAuth identities for users (SSO).
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS user_identities (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL, -- google, github, wechat
+    provider_id TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (provider, provider_id)
+);
+
+COMMENT ON TABLE user_identities IS 'Stores OAuth identities for users';
+COMMENT ON COLUMN user_identities.user_id IS 'Reference to the user';
+COMMENT ON COLUMN user_identities.provider IS 'OAuth provider name (e.g., google, github)';
+COMMENT ON COLUMN user_identities.provider_id IS 'Unique ID from the provider';
+
+-- -----------------------------------------------------------------------------
 -- Table: templates
 -- Description: Stores the metadata for prompt templates.
 -- -----------------------------------------------------------------------------
