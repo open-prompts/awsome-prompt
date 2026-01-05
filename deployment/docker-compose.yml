@@ -44,5 +44,15 @@ services:
     depends_on:
       - backend
 
+  envoy:
+    image: envoyproxy/envoy:v1.25-latest
+    ports:
+      - "80:10000"
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    depends_on:
+      - backend
+      - frontend
+
 volumes:
   postgres_data:
