@@ -351,15 +351,15 @@ def test_stats():
 def main():
     # Start containers
     print("Starting containers...")
-    if not run_command("docker-compose -f deployment/docker-compose.yml up -d --build"):
+    if not run_command("docker compose -f deployment/docker-compose.yml up -d --build"):
         sys.exit(1)
 
     # Wait for backend
     print("Waiting for backend...")
     if not wait_for_service(BASE_URL): 
         print("Backend failed to start or is not reachable.")
-        run_command("docker-compose -f deployment/docker-compose.yml logs backend")
-        run_command("docker-compose -f deployment/docker-compose.yml down")
+        run_command("docker compose -f deployment/docker-compose.yml logs backend")
+        run_command("docker compose -f deployment/docker-compose.yml down")
         sys.exit(1)
 
     # Run tests
@@ -374,7 +374,7 @@ def main():
 
     # Cleanup
     print("Cleaning up...")
-    run_command("docker-compose -f deployment/docker-compose.yml down")
+    run_command("docker compose -f deployment/docker-compose.yml down")
 
     if success:
         print("All tests passed!")
