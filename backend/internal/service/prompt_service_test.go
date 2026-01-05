@@ -1,0 +1,43 @@
+package service
+package service
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}	}		t.Errorf("expected title 'Test Template', got '%s'", resp.Templates[0].Title)	if resp.Templates[0].Title != "Test Template" {	}		t.Fatalf("expected 1 template, got %d", len(resp.Templates))	if len(resp.Templates) != 1 {	}		t.Fatalf("expected no error, got %v", err)	if err != nil {	resp, err := svc.ListTemplates(context.Background(), req)	req := &pb.ListTemplatesRequest{PageSize: 10}	svc := NewPromptService(mockRepo)	}		},			}, nil				{ID: "1", Title: "Test Template"},			return []*models.Template{		ListFunc: func(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Template, error) {	mockRepo := &MockRepository{func TestListTemplates(t *testing.T) {}	return m.ListFunc(ctx, limit, offset, filters)func (m *MockRepository) List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Template, error) {}	ListFunc func(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Template, error)type MockRepository struct {)	"awsome-prompt/backend/internal/models"	pb "awsome-prompt/backend/api/proto/v1"	"testing"	"context"import (

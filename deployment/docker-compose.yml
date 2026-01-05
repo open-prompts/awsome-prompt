@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: redis:7-alpine
@@ -27,6 +28,9 @@ services:
     build: ../backend
     ports:
       - "50051:50051"
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/awsome_prompt?sslmode=disable
     depends_on:
       - postgres
       - redis
@@ -35,7 +39,7 @@ services:
   frontend:
     build: ../frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - backend
 

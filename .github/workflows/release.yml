@@ -34,7 +34,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "24.12.0"
 
       # Run semantic-release using the cycjimmy/semantic-release-action
       # This action simplifies running semantic-release in GitHub Actions

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Button } from '@carbon/react';
+import { Content } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
+import TemplateList from './components/TemplateList';
 
 function App() {
   const { t } = useTranslation();
@@ -9,8 +10,10 @@ function App() {
       <header className="App-header">
         <img src="/images/logo.jpg" className="App-logo" alt="logo" />
         <h1>{t('welcome')}</h1>
-        <Button>{t('hello_carbon')}</Button>
       </header>
+      <Content>
+        <TemplateList />
+      </Content>
     </div>
   );
 }
