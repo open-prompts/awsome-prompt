@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/open-prompts/awsome-prompt/compare/v1.1.0...v1.2.0) (2026-01-06)
+
+
+### Features
+
+* implemented login/register page ([751217b](https://github.com/open-prompts/awsome-prompt/commit/751217b1eb6c604e9fb0cfb90b72a7377a8eafa4))
+* implemented template creation page ([53882d8](https://github.com/open-prompts/awsome-prompt/commit/53882d8824fcb4ceaf59bc476b698f436c765294))
+
 # [1.1.0](https://github.com/open-prompts/awsome-prompt/compare/v1.0.0...v1.1.0) (2026-01-05)
 
 
