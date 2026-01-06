@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"go.uber.org/zap"
 
 	pb "awsome-prompt/backend/api/proto/v1"
 	"awsome-prompt/backend/internal/data"
@@ -22,6 +23,7 @@ import (
 )
 
 func writeError(w http.ResponseWriter, err error) {
+	zap.S().Errorf("Error handling request: %v", err)
 	st, ok := status.FromError(err)
 	if !ok {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -54,6 +56,11 @@ func writeError(w http.ResponseWriter, err error) {
 }
 
 func main() {
+	logger, _ := zap.NewProduction()
+	defer func() { _ = logger.Sync() }()
+	zap.ReplaceGlobals(logger)
+
+	zap.S().Info("Starting application...")
 	// Database connection
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
@@ -61,7 +68,7 @@ func main() {
 	}
 	pgConn, err := data.NewPostgresConnection(dsn)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		zap.S().Fatalf("failed to connect to database: %v", err)
 	}
 
 	// Repository and Service
@@ -83,14 +90,14 @@ func main() {
 	go func() {
 		lis, err := net.Listen("tcp", ":50051")
 		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
+			zap.S().Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
 		pb.RegisterPromptServiceServer(s, svc)
 		pb.RegisterUserServiceServer(s, userSvc)
-		log.Printf("gRPC server listening at %v", lis.Addr())
+		zap.S().Infof("gRPC server listening at %v", lis.Addr())
 		if err := s.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v", err)
+			zap.S().Fatalf("failed to serve: %v", err)
 		}
 	}()
 
@@ -175,9 +182,10 @@ func main() {
 			req.OwnerId = q.Get("owner_id")
 			req.Category = q.Get("category")
 			if v := q.Get("visibility"); v != "" {
-				if v == "VISIBILITY_PUBLIC" {
+				switch v {
+				case "VISIBILITY_PUBLIC":
 					req.Visibility = pb.Visibility_VISIBILITY_PUBLIC
-				} else if v == "VISIBILITY_PRIVATE" {
+				case "VISIBILITY_PRIVATE":
 					req.Visibility = pb.Visibility_VISIBILITY_PRIVATE
 				}
 			}
@@ -443,8 +451,8 @@ func main() {
 		}
 	})
 
-	log.Println("HTTP server listening at :8080")
+	zap.S().Info("HTTP server listening at :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("failed to serve http: %v", err)
+		zap.S().Fatalf("failed to serve http: %v", err)
 	}
 }

@@ -1,4 +1,4 @@
-.PHONY: ut fvt image-build lint
+.PHONY: ut fvt image-build lint check
 
 # Run Unit Tests
 ut:
@@ -16,3 +16,6 @@ image-build:
 # Run Linters
 lint:
 	golangci-lint run
+
+# Run All Checks
+check: lint ut fvt

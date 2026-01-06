@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"awsome-prompt/backend/internal/models"
 )
 
@@ -29,6 +31,7 @@ func NewPromptRepository(db *sql.DB) PromptRepository {
 
 // Create inserts a new prompt into the database.
 func (r *promptRepository) Create(ctx context.Context, prompt *models.Prompt) error {
+	zap.S().Infof("PromptRepository.Create: ownerID=%s templateID=%s", prompt.OwnerID, prompt.TemplateID)
 	query := `
 		INSERT INTO prompts (template_id, version_id, owner_id, variables)
 		VALUES ($1, $2, $3, $4)
@@ -55,6 +58,7 @@ func (r *promptRepository) Create(ctx context.Context, prompt *models.Prompt) er
 
 // Get retrieves a prompt by ID.
 func (r *promptRepository) Get(ctx context.Context, id string) (*models.Prompt, error) {
+	zap.S().Infof("PromptRepository.Get: id=%s", id)
 	query := `
 		SELECT id, template_id, version_id, owner_id, variables, created_at
 		FROM prompts
@@ -82,6 +86,7 @@ func (r *promptRepository) Get(ctx context.Context, id string) (*models.Prompt, 
 
 // List retrieves a list of prompts for a specific owner.
 func (r *promptRepository) List(ctx context.Context, limit, offset int, ownerID string) ([]*models.Prompt, error) {
+	zap.S().Infof("PromptRepository.List: ownerID=%s limit=%d offset=%d", ownerID, limit, offset)
 	query := `
 		SELECT id, template_id, version_id, owner_id, variables, created_at
 		FROM prompts
@@ -120,6 +125,7 @@ func (r *promptRepository) List(ctx context.Context, limit, offset int, ownerID 
 
 // Delete removes a prompt from the database.
 func (r *promptRepository) Delete(ctx context.Context, id string) error {
+	zap.S().Infof("PromptRepository.Delete: id=%s", id)
 	query := `DELETE FROM prompts WHERE id = $1`
 	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {

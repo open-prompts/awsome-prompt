@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"go.uber.org/zap"
+
 	pb "awsome-prompt/backend/api/proto/v1"
 	"awsome-prompt/backend/internal/models"
 	"awsome-prompt/backend/internal/repository"
@@ -39,6 +41,7 @@ func NewPromptService(
 // --- Template RPCs ---
 
 func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTemplateRequest) (*pb.CreateTemplateResponse, error) {
+	zap.S().Infof("PromptService.CreateTemplate: owner_id=%s title=%s", req.OwnerId, req.Title)
 	if req.OwnerId == "" {
 		return nil, status.Error(codes.InvalidArgument, "owner_id is required")
 	}
@@ -90,7 +93,9 @@ func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTempla
 	}, nil
 }
 
+// UpdateTemplate updates an existing template.
 func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTemplateRequest) (*pb.UpdateTemplateResponse, error) {
+	zap.S().Infof("PromptService.UpdateTemplate: template_id=%s", req.TemplateId)
 	// Get existing template
 	template, err := s.TemplateRepo.Get(ctx, req.TemplateId)
 	if err != nil {
@@ -140,7 +145,9 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 	}, nil
 }
 
+// GetTemplate retrieves a template by ID.
 func (s *PromptService) GetTemplate(ctx context.Context, req *pb.GetTemplateRequest) (*pb.GetTemplateResponse, error) {
+	zap.S().Infof("PromptService.GetTemplate: id=%s", req.Id)
 	template, err := s.TemplateRepo.Get(ctx, req.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "template not found")
@@ -154,7 +161,9 @@ func (s *PromptService) GetTemplate(ctx context.Context, req *pb.GetTemplateRequ
 	}, nil
 }
 
+// ListTemplates retrieves a list of templates.
 func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplatesRequest) (*pb.ListTemplatesResponse, error) {
+	zap.S().Infof("PromptService.ListTemplates: page_size=%d page_token=%s owner_id=%s", req.PageSize, req.PageToken, req.OwnerId)
 	limit := int(req.PageSize)
 	if limit <= 0 {
 		limit = 10
@@ -186,6 +195,7 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 }
 
 func (s *PromptService) DeleteTemplate(ctx context.Context, req *pb.DeleteTemplateRequest) (*pb.DeleteTemplateResponse, error) {
+	zap.S().Infof("PromptService.DeleteTemplate: id=%s owner_id=%s", req.Id, req.OwnerId)
 	template, err := s.TemplateRepo.Get(ctx, req.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "template not found")
@@ -203,6 +213,7 @@ func (s *PromptService) DeleteTemplate(ctx context.Context, req *pb.DeleteTempla
 }
 
 func (s *PromptService) ListCategories(ctx context.Context, req *pb.ListCategoriesRequest) (*pb.ListCategoriesResponse, error) {
+	zap.S().Info("PromptService.ListCategories")
 	stats, err := s.TemplateRepo.ListCategories(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list categories: %v", err)
@@ -220,6 +231,7 @@ func (s *PromptService) ListCategories(ctx context.Context, req *pb.ListCategori
 }
 
 func (s *PromptService) ListTags(ctx context.Context, req *pb.ListTagsRequest) (*pb.ListTagsResponse, error) {
+	zap.S().Info("PromptService.ListTags")
 	stats, err := s.TemplateRepo.ListTags(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list tags: %v", err)
@@ -239,6 +251,7 @@ func (s *PromptService) ListTags(ctx context.Context, req *pb.ListTagsRequest) (
 // --- Prompt RPCs ---
 
 func (s *PromptService) CreatePrompt(ctx context.Context, req *pb.CreatePromptRequest) (*pb.CreatePromptResponse, error) {
+	zap.S().Infof("PromptService.CreatePrompt: template_id=%s owner_id=%s", req.TemplateId, req.OwnerId)
 	if req.OwnerId == "" {
 		return nil, status.Error(codes.InvalidArgument, "owner_id is required")
 	}
@@ -265,6 +278,7 @@ func (s *PromptService) CreatePrompt(ctx context.Context, req *pb.CreatePromptRe
 }
 
 func (s *PromptService) GetPrompt(ctx context.Context, req *pb.GetPromptRequest) (*pb.GetPromptResponse, error) {
+	zap.S().Infof("PromptService.GetPrompt: id=%s", req.Id)
 	prompt, err := s.PromptRepo.Get(ctx, req.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "prompt not found")
@@ -273,6 +287,7 @@ func (s *PromptService) GetPrompt(ctx context.Context, req *pb.GetPromptRequest)
 }
 
 func (s *PromptService) ListPrompts(ctx context.Context, req *pb.ListPromptsRequest) (*pb.ListPromptsResponse, error) {
+	zap.S().Infof("PromptService.ListPrompts: owner_id=%s page_size=%d", req.OwnerId, req.PageSize)
 	limit := int(req.PageSize)
 	if limit <= 0 {
 		limit = 10
@@ -303,6 +318,7 @@ func (s *PromptService) ListPrompts(ctx context.Context, req *pb.ListPromptsRequ
 }
 
 func (s *PromptService) DeletePrompt(ctx context.Context, req *pb.DeletePromptRequest) (*pb.DeletePromptResponse, error) {
+	zap.S().Infof("PromptService.DeletePrompt: id=%s owner_id=%s", req.Id, req.OwnerId)
 	prompt, err := s.PromptRepo.Get(ctx, req.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "prompt not found")

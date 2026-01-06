@@ -6,6 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"go.uber.org/zap"
+
 	"awsome-prompt/backend/internal/models"
 )
 
@@ -28,6 +30,7 @@ func NewUserRepository(db *sql.DB) UserRepository {
 }
 
 func (r *userRepository) Insert(ctx context.Context, user *models.User) error {
+	zap.S().Infof("UserRepository.Insert: email=%s", user.Email)
 	query := `
 		INSERT INTO users (id, email, mobile, password_hash, display_name, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -47,6 +50,7 @@ func (r *userRepository) Insert(ctx context.Context, user *models.User) error {
 }
 
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
+	zap.S().Infof("UserRepository.GetByEmail: email=%s", email)
 	query := `
 		SELECT id, email, mobile, password_hash, display_name, created_at, updated_at
 		FROM users
@@ -74,6 +78,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.
 }
 
 func (r *userRepository) GetByID(ctx context.Context, id string) (*models.User, error) {
+	zap.S().Infof("UserRepository.GetByID: id=%s", id)
 	query := `
 		SELECT id, email, mobile, password_hash, display_name, created_at, updated_at
 		FROM users

@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"awsome-prompt/backend/internal/models"
 )
 
@@ -25,6 +27,7 @@ func NewTemplateVersionRepository(db *sql.DB) TemplateVersionRepository {
 
 // Create inserts a new template version into the database.
 func (r *templateVersionRepository) Create(ctx context.Context, v *models.TemplateVersion) error {
+	zap.S().Infof("TemplateVersionRepository.Create: templateID=%s version=%s", v.TemplateID, v.Version)
 	query := `
 		INSERT INTO template_versions (template_id, version, content, created_at)
 		VALUES ($1, $2, $3, $4)
@@ -42,6 +45,7 @@ func (r *templateVersionRepository) Create(ctx context.Context, v *models.Templa
 
 // GetLatest retrieves the latest version of a template.
 func (r *templateVersionRepository) GetLatest(ctx context.Context, templateID string) (*models.TemplateVersion, error) {
+	zap.S().Infof("TemplateVersionRepository.GetLatest: templateID=%s", templateID)
 	query := `
 		SELECT id, template_id, version, content, created_at
 		FROM template_versions

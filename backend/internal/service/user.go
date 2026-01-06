@@ -6,6 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"go.uber.org/zap"
+
 	pb "awsome-prompt/backend/api/proto/v1"
 	"awsome-prompt/backend/internal/models"
 	"awsome-prompt/backend/internal/repository"
@@ -34,6 +36,7 @@ func NewUserService(repo repository.UserRepository, jwtSecret string) *UserServi
 }
 
 func (s *UserService) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	zap.S().Infof("UserService.Register: email=%s id=%s", req.Email, req.Id)
 	// Validate input
 	if req.Id == "" || req.Email == "" || req.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "id, email, and password are required")
@@ -92,6 +95,7 @@ func (s *UserService) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 }
 
 func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+	zap.S().Infof("UserService.Login: email=%s", req.Email)
 	// Validate input
 	if req.Email == "" || req.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "email/identifier and password are required")

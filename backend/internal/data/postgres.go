@@ -3,7 +3,8 @@ package data
 import (
 	"database/sql"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	_ "github.com/lib/pq" // Import postgres driver
 )
@@ -16,6 +17,7 @@ type PostgresConnection struct {
 // NewPostgresConnection initializes a new Postgres connection.
 // It opens a connection to the database and pings it to verify connectivity.
 func NewPostgresConnection(dsn string) (*PostgresConnection, error) {
+	zap.S().Info("Connecting to Postgres...")
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database connection: %w", err)
@@ -25,6 +27,6 @@ func NewPostgresConnection(dsn string) (*PostgresConnection, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	log.Println("Successfully connected to the database")
+	zap.S().Info("Successfully connected to the database")
 	return &PostgresConnection{DB: db}, nil
 }
