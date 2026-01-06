@@ -16,7 +16,7 @@ import (
 type PromptRepository interface {
 	Create(ctx context.Context, prompt *models.Prompt) error
 	Get(ctx context.Context, id string) (*models.Prompt, error)
-	List(ctx context.Context, limit, offset int, ownerID string) ([]*models.Prompt, error)
+	List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Prompt, error)
 	Delete(ctx context.Context, id string) error
 }
 
@@ -84,17 +84,33 @@ func (r *promptRepository) Get(ctx context.Context, id string) (*models.Prompt, 
 	return &prompt, nil
 }
 
-// List retrieves a list of prompts for a specific owner.
-func (r *promptRepository) List(ctx context.Context, limit, offset int, ownerID string) ([]*models.Prompt, error) {
-	zap.S().Infof("PromptRepository.List: ownerID=%s limit=%d offset=%d", ownerID, limit, offset)
+// List retrieves a list of prompts based on filters.
+func (r *promptRepository) List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Prompt, error) {
+	zap.S().Infof("PromptRepository.List: filters=%v limit=%d offset=%d", filters, limit, offset)
 	query := `
 		SELECT id, template_id, version_id, owner_id, variables, created_at
 		FROM prompts
-		WHERE owner_id = $1
-		ORDER BY created_at DESC
-		LIMIT $2 OFFSET $3`
+		WHERE 1=1
+	`
+	var args []interface{}
+	argID := 1
 
-	rows, err := r.db.QueryContext(ctx, query, ownerID, limit, offset)
+	if val, ok := filters["owner_id"]; ok && val != "" {
+		query += fmt.Sprintf(" AND owner_id = $%d", argID)
+		args = append(args, val)
+		argID++
+	}
+
+	if val, ok := filters["template_id"]; ok && val != "" {
+		query += fmt.Sprintf(" AND template_id = $%d", argID)
+		args = append(args, val)
+		argID++
+	}
+
+	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", argID, argID+1)
+	args = append(args, limit, offset)
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}

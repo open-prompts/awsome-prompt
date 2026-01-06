@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './PromptCard.scss';
 
 /**
@@ -8,8 +9,10 @@ import './PromptCard.scss';
  * @param {Object} props.template - The template data
  */
 const PromptCard = ({ template }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="prompt-card">
+    <div className="prompt-card" onClick={() => navigate(`/template/${template.id}`)} style={{ cursor: 'pointer' }}>
       <div className="card-header">
         <h4 className="title">{template.title}</h4>
         <span className={`visibility ${template.visibility.toLowerCase()}`}>
@@ -17,6 +20,11 @@ const PromptCard = ({ template }) => {
         </span>
       </div>
       <p className="description">{template.description}</p>
+      {template.latest_version && (
+        <div className="content-preview">
+          <pre>{template.latest_version.content}</pre>
+        </div>
+      )}
       <div className="card-footer">
         <div className="tags">
           {template.tags && template.tags.map((tag) => (

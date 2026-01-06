@@ -29,10 +29,35 @@ def wait_for_service(url, timeout=60):
         time.sleep(1)
     return False
 
+
+def get_auth_token(user_id):
+    email = f"{user_id}@example.com"
+    password = "password123"
+    
+    # Try login first
+    resp = requests.post("http://localhost:8080/api/v1/login", json={
+        "email": email,
+        "password": password
+    })
+    
+    if resp.status_code == 200:
+        return resp.json().get("token")
+        
+    # Register if login failed
+    resp = requests.post("http://localhost:8080/api/v1/register", json={
+        "id": user_id,
+        "email": email,
+        "password": password,
+        "display_name": "Test User"
+    })
+    return resp.json().get("token")
+
 def test_lifecycle():
     print("--- Starting Lifecycle Test ---")
     
     owner_id = f"user_{int(time.time())}"
+    token = get_auth_token(owner_id)
+    headers = {"Authorization": f"Bearer {token}"}
 
     # 1. Create Template
     print("1. Creating Template...")
@@ -45,7 +70,7 @@ def test_lifecycle():
         "tags": ["test", "demo"],
         "category": "general"
     }
-    resp = requests.post(BASE_URL, json=create_payload)
+    resp = requests.post(BASE_URL, json=create_payload, headers=headers)
     if resp.status_code != 200:
         print(f"Create failed: {resp.status_code} - {resp.text}")
         return False
@@ -121,6 +146,7 @@ def test_lifecycle():
     
     print("--- Lifecycle Test Passed ---")
     return True
+
 
 def test_auth():
     print("--- Starting Auth Test ---")
@@ -217,6 +243,8 @@ def test_prompt_lifecycle():
     if resp.status_code != 200:
         print(f"Register failed: {resp.status_code} - {resp.text}")
         return False
+    token = resp.json().get("token")
+    headers = {"Authorization": f"Bearer {token}"}
     
     # 2. Create Template (User 1)
     tpl_payload = {
@@ -229,7 +257,7 @@ def test_prompt_lifecycle():
         "category": "test",
         "content": "Hello {{name}}"
     }
-    resp = requests.post("http://localhost:8080/api/v1/templates", json=tpl_payload)
+    resp = requests.post("http://localhost:8080/api/v1/templates", json=tpl_payload, headers=headers)
     if resp.status_code != 200:
         print(f"Create Template failed: {resp.status_code} - {resp.text}")
         return False
@@ -293,6 +321,8 @@ def test_stats():
     
     # Create a template with specific category and tags
     owner_id = f"stats_user_{int(time.time())}"
+    token = get_auth_token(owner_id)
+    headers = {"Authorization": f"Bearer {token}"}
     payload = {
         "owner_id": owner_id,
         "title": "Stats Template",
@@ -302,7 +332,7 @@ def test_stats():
         "tags": ["stats_tag_1", "stats_tag_2"],
         "category": "stats_cat"
     }
-    resp = requests.post(BASE_URL, json=payload)
+    resp = requests.post(BASE_URL, json=payload, headers=headers)
     if resp.status_code != 200:
         print(f"Create Template failed: {resp.status_code}")
         return False
@@ -351,6 +381,8 @@ def test_stats():
 def test_pagination():
     print("--- Starting Pagination Test ---")
     owner_id = f"user_page_{int(time.time())}"
+    token = get_auth_token(owner_id)
+    headers = {"Authorization": f"Bearer {token}"}
     
     # Create 3 templates
     for i in range(3):
@@ -363,7 +395,7 @@ def test_pagination():
             "tags": ["page_test"],
             "category": "page_cat"
         }
-        requests.post(BASE_URL, json=payload)
+        requests.post(BASE_URL, json=payload, headers=headers)
     
     # Request page 1 (size 2)
     params = {"page_size": 2, "owner_id": owner_id}
@@ -392,6 +424,114 @@ def test_pagination():
     return True
 
 
+def test_version_and_prompt():
+    print("--- Starting Version & Prompt Test ---")
+    owner_id = f"user_vp_{int(time.time())}"
+    token = get_auth_token(owner_id)
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    # 1. Create Template with Content
+    print("1. Creating Template with Content...")
+    create_payload = {
+        "owner_id": owner_id,
+        "title": "Versioned Template",
+        "description": "Testing versions",
+        "visibility": "VISIBILITY_PUBLIC",
+        "type": "TEMPLATE_TYPE_USER",
+        "content": "Hello $$"
+    }
+    resp = requests.post(BASE_URL, json=create_payload, headers=headers)
+    if resp.status_code != 200:
+        print(f"Create failed: {resp.status_code} - {resp.text}")
+        return False
+    
+    data = resp.json()
+    template_id = data.get("template", {}).get("id")
+    version_id_1 = data.get("version", {}).get("id")
+    print(f"Created Template ID: {template_id}, Version 1 ID: {version_id_1}")
+
+    # 2. Update Template (New Version)
+    print("2. Updating Content (Creating v2)...")
+    update_payload = {
+        "template_id": template_id,
+        "owner_id": owner_id,
+        "content": "Hello $$, how are you?"
+    }
+    resp = requests.put(f"{BASE_URL}/{template_id}", json=update_payload)
+    if resp.status_code != 200:
+        print(f"Update failed: {resp.status_code} - {resp.text}")
+        return False
+    
+    version_id_2 = resp.json().get("new_version", {}).get("id")
+    print(f"Created Version 2 ID: {version_id_2}")
+    
+    if version_id_2 == version_id_1:
+        print("Update did not create new version ID")
+        return False
+
+    # 3. List Versions
+    print("3. Listing Versions...")
+    resp = requests.get(f"{BASE_URL}/{template_id}/versions")
+    if resp.status_code != 200:
+        print(f"List Versions failed: {resp.status_code} - {resp.text}")
+        return False
+    
+    versions = resp.json().get("versions", [])
+    if len(versions) != 2:
+        print(f"Expected 2 versions, got {len(versions)}")
+        return False
+    print("Versions listed successfully.")
+
+    # 4. Create Prompt
+    print("4. Creating Prompt...")
+    PROMPT_URL = "http://localhost:8080/api/v1/prompts"
+    prompt_payload = {
+        "template_id": template_id,
+        "version_id": version_id_2,
+        "owner_id": owner_id,
+        "variables": ["World"]
+    }
+    resp = requests.post(PROMPT_URL, json=prompt_payload)
+    if resp.status_code != 200:
+        print(f"Create Prompt failed: {resp.status_code} - {resp.text}")
+        return False
+    prompt_id = resp.json().get("prompt", {}).get("id")
+    print(f"Created Prompt ID: {prompt_id}")
+
+    # 5. List Prompts (Filter by Template)
+    print("5. Listing Prompts for Template...")
+    resp = requests.get(f"{PROMPT_URL}?template_id={template_id}")
+    if resp.status_code != 200:
+        print(f"List Prompts failed: {resp.status_code} - {resp.text}")
+        return False
+    prompts = resp.json().get("prompts", [])
+    
+    # Needs to match what we just created.
+    # Note: Previous tests or runs might have created prompts for other templates, 
+    # but we are filtering by template_id.
+    found = False
+    for p in prompts:
+        if p["id"] == prompt_id:
+            found = True
+            break
+            
+    if not found:
+        print("Created prompt not found in list filtered by template_id")
+        return False
+    
+    print("Prompts listed successfully.")
+
+    # 6. Delete Prompt
+    print("6. Deleting Prompt...")
+    resp = requests.delete(f"{PROMPT_URL}/{prompt_id}?owner_id={owner_id}")
+    if resp.status_code != 200:
+        print(f"Delete Prompt failed: {resp.status_code} - {resp.text}")
+        return False
+    print("Prompt deleted successfully.")
+
+    print("--- Version & Prompt Test Passed ---")
+    return True
+
 def main():
     # Start containers
     print("Starting containers...")
@@ -413,6 +553,8 @@ def main():
         success = test_auth()
     if success:
         success = test_prompt_lifecycle()
+    if success:
+        success = test_version_and_prompt()
     if success:
         success = test_stats()
     if success:

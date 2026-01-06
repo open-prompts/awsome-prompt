@@ -191,7 +191,16 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 
 	var pbTemplates []*pb.Template
 	for _, t := range templates {
-		pbTemplates = append(pbTemplates, s.templateModelToProto(t))
+		pbT := s.templateModelToProto(t)
+
+		latest, err := s.TemplateVersionRepo.GetLatest(ctx, t.ID)
+		if err == nil {
+			pbT.LatestVersion = s.versionModelToProto(latest)
+		} else {
+			zap.S().Warnf("failed to get latest version for template %s: %v", t.ID, err)
+		}
+
+		pbTemplates = append(pbTemplates, pbT)
 	}
 
 	return &pb.ListTemplatesResponse{Templates: pbTemplates}, nil
@@ -290,7 +299,7 @@ func (s *PromptService) GetPrompt(ctx context.Context, req *pb.GetPromptRequest)
 }
 
 func (s *PromptService) ListPrompts(ctx context.Context, req *pb.ListPromptsRequest) (*pb.ListPromptsResponse, error) {
-	zap.S().Infof("PromptService.ListPrompts: owner_id=%s page_size=%d", req.OwnerId, req.PageSize)
+	zap.S().Infof("PromptService.ListPrompts: owner_id=%s template_id=%s page_size=%d", req.OwnerId, req.TemplateId, req.PageSize)
 	limit := int(req.PageSize)
 	if limit <= 0 {
 		limit = 10
@@ -302,7 +311,15 @@ func (s *PromptService) ListPrompts(ctx context.Context, req *pb.ListPromptsRequ
 		}
 	}
 
-	prompts, err := s.PromptRepo.List(ctx, limit, offset, req.OwnerId)
+	filters := make(map[string]interface{})
+	if req.OwnerId != "" {
+		filters["owner_id"] = req.OwnerId
+	}
+	if req.TemplateId != "" {
+		filters["template_id"] = req.TemplateId
+	}
+
+	prompts, err := s.PromptRepo.List(ctx, limit, offset, filters)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list prompts: %v", err)
 	}
@@ -318,6 +335,42 @@ func (s *PromptService) ListPrompts(ctx context.Context, req *pb.ListPromptsRequ
 	}
 
 	return &pb.ListPromptsResponse{Prompts: pbPrompts, NextPageToken: nextPageToken}, nil
+}
+
+// ListTemplateVersions lists all versions of a template.
+func (s *PromptService) ListTemplateVersions(ctx context.Context, req *pb.ListTemplateVersionsRequest) (*pb.ListTemplateVersionsResponse, error) {
+	zap.S().Infof("PromptService.ListTemplateVersions: template_id=%s page_size=%d", req.TemplateId, req.PageSize)
+	if req.TemplateId == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "template_id is required")
+	}
+
+	limit := int(req.PageSize)
+	if limit <= 0 {
+		limit = 10
+	}
+	offset := 0
+	if req.PageToken != "" {
+		if v, err := strconv.Atoi(req.PageToken); err == nil {
+			offset = v
+		}
+	}
+
+	versions, err := s.TemplateVersionRepo.List(ctx, limit, offset, req.TemplateId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list template versions: %v", err)
+	}
+
+	var pbVersions []*pb.TemplateVersion
+	for _, v := range versions {
+		pbVersions = append(pbVersions, s.versionModelToProto(v))
+	}
+
+	nextPageToken := ""
+	if len(versions) == limit {
+		nextPageToken = strconv.Itoa(offset + limit)
+	}
+
+	return &pb.ListTemplateVersionsResponse{Versions: pbVersions, NextPageToken: nextPageToken}, nil
 }
 
 func (s *PromptService) DeletePrompt(ctx context.Context, req *pb.DeletePromptRequest) (*pb.DeletePromptResponse, error) {

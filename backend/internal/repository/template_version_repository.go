@@ -14,6 +14,7 @@ import (
 type TemplateVersionRepository interface {
 	Create(ctx context.Context, version *models.TemplateVersion) error
 	GetLatest(ctx context.Context, templateID string) (*models.TemplateVersion, error)
+	List(ctx context.Context, limit, offset int, templateID string) ([]*models.TemplateVersion, error)
 }
 
 type templateVersionRepository struct {
@@ -61,4 +62,39 @@ func (r *templateVersionRepository) GetLatest(ctx context.Context, templateID st
 		return nil, fmt.Errorf("failed to get latest version: %w", err)
 	}
 	return &v, nil
+}
+
+// List retrieves all versions for a template.
+func (r *templateVersionRepository) List(ctx context.Context, limit, offset int, templateID string) ([]*models.TemplateVersion, error) {
+	zap.S().Infof("TemplateVersionRepository.List: templateID=%s limit=%d offset=%d", templateID, limit, offset)
+	query := `
+		SELECT id, template_id, version, content, created_at
+		FROM template_versions
+		WHERE template_id = $1
+		ORDER BY version DESC
+		LIMIT $2 OFFSET $3
+	`
+	rows, err := r.db.QueryContext(ctx, query, templateID, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list template versions: %w", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	var versions []*models.TemplateVersion
+	for rows.Next() {
+		var v models.TemplateVersion
+		if err := rows.Scan(
+			&v.ID, &v.TemplateID, &v.Version, &v.Content, &v.CreatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan template version: %w", err)
+		}
+		versions = append(versions, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %w", err)
+	}
+
+	return versions, nil
 }

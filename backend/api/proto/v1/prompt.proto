@@ -53,6 +53,9 @@ service PromptService {
 
   // ListTags lists all tags with their template counts.
   rpc ListTags(ListTagsRequest) returns (ListTagsResponse);
+
+  // ListTemplateVersions lists all versions of a template.
+  rpc ListTemplateVersions(ListTemplateVersionsRequest) returns (ListTemplateVersionsResponse);
 }
 
 // Visibility defines who can see the template.
@@ -95,6 +98,8 @@ message Template {
   google.protobuf.Timestamp created_at = 11;
   // Timestamp when the template was last updated.
   google.protobuf.Timestamp updated_at = 12;
+  // The latest version of the template.
+  TemplateVersion latest_version = 13;
 }
 
 // TemplateVersion represents a specific version of a template's content.
@@ -109,6 +114,19 @@ message TemplateVersion {
   string content = 4;
   // Timestamp when this version was created.
   google.protobuf.Timestamp created_at = 5;
+}
+
+// ListTemplateVersionsRequest is the request message for ListTemplateVersions.
+message ListTemplateVersionsRequest {
+  string template_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+// ListTemplateVersionsResponse is the response message for ListTemplateVersions.
+message ListTemplateVersionsResponse {
+  repeated TemplateVersion versions = 1;
+  string next_page_token = 2;
 }
 
 // Prompt represents an instantiated prompt saved by a user.
@@ -237,6 +255,8 @@ message ListPromptsRequest {
   int32 page_size = 1;
   string page_token = 2;
   string owner_id = 3;
+  // Filter by template_id.
+  string template_id = 4;
 }
 
 // ListPromptsResponse is the response message for ListPrompts.

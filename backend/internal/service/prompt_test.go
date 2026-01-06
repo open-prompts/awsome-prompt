@@ -31,8 +31,8 @@ func (m *MockPromptRepository) Get(ctx context.Context, id string) (*models.Prom
 	return args.Get(0).(*models.Prompt), args.Error(1)
 }
 
-func (m *MockPromptRepository) List(ctx context.Context, limit, offset int, ownerID string) ([]*models.Prompt, error) {
-	args := m.Called(ctx, limit, offset, ownerID)
+func (m *MockPromptRepository) List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Prompt, error) {
+	args := m.Called(ctx, limit, offset, filters)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -83,6 +83,13 @@ func (m *MockTemplateVersionRepository) Create(ctx context.Context, v *models.Te
 }
 func (m *MockTemplateVersionRepository) GetLatest(ctx context.Context, tid string) (*models.TemplateVersion, error) {
 	return nil, nil
+}
+func (m *MockTemplateVersionRepository) List(ctx context.Context, limit, offset int, templateID string) ([]*models.TemplateVersion, error) {
+	args := m.Called(ctx, limit, offset, templateID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.TemplateVersion), args.Error(1)
 }
 
 func TestCreatePrompt(t *testing.T) {

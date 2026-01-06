@@ -59,6 +59,35 @@ export const createTemplate = (templateData) => {
   return api.post('/templates', templateData);
 };
 
+export const getTemplate = (id) => {
+  return api.get(`/templates/${id}`);
+};
+
+export const updateTemplate = (id, templateData) => {
+  return api.put(`/templates/${id}`, templateData);
+};
+
+export const deleteTemplate = (id) => {
+  return api.delete(`/templates/${id}`);
+};
+
+export const listTemplateVersions = (templateId, params) => {
+  return api.get(`/templates/${templateId}/versions`, { params });
+};
+
+// API methods for Prompts
+export const createPrompt = (promptData) => {
+  return api.post('/prompts', promptData);
+};
+
+export const listPrompts = (params) => {
+  return api.get('/prompts', { params });
+};
+
+export const deletePrompt = (id) => {
+  return api.delete(`/prompts/${id}`);
+};
+
 // API methods for Auth (placeholder for now)
 export const login = (credentials) => {
   return api.post('/login', credentials);

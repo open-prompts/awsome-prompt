@@ -262,6 +262,33 @@ func main() {
 			return
 		}
 
+		if strings.HasSuffix(id, "/versions") {
+			if r.Method != http.MethodGet {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			templateID := strings.TrimSuffix(id, "/versions")
+			req := &pb.ListTemplateVersionsRequest{TemplateId: templateID}
+
+			q := r.URL.Query()
+			if v := q.Get("page_size"); v != "" {
+				if i, err := strconv.Atoi(v); err == nil {
+					req.PageSize = int32(i)
+				}
+			}
+			req.PageToken = q.Get("page_token")
+
+			resp, err := svc.ListTemplateVersions(context.Background(), req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+			return
+		}
+
 		switch r.Method {
 		case http.MethodGet:
 			req := &pb.GetTemplateRequest{Id: id}
@@ -393,8 +420,18 @@ func main() {
 
 		switch r.Method {
 		case http.MethodGet:
-			ownerID := r.URL.Query().Get("owner_id")
-			req := &pb.ListPromptsRequest{OwnerId: ownerID}
+			q := r.URL.Query()
+			req := &pb.ListPromptsRequest{
+				OwnerId:    q.Get("owner_id"),
+				TemplateId: q.Get("template_id"),
+			}
+			if v := q.Get("page_size"); v != "" {
+				if i, err := strconv.Atoi(v); err == nil {
+					req.PageSize = int32(i)
+				}
+			}
+			req.PageToken = q.Get("page_token")
+
 			resp, err := svc.ListPrompts(context.Background(), req)
 			if err != nil {
 				writeError(w, err)

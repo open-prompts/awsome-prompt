@@ -5,6 +5,7 @@ import { initializeAuth } from './store/authSlice';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import TemplateDetails from './pages/TemplateDetails';
 import './index.scss'; // Global styles
 
 /**
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/template/:id" element={<TemplateDetails />} />
         </Routes>
       </div>
     </Router>
