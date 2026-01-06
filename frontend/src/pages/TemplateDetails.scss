@@ -5,11 +5,28 @@
 
   .header-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: flex-start;
     margin-bottom: 24px;
+    gap: 20px;
+
+    .back-btn {
+        background: none;
+        border: none;
+        color: #0f62fe;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0;
+        margin-top: 8px; // Align with title
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 
     .title-section {
+      flex: 1;
+
       h2 {
         margin: 0 0 8px 0;
         font-size: 2rem;
@@ -207,16 +224,28 @@
                 margin-bottom: 8px;
             }
             
-            .delete-btn {
+            .prompt-actions {
+                display: flex;
+                gap: 12px;
                 font-size: 0.8rem;
-                color: #da1e28;
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 0;
-                
-                &:hover {
-                    text-decoration: underline;
+
+                button {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 0;
+                    
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+
+                .load-btn {
+                    color: #0f62fe;
+                }
+
+                .delete-btn {
+                    color: #da1e28;
                 }
             }
         }

@@ -12,7 +12,7 @@ const PromptCard = ({ template }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="prompt-card" onClick={() => navigate(`/template/${template.id}`)} style={{ cursor: 'pointer' }}>
+    <div className="prompt-card" onClick={() => navigate(`/templates/${template.id}`)} style={{ cursor: 'pointer' }}>
       <div className="card-header">
         <h4 className="title">{template.title}</h4>
         <span className={`visibility ${template.visibility.toLowerCase()}`}>

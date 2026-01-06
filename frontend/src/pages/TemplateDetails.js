@@ -178,13 +178,26 @@ const TemplateDetails = () => {
     });
   };
 
+  // Handle Load Prompt
+  const handleLoadPrompt = (prompt) => {
+      if (prompt.variables && prompt.variables.length > 0) {
+          // Note: If the version doesn't match the current selected version, variables mapping might be wrong.
+          // Ideally we should switch to the prompt's version too, but keeping it simple for now.
+          // Or at least warn if versions differ.
+          setVariableValues(prompt.variables);
+      }
+  };
+
   if (loading) return <Layout><div className="loading">Loading...</div></Layout>;
   if (!template) return <Layout><div className="not-found">Template not found.</div></Layout>;
 
   return (
-    <Layout>
+    <Layout showSidebar={false}>
       <div className="template-details-page">
         <div className="header-actions">
+          <button className="back-btn" onClick={() => navigate('/')}>
+            &larr; Back to Home
+          </button>
           <div className="title-section">
             <h2>{template.title}</h2>
             <div className="meta">
@@ -306,12 +319,20 @@ const TemplateDetails = () => {
                                     <div className="prompt-content">
                                         Variables: {p.variables ? p.variables.join(', ') : 'None'}
                                     </div>
-                                    <button 
-                                        className="delete-btn"
-                                        onClick={() => handleDeletePrompt(p.id)}
-                                    >
-                                        Delete
-                                    </button>
+                                    <div className="prompt-actions">
+                                        <button 
+                                            className="load-btn"
+                                            onClick={() => handleLoadPrompt(p)}
+                                        >
+                                            Load
+                                        </button>
+                                        <button 
+                                            className="delete-btn"
+                                            onClick={() => handleDeletePrompt(p.id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })

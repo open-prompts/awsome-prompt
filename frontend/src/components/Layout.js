@@ -13,8 +13,9 @@ import './Layout.scss';
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - The content to display
  * @param {Function} props.onFilterChange - Callback for sidebar filter changes
+ * @param {boolean} props.showSidebar - Whether to show the sidebar (default: true)
  */
-const Layout = ({ children, onFilterChange }) => {
+const Layout = ({ children, onFilterChange, showSidebar = true }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -35,7 +36,7 @@ const Layout = ({ children, onFilterChange }) => {
     <div className="app-layout">
       <Header />
       <div className="app-body">
-        <Sidebar onFilterChange={onFilterChange} />
+        {showSidebar && <Sidebar onFilterChange={onFilterChange} />}
         <main className="app-content">
           {children}
         </main>
