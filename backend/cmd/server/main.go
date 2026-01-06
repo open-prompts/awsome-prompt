@@ -86,13 +86,21 @@ func main() {
 	}
 	userSvc := service.NewUserService(userRepo, jwtSecret)
 
+	// Auth Interceptor
+	authInterceptor := service.NewAuthInterceptor(jwtSecret)
+
 	// gRPC Server
 	go func() {
 		lis, err := net.Listen("tcp", ":50051")
 		if err != nil {
 			zap.S().Fatalf("failed to listen: %v", err)
 		}
-		s := grpc.NewServer()
+
+		// Register Interceptor
+		s := grpc.NewServer(
+			grpc.UnaryInterceptor(authInterceptor.Unary()),
+		)
+
 		pb.RegisterPromptServiceServer(s, svc)
 		pb.RegisterUserServiceServer(s, userSvc)
 		zap.S().Infof("gRPC server listening at %v", lis.Addr())
@@ -163,7 +171,7 @@ func main() {
 		// Enable CORS
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		if r.Method == http.MethodOptions {
 			return
@@ -201,17 +209,30 @@ func main() {
 			_, _ = w.Write(b)
 
 		case http.MethodPost:
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Authorization header required", http.StatusUnauthorized)
+				return
+			}
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			userID, err := authInterceptor.VerifyToken(tokenStr)
+			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			ctx := service.ContextWithUserID(context.Background(), userID)
+
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				http.Error(w, "Failed to read body", http.StatusBadRequest)
 				return
 			}
-			var req pb.CreateTemplateRequest
+			var req pb.CreateTemplateRequest // Create Request
 			if err := unmarshaler.Unmarshal(body, &req); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			resp, err := svc.CreateTemplate(context.Background(), &req)
+			resp, err := svc.CreateTemplate(ctx, &req)
 			if err != nil {
 				writeError(w, err)
 				return

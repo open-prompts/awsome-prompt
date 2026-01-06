@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { TextInput, PasswordInput, Button, Form, InlineNotification } from '@carbon/react';
 import { login } from '../services/api';
+import { loginSuccess } from '../store/authSlice';
 import './Login.scss';
 
 /**
@@ -12,6 +14,7 @@ import './Login.scss';
 const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -31,10 +34,11 @@ const Login = () => {
       // Assuming the response contains the token and user info
       const { token, id, displayName } = response.data;
       
-      // Store token and user info in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', id);
-      localStorage.setItem('displayName', displayName);
+      // Dispatch login success action
+      dispatch(loginSuccess({ 
+        token, 
+        user: { id, displayName, email } 
+      }));
 
       // Redirect to home page
       navigate('/');

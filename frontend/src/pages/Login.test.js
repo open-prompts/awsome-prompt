@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../store/authSlice';
 import Login from './Login';
 import * as api from '../services/api';
 
@@ -21,13 +24,29 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockedNavigate,
 }));
 
+// Helper to render with Redux
+const renderWithRedux = (component) => {
+  const store = configureStore({
+    reducer: { auth: authReducer },
+  });
+  return {
+    ...render(
+      <Provider store={store}>
+        {component}
+      </Provider>
+    ),
+    store,
+  };
+};
+
 describe('Login Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
   test('renders login form', () => {
-    render(
+    renderWithRedux(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
@@ -48,7 +67,7 @@ describe('Login Component', () => {
       },
     });
 
-    render(
+    renderWithRedux(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
@@ -68,15 +87,16 @@ describe('Login Component', () => {
         email: 'test@example.com',
         password: 'password123',
       });
-      expect(localStorage.getItem('token')).toBe('fake-token');
-      expect(mockedNavigate).toHaveBeenCalledWith('/');
     });
+    
+    expect(localStorage.getItem('token')).toBe('fake-token');
+    expect(mockedNavigate).toHaveBeenCalledWith('/');
   });
 
   test('handles login failure', async () => {
     api.login.mockRejectedValue(new Error('Login failed'));
 
-    render(
+    renderWithRedux(
       <BrowserRouter>
         <Login />
       </BrowserRouter>

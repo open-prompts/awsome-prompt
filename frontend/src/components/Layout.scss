@@ -13,6 +13,37 @@
       padding: 20px;
       overflow-y: auto;
       background-color: #ffffff;
+      position: relative; // Ensure positioning context for children if needed
+    }
+  }
+
+  /* Floating Create Button */
+  .floating-create-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #0f62fe; // Carbon Blue 60
+    color: white;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    z-index: 9999; // Ensure it's above other content
+    transition: transform 0.2s, background-color 0.2s;
+
+    &:hover {
+      background-color: #0353e9; // Carbon Blue 70
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 }

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { TextInput, PasswordInput, Button, Form, InlineNotification } from '@carbon/react';
 import { register } from '../services/api';
+import { loginSuccess } from '../store/authSlice';
 import './Register.scss';
 
 /**
@@ -12,6 +14,7 @@ import './Register.scss';
 const Register = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     id: '',
     email: '',
@@ -47,11 +50,12 @@ const Register = () => {
       // Assuming the response contains the token and user info
       const { token, id } = response.data;
 
-      // Store token and user info in localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', id);
-      // Note: Register response might not return displayName, so we might need to fetch it or just use what we have
-      localStorage.setItem('displayName', formData.displayName);
+      // Dispatch login success action
+      // Note: Register response might not return displayName, rely on form data
+      dispatch(loginSuccess({
+        token,
+        user: { id, email: formData.email, displayName: formData.displayName }
+      }));
 
       // Redirect to home page
       navigate('/');

@@ -41,10 +41,13 @@ func NewPromptService(
 // --- Template RPCs ---
 
 func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTemplateRequest) (*pb.CreateTemplateResponse, error) {
-	zap.S().Infof("PromptService.CreateTemplate: owner_id=%s title=%s", req.OwnerId, req.Title)
-	if req.OwnerId == "" {
-		return nil, status.Error(codes.InvalidArgument, "owner_id is required")
+	// Retrieve User ID from context (injected by AuthInterceptor)
+	userID, err := GetUserIDFromContext(ctx)
+	if err != nil {
+		return nil, err
 	}
+
+	zap.S().Infof("PromptService.CreateTemplate: user_id=%s title=%s", userID, req.Title)
 
 	// Map Visibility
 	visibility := "private"
@@ -59,7 +62,7 @@ func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTempla
 	}
 
 	template := &models.Template{
-		OwnerID:     req.OwnerId,
+		OwnerID:     userID, // Use the authenticated user ID
 		Title:       req.Title,
 		Description: sql.NullString{String: req.Description, Valid: req.Description != ""},
 		Visibility:  visibility,
