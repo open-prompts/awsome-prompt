@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/open-prompts/awsome-prompt/compare/v1.2.0...v1.3.0) (2026-01-06)
+
+
+### Features
+
+* implemented template detail page ([0935a35](https://github.com/open-prompts/awsome-prompt/commit/0935a35a57aa9184ca779b2a65004717c6648a1d))
+
 # [1.2.0](https://github.com/open-prompts/awsome-prompt/compare/v1.1.0...v1.2.0) (2026-01-06)
 
 
