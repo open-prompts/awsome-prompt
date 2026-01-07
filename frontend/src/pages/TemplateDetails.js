@@ -30,6 +30,17 @@ const TemplateDetails = () => {
   // Generator state
   const [variableValues, setVariableValues] = useState([]);
   const [generationResult, setGenerationResult] = useState('');
+
+  // Notifications
+  const [notifications, setNotifications] = useState([]);
+
+  const showNotification = useCallback((message, type = 'info') => {
+    const id = Date.now() + Math.random();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 3000);
+  }, []);
   
   // Initial Data Fetch
   useEffect(() => {
@@ -98,10 +109,10 @@ const TemplateDetails = () => {
       setVersions([newVersion, ...versions]);
       setSelectedVersionId(newVersion.id);
       setIsEditing(false);
-      alert('Template updated and new version created!');
+      showNotification('Template updated and new version created!', 'success');
     } catch (error) {
       console.error("Failed to update template", error);
-      alert('Failed to update template.');
+      showNotification('Failed to update template.', 'error');
     }
   };
 
@@ -141,7 +152,7 @@ const TemplateDetails = () => {
   // Handle Create Prompt
   const handleCreatePrompt = async () => {
     if (!user) {
-        alert("Please login to save prompts.");
+        showNotification("Please login to save prompts.", "error");
         return;
     }
     try {
@@ -153,10 +164,10 @@ const TemplateDetails = () => {
       };
       const res = await createPrompt(promptData);
       setPrompts([res.data.prompt, ...prompts]);
-      alert("Prompt saved successfully!");
+      showNotification("Prompt saved successfully!", "success");
     } catch (error) {
       console.error("Failed to create prompt", error);
-      alert("Failed to create prompt.");
+      showNotification("Failed to create prompt.", "error");
     }
   };
 
@@ -174,7 +185,7 @@ const TemplateDetails = () => {
   // Copy to Clipboard
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedContent).then(() => {
-        alert("Copied to clipboard!");
+        showNotification("Copied to clipboard!", "success");
     });
   };
 
@@ -193,6 +204,13 @@ const TemplateDetails = () => {
 
   return (
     <Layout showSidebar={false}>
+      <div className="notification-container">
+        {notifications.map(n => (
+          <div key={n.id} className={`notification-toast ${n.type}`}>
+            {n.message}
+          </div>
+        ))}
+      </div>
       <div className="template-details-page">
         <div className="header-actions">
           <button className="back-btn" onClick={() => navigate('/')}>

@@ -133,7 +133,12 @@ func main() {
 			return
 		}
 
-		resp, err := svc.ListCategories(context.Background(), &pb.ListCategoriesRequest{})
+		req := &pb.ListCategoriesRequest{}
+		if v := r.URL.Query().Get("owner_id"); v != "" {
+			req.OwnerId = v
+		}
+
+		resp, err := svc.ListCategories(context.Background(), req)
 		if err != nil {
 			writeError(w, err)
 			return

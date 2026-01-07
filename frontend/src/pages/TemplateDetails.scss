@@ -287,3 +287,53 @@
     }
   }
 }
+
+.notification-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.notification-toast {
+  padding: 12px 24px;
+  border-radius: 4px;
+  color: #ffffff;
+  font-weight: 500;
+  min-width: 280px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transform-origin: top right;
+  animation: toastSlideIn 0.3s cubic-bezier(0.2, 0, 0.38, 0.9);
+  pointer-events: auto;
+
+  &.success {
+    background-color: #24a148;
+    border-left: 6px solid #198038;
+  }
+  
+  &.error {
+    background-color: #da1e28;
+    border-left: 6px solid #a2191f;
+  }
+  
+  &.info {
+    background-color: #0f62fe;
+    border-left: 6px solid #0043ce;
+  }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+

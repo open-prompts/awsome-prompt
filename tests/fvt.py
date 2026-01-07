@@ -356,6 +356,44 @@ def test_stats():
         print("Created category not found in stats")
         return False
 
+    # Test Private Categories (Fix verification)
+    print("Testing Private Categories...")
+    private_cat = f"priv_cat_{int(time.time())}"
+    payload_private = {
+        "owner_id": owner_id,
+        "title": "Private Stats Template",
+        "description": "Desc",
+        "visibility": "VISIBILITY_PRIVATE",
+        "type": "TEMPLATE_TYPE_USER",
+        "tags": ["private_tag"],
+        "category": private_cat
+    }
+    resp = requests.post(BASE_URL, json=payload_private, headers=headers)
+    if resp.status_code != 200: 
+         print("Failed to create private template")
+         return False
+    
+    # 1. Query Public (should NOT see private_cat)
+    resp = requests.get("http://localhost:8080/api/v1/categories")
+    cats = resp.json().get("categories", [])
+    for c in cats:
+        if c["name"] == private_cat:
+            print("Error: Private category visible in public list")
+            return False
+
+    # 2. Query Private (with owner_id)
+    resp = requests.get(f"http://localhost:8080/api/v1/categories?owner_id={owner_id}")
+    cats = resp.json().get("categories", [])
+    found_private = False
+    for c in cats:
+        if c["name"] == private_cat:
+            found_private = True
+            break
+    if not found_private:
+        print("Error: Private category NOT found in authenticated owner list")
+        return False
+    print("Private category stats check passed.")
+
     # Test Tags
     print("Testing Tags...")
     resp = requests.get("http://localhost:8080/api/v1/tags")
