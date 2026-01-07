@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -166,44 +167,181 @@ func (s *PromptService) GetTemplate(ctx context.Context, req *pb.GetTemplateRequ
 
 // ListTemplates retrieves a list of templates.
 func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplatesRequest) (*pb.ListTemplatesResponse, error) {
-	zap.S().Infof("PromptService.ListTemplates: page_size=%d page_token=%s owner_id=%s", req.PageSize, req.PageToken, req.OwnerId)
+	userID, _ := GetUserIDFromContext(ctx)
+	zap.S().Infof("PromptService.ListTemplates: page_size=%d page_token=%s owner_id=%s visibility=%s user_id=%s", req.PageSize, req.PageToken, req.OwnerId, req.Visibility, userID)
+
 	limit := int(req.PageSize)
 	if limit <= 0 {
 		limit = 10
 	}
-	offset := 0
-	if req.PageToken != "" {
-		if parsedOffset, err := strconv.Atoi(req.PageToken); err == nil {
-			offset = parsedOffset
+
+	// Helper to fetch templates and versions
+	fetch := func(limit, offset int, filters map[string]interface{}) ([]*pb.Template, string, error) {
+		templates, err := s.TemplateRepo.List(ctx, limit, offset, filters)
+		if err != nil {
+			return nil, "", err
 		}
+		var pbTemplates []*pb.Template
+		for _, t := range templates {
+			pbT := s.templateModelToProto(t)
+			latest, err := s.TemplateVersionRepo.GetLatest(ctx, t.ID)
+			if err == nil {
+				pbT.LatestVersion = s.versionModelToProto(latest)
+			}
+			pbTemplates = append(pbTemplates, pbT)
+		}
+		nextToken := ""
+		if len(templates) == limit {
+			nextToken = strconv.Itoa(offset + limit)
+		}
+		return pbTemplates, nextToken, nil
 	}
 
-	filters := make(map[string]interface{})
-	if req.OwnerId != "" {
-		filters["owner_id"] = req.OwnerId
+	// 1. No Token: Return Public Only
+	if userID == "" {
+		offset := 0
+		if req.PageToken != "" {
+			offset, _ = strconv.Atoi(req.PageToken)
+		}
+		filters := make(map[string]interface{})
+		filters["visibility"] = "public"
+		if req.Category != "" {
+			filters["category"] = req.Category
+		}
+		if len(req.Tags) > 0 {
+			filters["tags"] = req.Tags
+		}
+		if req.OwnerId != "" {
+			filters["owner_id"] = req.OwnerId
+		}
+
+		templates, nextToken, err := fetch(limit, offset, filters)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to list templates: %v", err)
+		}
+		return &pb.ListTemplatesResponse{Templates: templates, NextPageToken: nextToken}, nil
 	}
-	// ... other filters
 
-	templates, err := s.TemplateRepo.List(ctx, limit, offset, filters)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to list templates: %v", err)
-	}
-
-	var pbTemplates []*pb.Template
-	for _, t := range templates {
-		pbT := s.templateModelToProto(t)
-
-		latest, err := s.TemplateVersionRepo.GetLatest(ctx, t.ID)
-		if err == nil {
-			pbT.LatestVersion = s.versionModelToProto(latest)
+	// 2. Token Present
+	// If specific visibility requested, return single list
+	if req.Visibility != pb.Visibility_VISIBILITY_UNSPECIFIED {
+		offset := 0
+		if req.PageToken != "" {
+			offset, _ = strconv.Atoi(req.PageToken)
+		}
+		filters := make(map[string]interface{})
+		if req.Visibility == pb.Visibility_VISIBILITY_PUBLIC {
+			filters["visibility"] = "public"
 		} else {
-			zap.S().Warnf("failed to get latest version for template %s: %v", t.ID, err)
+			filters["visibility"] = "private"
+			if req.OwnerId == "" {
+				filters["owner_id"] = userID // Implicitly my private
+			} else {
+				filters["owner_id"] = req.OwnerId // Specific owner private (likely should enforce same user)
+				if req.OwnerId != userID {
+					// Cannot see others' private
+					return &pb.ListTemplatesResponse{}, nil
+				}
+			}
+		}
+		if req.Category != "" {
+			filters["category"] = req.Category
+		}
+		if len(req.Tags) > 0 {
+			filters["tags"] = req.Tags
 		}
 
-		pbTemplates = append(pbTemplates, pbT)
+		templates, nextToken, err := fetch(limit, offset, filters)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to list templates: %v", err)
+		}
+		return &pb.ListTemplatesResponse{Templates: templates, NextPageToken: nextToken}, nil
 	}
 
-	return &pb.ListTemplatesResponse{Templates: pbTemplates}, nil
+	// 3. Token Present AND Visibility Unspecified -> Mixed View
+	// When a user is logged in (Token present) and no specific visibility filter is applied,
+	// we return a mixed view containing both Public templates and the user's Private templates.
+	// Each list is paginated independently, so we return two separate lists and two separate next page tokens (if applicable).
+	// To support a single 'next_page_token' in the request, we encode both offsets.
+	// Parse tokens. Format: "public_offset:private_offset"
+	publicOffset := 0
+	privateOffset := 0
+	if req.PageToken != "" {
+		parts := strings.Split(req.PageToken, ":")
+		if len(parts) == 2 {
+			// Format is "public:private"
+			publicOffset, _ = strconv.Atoi(parts[0])
+			privateOffset, _ = strconv.Atoi(parts[1])
+		} else {
+			// Fallback if parsing fails or old format (single integer),
+			// assume 0 for both or try parsing as single offset for backward compatibility.
+			if val, err := strconv.Atoi(req.PageToken); err == nil {
+				publicOffset = val
+				privateOffset = val // Ambiguous, but safe to start both at same offset if previously simple
+			}
+		}
+	}
+
+	// Fetch Public
+	publicFilters := map[string]interface{}{"visibility": "public"}
+	if req.Category != "" {
+		publicFilters["category"] = req.Category
+	}
+	if len(req.Tags) > 0 {
+		publicFilters["tags"] = req.Tags
+	}
+	// If owner_id is specified in mixed view, we filter public by that owner too
+	if req.OwnerId != "" {
+		publicFilters["owner_id"] = req.OwnerId
+	}
+
+	publicTemplates, nextPublicToken, err := fetch(limit, publicOffset, publicFilters)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list public templates: %v", err)
+	}
+
+	// Fetch Private
+	privateFilters := map[string]interface{}{"visibility": "private", "owner_id": userID}
+	if req.Category != "" {
+		privateFilters["category"] = req.Category
+	}
+	if len(req.Tags) > 0 {
+		privateFilters["tags"] = req.Tags
+	}
+	// If request owner_id is specified and is NOT me, I shouldn't see private?
+	// But "Mixed" implies "My Private + All Public".
+	// If I filter by "Alice", I see Alice's Public. Do I see My Private? No, unless I am Alice.
+	// So if OwnerId filter is present and != userID, we skip private fetch.
+	var privateTemplates []*pb.Template
+	nextPrivateToken := ""
+
+	shouldFetchPrivate := req.OwnerId == "" || req.OwnerId == userID
+
+	if shouldFetchPrivate {
+		var err error
+		privateTemplates, nextPrivateToken, err = fetch(limit, privateOffset, privateFilters)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to list private templates: %v", err)
+		}
+	}
+
+	// Construct Response
+	// We put Public in "Templates" for backward compatibility/simplicity?
+	// Or we use the split fields.
+	// Proto: templates (1), private_templates (3).
+	// Let's populate: public -> templates, private -> private_templates.
+
+	// Tokens:
+	// We need to construct a combined token if both have more pages?
+	// Or we return separate tokens?
+	// Proto: next_page_token (2), private_next_page_token (4).
+
+	return &pb.ListTemplatesResponse{
+		Templates:            publicTemplates,
+		NextPageToken:        nextPublicToken,
+		PrivateTemplates:     privateTemplates,
+		PrivateNextPageToken: nextPrivateToken,
+	}, nil
 }
 
 func (s *PromptService) DeleteTemplate(ctx context.Context, req *pb.DeleteTemplateRequest) (*pb.DeleteTemplateResponse, error) {
@@ -225,8 +363,22 @@ func (s *PromptService) DeleteTemplate(ctx context.Context, req *pb.DeleteTempla
 }
 
 func (s *PromptService) ListCategories(ctx context.Context, req *pb.ListCategoriesRequest) (*pb.ListCategoriesResponse, error) {
-	zap.S().Info("PromptService.ListCategories")
-	stats, err := s.TemplateRepo.ListCategories(ctx)
+	zap.S().Infof("PromptService.ListCategories: owner_id=%s", req.OwnerId)
+	filters := make(map[string]interface{})
+	if req.OwnerId != "" {
+		filters["owner_id"] = req.OwnerId
+		filters["visibility"] = "private" // Assuming implicit private if owner specified for "My Prompts"
+	}
+	// If no owner, maybe public? Or sidebar expects all?
+	// Sidebar "All Public" -> calls API.
+	// Sidebar "My Prompts" -> calls API.
+	// The sidebar logic implies it wants filtered stats.
+	// Let's assume if owner_id is NOT provided, we return PUBLIC categories.
+	if req.OwnerId == "" {
+		filters["visibility"] = "public"
+	}
+
+	stats, err := s.TemplateRepo.ListCategories(ctx, filters)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list categories: %v", err)
 	}
@@ -244,7 +396,11 @@ func (s *PromptService) ListCategories(ctx context.Context, req *pb.ListCategori
 
 func (s *PromptService) ListTags(ctx context.Context, req *pb.ListTagsRequest) (*pb.ListTagsResponse, error) {
 	zap.S().Info("PromptService.ListTags")
-	stats, err := s.TemplateRepo.ListTags(ctx)
+	// Tags currently global in sidebar, so public only?
+	filters := map[string]interface{}{
+		"visibility": "public",
+	}
+	stats, err := s.TemplateRepo.ListTags(ctx, filters)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list tags: %v", err)
 	}

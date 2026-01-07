@@ -1064,11 +1064,13 @@ func (x *ListTemplatesRequest) GetTags() []string {
 
 // ListTemplatesResponse is the response message for ListTemplates.
 type ListTemplatesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Templates     []*Template            `protobuf:"bytes,1,rep,name=templates,proto3" json:"templates,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Templates            []*Template            `protobuf:"bytes,1,rep,name=templates,proto3" json:"templates,omitempty"`                                // Used for public templates when mixed
+	NextPageToken        string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"` // Used for public pagination when mixed
+	PrivateTemplates     []*Template            `protobuf:"bytes,3,rep,name=private_templates,json=privateTemplates,proto3" json:"private_templates,omitempty"`
+	PrivateNextPageToken string                 `protobuf:"bytes,4,opt,name=private_next_page_token,json=privateNextPageToken,proto3" json:"private_next_page_token,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ListTemplatesResponse) Reset() {
@@ -1111,6 +1113,20 @@ func (x *ListTemplatesResponse) GetTemplates() []*Template {
 func (x *ListTemplatesResponse) GetNextPageToken() string {
 	if x != nil {
 		return x.NextPageToken
+	}
+	return ""
+}
+
+func (x *ListTemplatesResponse) GetPrivateTemplates() []*Template {
+	if x != nil {
+		return x.PrivateTemplates
+	}
+	return nil
+}
+
+func (x *ListTemplatesResponse) GetPrivateNextPageToken() string {
+	if x != nil {
+		return x.PrivateNextPageToken
 	}
 	return ""
 }
@@ -1938,6 +1954,7 @@ func (x *LoginWithOAuthRequest) GetCode() string {
 // ListCategoriesRequest is the request message for ListCategories.
 type ListCategoriesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	OwnerId       string                 `protobuf:"bytes,1,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1970,6 +1987,13 @@ func (x *ListCategoriesRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListCategoriesRequest.ProtoReflect.Descriptor instead.
 func (*ListCategoriesRequest) Descriptor() ([]byte, []int) {
 	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ListCategoriesRequest) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
 }
 
 // CategoryStats represents a category and its usage count.
@@ -2300,10 +2324,12 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"visibility\x12\x19\n" +
 	"\bowner_id\x18\x04 \x01(\tR\aownerId\x12\x1a\n" +
 	"\bcategory\x18\x05 \x01(\tR\bcategory\x12\x12\n" +
-	"\x04tags\x18\x06 \x03(\tR\x04tags\"k\n" +
+	"\x04tags\x18\x06 \x03(\tR\x04tags\"\xdd\x01\n" +
 	"\x15ListTemplatesResponse\x12*\n" +
 	"\ttemplates\x18\x01 \x03(\v2\f.v1.TemplateR\ttemplates\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"B\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x129\n" +
+	"\x11private_templates\x18\x03 \x03(\v2\f.v1.TemplateR\x10privateTemplates\x125\n" +
+	"\x17private_next_page_token\x18\x04 \x01(\tR\x14privateNextPageToken\"B\n" +
 	"\x15DeleteTemplateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bowner_id\x18\x02 \x01(\tR\aownerId\"2\n" +
@@ -2358,8 +2384,9 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\"G\n" +
 	"\x15LoginWithOAuthRequest\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\tR\x04code\"\x17\n" +
-	"\x15ListCategoriesRequest\"9\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\"2\n" +
+	"\x15ListCategoriesRequest\x12\x19\n" +
+	"\bowner_id\x18\x01 \x01(\tR\aownerId\"9\n" +
 	"\rCategoryStats\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x05R\x05count\"K\n" +
@@ -2472,44 +2499,45 @@ var file_api_proto_v1_prompt_proto_depIdxs = []int32{
 	3,  // 16: v1.GetTemplateResponse.latest_version:type_name -> v1.TemplateVersion
 	0,  // 17: v1.ListTemplatesRequest.visibility:type_name -> v1.Visibility
 	2,  // 18: v1.ListTemplatesResponse.templates:type_name -> v1.Template
-	6,  // 19: v1.CreatePromptResponse.prompt:type_name -> v1.Prompt
-	6,  // 20: v1.GetPromptResponse.prompt:type_name -> v1.Prompt
-	6,  // 21: v1.ListPromptsResponse.prompts:type_name -> v1.Prompt
-	31, // 22: v1.ListCategoriesResponse.categories:type_name -> v1.CategoryStats
-	34, // 23: v1.ListTagsResponse.tags:type_name -> v1.TagStats
-	25, // 24: v1.UserService.Register:input_type -> v1.RegisterRequest
-	27, // 25: v1.UserService.Login:input_type -> v1.LoginRequest
-	29, // 26: v1.UserService.LoginWithOAuth:input_type -> v1.LoginWithOAuthRequest
-	7,  // 27: v1.PromptService.CreateTemplate:input_type -> v1.CreateTemplateRequest
-	9,  // 28: v1.PromptService.UpdateTemplate:input_type -> v1.UpdateTemplateRequest
-	11, // 29: v1.PromptService.GetTemplate:input_type -> v1.GetTemplateRequest
-	13, // 30: v1.PromptService.ListTemplates:input_type -> v1.ListTemplatesRequest
-	15, // 31: v1.PromptService.DeleteTemplate:input_type -> v1.DeleteTemplateRequest
-	17, // 32: v1.PromptService.CreatePrompt:input_type -> v1.CreatePromptRequest
-	19, // 33: v1.PromptService.GetPrompt:input_type -> v1.GetPromptRequest
-	23, // 34: v1.PromptService.DeletePrompt:input_type -> v1.DeletePromptRequest
-	30, // 35: v1.PromptService.ListCategories:input_type -> v1.ListCategoriesRequest
-	33, // 36: v1.PromptService.ListTags:input_type -> v1.ListTagsRequest
-	4,  // 37: v1.PromptService.ListTemplateVersions:input_type -> v1.ListTemplateVersionsRequest
-	26, // 38: v1.UserService.Register:output_type -> v1.RegisterResponse
-	28, // 39: v1.UserService.Login:output_type -> v1.LoginResponse
-	28, // 40: v1.UserService.LoginWithOAuth:output_type -> v1.LoginResponse
-	8,  // 41: v1.PromptService.CreateTemplate:output_type -> v1.CreateTemplateResponse
-	10, // 42: v1.PromptService.UpdateTemplate:output_type -> v1.UpdateTemplateResponse
-	12, // 43: v1.PromptService.GetTemplate:output_type -> v1.GetTemplateResponse
-	14, // 44: v1.PromptService.ListTemplates:output_type -> v1.ListTemplatesResponse
-	16, // 45: v1.PromptService.DeleteTemplate:output_type -> v1.DeleteTemplateResponse
-	18, // 46: v1.PromptService.CreatePrompt:output_type -> v1.CreatePromptResponse
-	20, // 47: v1.PromptService.GetPrompt:output_type -> v1.GetPromptResponse
-	24, // 48: v1.PromptService.DeletePrompt:output_type -> v1.DeletePromptResponse
-	32, // 49: v1.PromptService.ListCategories:output_type -> v1.ListCategoriesResponse
-	35, // 50: v1.PromptService.ListTags:output_type -> v1.ListTagsResponse
-	5,  // 51: v1.PromptService.ListTemplateVersions:output_type -> v1.ListTemplateVersionsResponse
-	38, // [38:52] is the sub-list for method output_type
-	24, // [24:38] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	2,  // 19: v1.ListTemplatesResponse.private_templates:type_name -> v1.Template
+	6,  // 20: v1.CreatePromptResponse.prompt:type_name -> v1.Prompt
+	6,  // 21: v1.GetPromptResponse.prompt:type_name -> v1.Prompt
+	6,  // 22: v1.ListPromptsResponse.prompts:type_name -> v1.Prompt
+	31, // 23: v1.ListCategoriesResponse.categories:type_name -> v1.CategoryStats
+	34, // 24: v1.ListTagsResponse.tags:type_name -> v1.TagStats
+	25, // 25: v1.UserService.Register:input_type -> v1.RegisterRequest
+	27, // 26: v1.UserService.Login:input_type -> v1.LoginRequest
+	29, // 27: v1.UserService.LoginWithOAuth:input_type -> v1.LoginWithOAuthRequest
+	7,  // 28: v1.PromptService.CreateTemplate:input_type -> v1.CreateTemplateRequest
+	9,  // 29: v1.PromptService.UpdateTemplate:input_type -> v1.UpdateTemplateRequest
+	11, // 30: v1.PromptService.GetTemplate:input_type -> v1.GetTemplateRequest
+	13, // 31: v1.PromptService.ListTemplates:input_type -> v1.ListTemplatesRequest
+	15, // 32: v1.PromptService.DeleteTemplate:input_type -> v1.DeleteTemplateRequest
+	17, // 33: v1.PromptService.CreatePrompt:input_type -> v1.CreatePromptRequest
+	19, // 34: v1.PromptService.GetPrompt:input_type -> v1.GetPromptRequest
+	23, // 35: v1.PromptService.DeletePrompt:input_type -> v1.DeletePromptRequest
+	30, // 36: v1.PromptService.ListCategories:input_type -> v1.ListCategoriesRequest
+	33, // 37: v1.PromptService.ListTags:input_type -> v1.ListTagsRequest
+	4,  // 38: v1.PromptService.ListTemplateVersions:input_type -> v1.ListTemplateVersionsRequest
+	26, // 39: v1.UserService.Register:output_type -> v1.RegisterResponse
+	28, // 40: v1.UserService.Login:output_type -> v1.LoginResponse
+	28, // 41: v1.UserService.LoginWithOAuth:output_type -> v1.LoginResponse
+	8,  // 42: v1.PromptService.CreateTemplate:output_type -> v1.CreateTemplateResponse
+	10, // 43: v1.PromptService.UpdateTemplate:output_type -> v1.UpdateTemplateResponse
+	12, // 44: v1.PromptService.GetTemplate:output_type -> v1.GetTemplateResponse
+	14, // 45: v1.PromptService.ListTemplates:output_type -> v1.ListTemplatesResponse
+	16, // 46: v1.PromptService.DeleteTemplate:output_type -> v1.DeleteTemplateResponse
+	18, // 47: v1.PromptService.CreatePrompt:output_type -> v1.CreatePromptResponse
+	20, // 48: v1.PromptService.GetPrompt:output_type -> v1.GetPromptResponse
+	24, // 49: v1.PromptService.DeletePrompt:output_type -> v1.DeletePromptResponse
+	32, // 50: v1.PromptService.ListCategories:output_type -> v1.ListCategoriesResponse
+	35, // 51: v1.PromptService.ListTags:output_type -> v1.ListTagsResponse
+	5,  // 52: v1.PromptService.ListTemplateVersions:output_type -> v1.ListTemplateVersionsResponse
+	39, // [39:53] is the sub-list for method output_type
+	25, // [25:39] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_v1_prompt_proto_init() }

@@ -15,7 +15,7 @@ import './Layout.scss';
  * @param {Function} props.onFilterChange - Callback for sidebar filter changes
  * @param {boolean} props.showSidebar - Whether to show the sidebar (default: true)
  */
-const Layout = ({ children, onFilterChange, showSidebar = true }) => {
+const Layout = ({ children, onFilterChange, currentFilters, showSidebar = true }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -36,7 +36,7 @@ const Layout = ({ children, onFilterChange, showSidebar = true }) => {
     <div className="app-layout">
       <Header />
       <div className="app-body">
-        {showSidebar && <Sidebar onFilterChange={onFilterChange} />}
+        {showSidebar && <Sidebar onFilterChange={onFilterChange} currentFilters={currentFilters} />}
         <main className="app-content">
           {children}
         </main>

@@ -58,15 +58,15 @@ func (m *MockTemplateRepository) List(ctx context.Context, l, o int, f map[strin
 }
 func (m *MockTemplateRepository) Update(ctx context.Context, t *models.Template) error { return nil }
 func (m *MockTemplateRepository) Delete(ctx context.Context, id string) error          { return nil }
-func (m *MockTemplateRepository) ListCategories(ctx context.Context) ([]*models.CategoryStat, error) {
-	args := m.Called(ctx)
+func (m *MockTemplateRepository) ListCategories(ctx context.Context, filters map[string]interface{}) ([]*models.CategoryStat, error) {
+	args := m.Called(ctx, filters)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*models.CategoryStat), args.Error(1)
 }
-func (m *MockTemplateRepository) ListTags(ctx context.Context) ([]*models.TagStat, error) {
-	args := m.Called(ctx)
+func (m *MockTemplateRepository) ListTags(ctx context.Context, filters map[string]interface{}) ([]*models.TagStat, error) {
+	args := m.Called(ctx, filters)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -180,7 +180,7 @@ func TestListCategories(t *testing.T) {
 			{Name: "cat1", Count: 10},
 			{Name: "cat2", Count: 5},
 		}
-		mockTemplateRepo.On("ListCategories", mock.Anything).Return(stats, nil)
+		mockTemplateRepo.On("ListCategories", mock.Anything, mock.Anything).Return(stats, nil)
 
 		resp, err := svc.ListCategories(context.Background(), &pb.ListCategoriesRequest{})
 		assert.NoError(t, err)
@@ -202,7 +202,7 @@ func TestListTags(t *testing.T) {
 			{Name: "tag1", Count: 20},
 			{Name: "tag2", Count: 15},
 		}
-		mockTemplateRepo.On("ListTags", mock.Anything).Return(stats, nil)
+		mockTemplateRepo.On("ListTags", mock.Anything, mock.Anything).Return(stats, nil)
 
 		resp, err := svc.ListTags(context.Background(), &pb.ListTagsRequest{})
 		assert.NoError(t, err)

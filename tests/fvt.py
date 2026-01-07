@@ -532,6 +532,109 @@ def test_version_and_prompt():
     print("--- Version & Prompt Test Passed ---")
     return True
 
+def test_tag_filtering():
+    print("--- Starting Tag Filtering Test ---")
+
+    owner_id = f"user_tags_{int(time.time())}"
+    token = get_auth_token(owner_id)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Create templates with different tags
+    templates_data = [
+        {"title": "TagTest_Python", "tags": ["python", "coding"], "visibility": "VISIBILITY_PUBLIC"},
+        {"title": "TagTest_Java", "tags": ["java", "coding"], "visibility": "VISIBILITY_PUBLIC"},
+        {"title": "TagTest_Snake", "tags": ["python", "reptile"], "visibility": "VISIBILITY_PUBLIC"},
+        {"title": "TagTest_Private_Python", "tags": ["python", "secret"], "visibility": "VISIBILITY_PRIVATE"},
+    ]
+
+    created_ids = {}
+    for t_data in templates_data:
+        payload = {
+            "owner_id": owner_id,
+            "title": t_data["title"],
+            "description": "Tag testing",
+            "visibility": t_data["visibility"],
+            "type": "TEMPLATE_TYPE_USER",
+            "tags": t_data["tags"],
+            "category": "test"
+        }
+        resp = requests.post(BASE_URL, json=payload, headers=headers)
+        if resp.status_code != 200:
+            print(f"Failed to create template {t_data['title']}: {resp.text}")
+            return False
+        created_ids[t_data["title"]] = resp.json()["template"]["id"]
+    
+    time.sleep(1) # Allow for consistency
+
+    # Test 1: Search 'python'. Should match Python & Snake. Should NOT match Java.
+    print("Testing filter matches 'python'...")
+    resp = requests.get(BASE_URL, params={"tags": "python"}, headers=headers)
+    if resp.status_code != 200:
+        print(f"Filter request failed: {resp.text}")
+        return False
+    
+    data = resp.json()
+    returned_templates = data.get("templates", []) + data.get("private_templates", [])
+    returned_ids = [t["id"] for t in returned_templates]
+
+    if created_ids["TagTest_Python"] not in returned_ids:
+        print("Filter 'python' failed: Did not find TagTest_Python")
+        return False
+    if created_ids["TagTest_Snake"] not in returned_ids:
+        print("Filter 'python' failed: Did not find TagTest_Snake")
+        return False
+    if created_ids["TagTest_Private_Python"] not in returned_ids:
+        print("Filter 'python' failed: Did not find TagTest_Private_Python")
+        return False
+    if created_ids["TagTest_Java"] in returned_ids:
+        print("Filter 'python' failed: Found TagTest_Java (should be excluded)")
+        return False
+        
+    print("Filter 'python' passed.")
+
+    # Test 2: Search 'coding'. Should match Python & Java. Not Snake.
+    print("Testing filter matches 'coding'...")
+    resp = requests.get(BASE_URL, params={"tags": "coding"}, headers=headers)
+    if resp.status_code != 200:
+        return False
+    
+    returned_templates = resp.json().get("templates", [])
+    returned_ids = [t["id"] for t in returned_templates]
+
+    if created_ids["TagTest_Python"] not in returned_ids:
+        print("Filter 'coding' failed: Did not find TagTest_Python")
+        return False
+    if created_ids["TagTest_Java"] not in returned_ids:
+        print("Filter 'coding' failed: Did not find TagTest_Java")
+        return False
+    if created_ids["TagTest_Snake"] in returned_ids:
+        print("Filter 'coding' failed: Found TagTest_Snake (should be excluded)")
+        return False
+        
+    print("Filter 'coding' passed.")
+
+    # Test 3: Bracket Syntax 'tags[]=java'
+    print("Testing bracket syntax 'tags[]=java'...")
+    resp = requests.get(BASE_URL, params={"tags[]": "java"}, headers=headers)
+    
+    if resp.status_code != 200:
+        print(f"Filter request failed: {resp.text}")
+        return False
+        
+    data = resp.json()
+    returned_templates = data.get("templates", []) + data.get("private_templates", [])
+    returned_ids = [t["id"] for t in returned_templates]
+
+    if created_ids["TagTest_Java"] not in returned_ids:
+        print("Filter 'tags[]=java' failed: Did not find TagTest_Java")
+        return False
+    if created_ids["TagTest_Python"] in returned_ids: 
+        print("Filter 'tags[]=java' failed: Found TagTest_Python (unexpected)")
+        return False
+    print("Filter 'tags[]=java' passed.")
+
+    return True
+
 def main():
     # Start containers
     print("Starting containers...")
@@ -558,11 +661,13 @@ def main():
     if success:
         success = test_stats()
     if success:
+        success = test_tag_filtering()
+    if success:
         success = test_pagination()
 
     # Cleanup
     print("Cleaning up...")
-    run_command("docker compose -f deployment/docker-compose.yml down")
+    # run_command("docker compose -f deployment/docker-compose.yml down")
 
     if success:
         print("All tests passed!")

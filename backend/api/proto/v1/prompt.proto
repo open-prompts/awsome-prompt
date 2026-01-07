@@ -212,8 +212,10 @@ message ListTemplatesRequest {
 
 // ListTemplatesResponse is the response message for ListTemplates.
 message ListTemplatesResponse {
-  repeated Template templates = 1;
-  string next_page_token = 2;
+  repeated Template templates = 1; // Used for public templates when mixed
+  string next_page_token = 2; // Used for public pagination when mixed
+  repeated Template private_templates = 3;
+  string private_next_page_token = 4;
 }
 
 // DeleteTemplateRequest is the request message for DeleteTemplate.
@@ -311,7 +313,9 @@ message LoginWithOAuthRequest {
 }
 
 // ListCategoriesRequest is the request message for ListCategories.
-message ListCategoriesRequest {}
+message ListCategoriesRequest {
+  string owner_id = 1;
+}
 
 // CategoryStats represents a category and its usage count.
 message CategoryStats {

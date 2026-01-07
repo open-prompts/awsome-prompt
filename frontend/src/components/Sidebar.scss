@@ -29,6 +29,15 @@
         font-size: 0.9rem;
         display: flex;
         justify-content: space-between;
+        
+        &.active {
+          font-weight: bold;
+          color: #0f62fe;
+          background-color: #f0f8ff; // Light background
+          padding-left: 8px;
+          margin-left: -8px; 
+          border-left: 3px solid #0f62fe;
+        }
 
         &:hover {
           color: #0f62fe;
@@ -62,6 +71,11 @@
         font-size: 0.8rem;
         cursor: pointer;
         color: #333;
+
+        &.active {
+          background-color: #0f62fe;
+          color: white;
+        }
 
         &:hover {
           background-color: #d0d0d0;

@@ -35,3 +35,7 @@ coverage.*
 
 # Deployment
 deployment/.env
+
+# Copilot
+.github/prompts/
+.shared/

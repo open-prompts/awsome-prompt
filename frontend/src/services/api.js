@@ -47,12 +47,12 @@ export const getTemplates = (params) => {
   return api.get('/templates', { params });
 };
 
-export const getCategories = () => {
-  return api.get('/categories');
+export const getCategories = (params) => {
+  return api.get('/categories', { params });
 };
 
-export const getTags = () => {
-  return api.get('/tags');
+export const getTags = (params) => {
+  return api.get('/tags', { params });
 };
 
 export const createTemplate = (templateData) => {

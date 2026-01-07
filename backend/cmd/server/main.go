@@ -179,6 +179,21 @@ func main() {
 
 		switch r.Method {
 		case http.MethodGet:
+			// Optional Auth for Mixed View
+			ctx := context.Background()
+			if authHeader := r.Header.Get("Authorization"); authHeader != "" {
+				tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+				if userID, err := authInterceptor.VerifyToken(tokenStr); err == nil {
+					ctx = service.ContextWithUserID(ctx, userID)
+				} else {
+					// Optional: fail if token matches format but is invalid?
+					// For now, let's just log and continue as anonymous (safe fallback)
+					// Or strictly fail:
+					http.Error(w, "Invalid token", http.StatusUnauthorized)
+					return
+				}
+			}
+
 			req := &pb.ListTemplatesRequest{}
 			q := r.URL.Query()
 			if v := q.Get("page_size"); v != "" {
@@ -198,8 +213,11 @@ func main() {
 				}
 			}
 			req.Tags = q["tags"] // Supports ?tags=a&tags=b
+			if len(req.Tags) == 0 {
+				req.Tags = q["tags[]"] // Supports ?tags[]=a&tags[]=b
+			}
 
-			resp, err := svc.ListTemplates(context.Background(), req)
+			resp, err := svc.ListTemplates(ctx, req)
 			if err != nil {
 				writeError(w, err)
 				return

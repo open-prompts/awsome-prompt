@@ -17,8 +17,8 @@ type TemplateRepository interface {
 	Update(ctx context.Context, template *models.Template) error
 	Delete(ctx context.Context, id string) error
 	Get(ctx context.Context, id string) (*models.Template, error)
-	ListCategories(ctx context.Context) ([]*models.CategoryStat, error)
-	ListTags(ctx context.Context) ([]*models.TagStat, error)
+	ListCategories(ctx context.Context, filters map[string]interface{}) ([]*models.CategoryStat, error)
+	ListTags(ctx context.Context, filters map[string]interface{}) ([]*models.TagStat, error)
 }
 
 // templateRepository implements TemplateRepository.
@@ -133,6 +133,8 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", argID, argID+1)
 	args = append(args, limit, offset)
 
+	fmt.Printf("List Query: %s, Args: %v\n", query, args)
+
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query templates: %w", err)
@@ -161,15 +163,30 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 }
 
 // ListCategories retrieves all categories and their template counts.
-func (r *templateRepository) ListCategories(ctx context.Context) ([]*models.CategoryStat, error) {
+func (r *templateRepository) ListCategories(ctx context.Context, filters map[string]interface{}) ([]*models.CategoryStat, error) {
 	query := `
 		SELECT category, COUNT(*) as count
 		FROM templates
 		WHERE category IS NOT NULL AND category != ''
+	`
+	var args []interface{}
+	argID := 1
+
+	if val, ok := filters["visibility"]; ok && val != "" {
+		query += fmt.Sprintf(" AND visibility = $%d", argID)
+		args = append(args, val)
+		argID++
+	}
+	if val, ok := filters["owner_id"]; ok && val != "" {
+		query += fmt.Sprintf(" AND owner_id = $%d", argID)
+		args = append(args, val)
+	}
+
+	query += `
 		GROUP BY category
 		ORDER BY count DESC
 	`
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list categories: %w", err)
 	}
@@ -187,14 +204,39 @@ func (r *templateRepository) ListCategories(ctx context.Context) ([]*models.Cate
 }
 
 // ListTags retrieves all tags and their template counts.
-func (r *templateRepository) ListTags(ctx context.Context) ([]*models.TagStat, error) {
-	query := `
-		SELECT unnest(tags) as tag, COUNT(*) as count
-		FROM templates
+func (r *templateRepository) ListTags(ctx context.Context, filters map[string]interface{}) ([]*models.TagStat, error) {
+	var args []interface{}
+	argID := 1
+
+	// Note: unnesting happens in select, filtering needs to happen on the row before or after?
+	// If we filter templates first, then unnest, we count tags of visible templates.
+	// Correct approach:
+	// SELECT t.tag, COUNT(*) FROM (SELECT unnest(tags) as tag FROM templates WHERE ...) t GROUP BY t.tag
+
+	// Re-writing query for safety with filters
+	whereClause := ""
+	if val, ok := filters["visibility"]; ok && val != "" {
+		whereClause += fmt.Sprintf(" AND visibility = $%d", argID)
+		args = append(args, val)
+		argID++
+	}
+	if val, ok := filters["owner_id"]; ok && val != "" {
+		whereClause += fmt.Sprintf(" AND owner_id = $%d", argID)
+		args = append(args, val)
+	}
+
+	query := fmt.Sprintf(`
+		SELECT tag, COUNT(*) as count
+		FROM (
+			SELECT unnest(tags) as tag
+			FROM templates
+			WHERE 1=1 %s
+		) as t
 		GROUP BY tag
 		ORDER BY count DESC
-	`
-	rows, err := r.db.QueryContext(ctx, query)
+	`, whereClause)
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tags: %w", err)
 	}

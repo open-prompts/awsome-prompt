@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -73,39 +74,39 @@ func (i *AuthInterceptor) VerifyToken(tokenString string) (string, error) {
 // Unary returns a server interceptor function to authenticate unary RPCs.
 func (i *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		// 1. Check if the method is public
+		// 1. Attempt to extract and verify token if present
+		var tokenString string
+		md, ok := metadata.FromIncomingContext(ctx)
+		if ok {
+			zap.S().Infof("AuthInterceptor: md=%v", md)
+			values := md["authorization"]
+			if len(values) > 0 {
+				authHeader := values[0]
+				parts := strings.Split(authHeader, " ")
+				if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+					tokenString = parts[1]
+				}
+			}
+		}
+
+		if tokenString != "" {
+			// Token is present, verify it
+			userID, err := i.VerifyToken(tokenString)
+			if err != nil {
+				return nil, err // Fail if token provided but invalid
+			}
+			// Inject User ID into Context
+			newCtx := context.WithValue(ctx, userIDKey, userID)
+			return handler(newCtx, req)
+		}
+
+		// 2. If no token, check if the method is public
 		if i.publicRpcMethods[info.FullMethod] {
 			return handler(ctx, req)
 		}
 
-		// 2. Extract Authorization header
-		md, ok := metadata.FromIncomingContext(ctx)
-		if !ok {
-			return nil, status.Error(codes.Unauthenticated, "missing metadata")
-		}
-
-		values := md["authorization"]
-		if len(values) == 0 {
-			return nil, status.Error(codes.Unauthenticated, "missing authorization token")
-		}
-
-		authHeader := values[0]
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-			return nil, status.Error(codes.Unauthenticated, "invalid authorization token format")
-		}
-
-		tokenString := parts[1]
-
-		// 3. Verify Token
-		userID, err := i.VerifyToken(tokenString)
-		if err != nil {
-			return nil, err
-		}
-
-		// 4. Inject User ID into Context
-		newCtx := context.WithValue(ctx, userIDKey, userID)
-		return handler(newCtx, req)
+		// 3. Not public and no token -> Fail
+		return nil, status.Error(codes.Unauthenticated, "missing authorization token")
 	}
 }
 

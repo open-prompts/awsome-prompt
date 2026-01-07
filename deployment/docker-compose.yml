@@ -13,17 +13,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
   backend:
     build: ../backend
     restart: on-failure
@@ -34,8 +23,6 @@ services:
       DATABASE_URL: postgres://user:password@postgres:5432/awsome_prompt?sslmode=disable
     depends_on:
       - postgres
-      - redis
-      - rabbitmq
 
   frontend:
     build: ../frontend
