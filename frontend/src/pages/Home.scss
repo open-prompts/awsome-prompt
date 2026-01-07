@@ -4,15 +4,19 @@
 
   .templates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    padding-bottom: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly wider cards */
+    gap: 30px;
+    padding-bottom: 40px;
   }
 
   .loading, .no-results {
     text-align: center;
-    padding: 20px;
-    color: #666;
+    padding: 40px;
+    color: var(--text-muted);
     font-style: italic;
+    font-size: 1.1rem;
+    background: var(--glass-bg);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
   }
 }

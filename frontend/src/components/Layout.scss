@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: transparent;
 
   .app-body {
     display: flex;
@@ -10,36 +11,36 @@
 
     .app-content {
       flex: 1;
-      padding: 20px;
+      padding: 30px;
       overflow-y: auto;
-      background-color: #ffffff;
-      position: relative; // Ensure positioning context for children if needed
+      background-color: transparent; /* Changed from #ffffff */
+      position: relative; 
     }
   }
 
   /* Floating Create Button */
   .floating-create-btn {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
-    background-color: #0f62fe; // Carbon Blue 60
-    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #000;
     border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 32px;
     z-index: 9999; // Ensure it's above other content
-    transition: transform 0.2s, background-color 0.2s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     &:hover {
-      background-color: #0353e9; // Carbon Blue 70
-      transform: scale(1.05);
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 0 30px rgba(123, 97, 255, 0.6);
     }
 
     &:active {

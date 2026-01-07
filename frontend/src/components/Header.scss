@@ -4,9 +4,14 @@
   align-items: center;
   padding: 0 20px;
   height: 60px;
-  background-color: #161616; // Carbon Gray 100
-  color: #ffffff;
-  border-bottom: 1px solid #393939;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-main);
+  border-bottom: var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 
   .header-left {
     display: flex;
@@ -17,17 +22,27 @@
       display: flex;
       align-items: center;
       font-size: 1.2rem;
-      font-weight: bold;
-      color: #ffffff;
+      font-weight: 700;
+      color: var(--text-main);
       text-decoration: none;
+      font-family: var(--font-heading);
+      letter-spacing: 1px;
+      
+      img {
+          box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+      }
     }
 
     .main-nav {
       a {
-        color: #c6c6c6;
+        color: var(--text-muted);
         text-decoration: none;
+        transition: color var(--transition-speed);
+        font-weight: 500;
+        
         &:hover {
-          color: #ffffff;
+          color: var(--primary-color);
+          text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
         }
       }
     }
@@ -41,23 +56,33 @@
       button {
         padding: 8px 16px;
         cursor: pointer;
-        border: none;
-        font-weight: bold;
+        border: 1px solid transparent;
+        font-weight: 600;
+        border-radius: 4px;
+        transition: all var(--transition-speed);
+        font-family: var(--font-heading);
       }
 
       .btn-login {
         background-color: transparent;
-        color: #ffffff;
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        
         &:hover {
-          background-color: #393939;
+          border-color: var(--primary-color);
+          color: var(--primary-color);
+          box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
         }
       }
 
       .btn-register {
-        background-color: #0f62fe; // Carbon Blue 60
-        color: #ffffff;
+        background-color: var(--primary-color);
+        color: #000;
+        border: 1px solid var(--primary-color);
+        
         &:hover {
-          background-color: #0353e9;
+          background-color: var(--primary-hover);
+          box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
         }
       }
     }

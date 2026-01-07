@@ -1,21 +1,173 @@
 @use '@carbon/react';
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Tech Palette */
+  --bg-color: #050510;
+  --surface-color: rgba(15, 15, 35, 0.7);
+  --surface-solid: #0F0F23;
+  --primary-color: #00FFFF;
+  --primary-hover: #00CCCC;
+  --secondary-color: #7B61FF;
+  --text-main: #E0E0FF;
+  --text-primary: #E0E0FF; /* Alias for Carbon if needed or general usage */
+  --text-secondary: #A0A0B0;
+  --border-color: #333344;
+  --border-neon: #00FFFF;
+  
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Work Sans', sans-serif;
+  
+  --glass-bg: rgba(15, 15, 35, 0.6);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(12px);
+  
+  --shadow-neon: 0 0 10px rgba(0, 255, 255, 0.3);
+  --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  --transition-speed: 0.3s;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(123, 97, 255, 0.15) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 20%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+// Override Carbon Design System defaults for Dark Mode Tech Feel
+// Note: This is a brute force override since we are using pre-compiled CSS/SCSS structure
+.cds--header {
+  background-color: transparent !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.cds--side-nav {
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255,255,255,0.05) !important;
+  transition: all 0.3s ease;
+}
+
+.cds--side-nav__item, .cds--side-nav__link {
+    background-color: transparent !important;
+}
 
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color); 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color); 
+}
+
+/* --- Global Component Overrides (Carbon DS) --- */
+
+/* Modal Overrides */
+.cds--modal-container {
+  background-color: var(--surface-color) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+  border-radius: 12px;
+}
+
+.cds--modal-header, .cds--modal-content {
+  background: transparent !important;
+}
+
+.cds--modal-heading {
+  font-family: var(--font-heading);
+  color: var(--text-main) !important;
+  text-shadow: 0 0 5px rgba(0,255,255,0.3);
+}
+
+.cds--modal-close {
+  color: var(--text-main) !important;
+  border: 1px solid transparent;
+  &:hover {
+      background-color: rgba(255,255,255,0.1) !important;
+      border-color: var(--primary-color);
+  }
+}
+
+.cds--modal-footer {
+  background-color: rgba(0,0,0,0.2) !important;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Form Inputs Overrides */
+.cds--text-input, 
+.cds--text-area, 
+.cds--select-input,
+.cds--search-input {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: all 0.3s ease;
+  
+  &::placeholder {
+      color: var(--text-secondary) !important;
+  }
+
+  &:focus {
+      outline: none !important;
+      border-bottom: 2px solid var(--primary-color) !important;
+      box-shadow: 0 4px 12px rgba(0,255,255,0.1);
+  }
+}
+
+.cds--label {
+  color: var(--text-secondary) !important;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+/* Button Overrides */
+.cds--btn--primary {
+  background-color: var(--primary-color) !important; 
+  color: #000 !important;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  border: none;
+  
+  &:hover {
+      background-color: var(--primary-hover) !important;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+  }
+}
+
+.cds--btn--secondary, .cds--btn--tertiary {
+  background-color: transparent !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  
+  &:hover {
+      border-color: var(--text-main) !important;
+      background-color: rgba(255,255,255,0.05) !important;
+  }
+}
+
+/* Tile/Card Generic Overrides */
+.cds--tile {
+    background-color: var(--surface-color) !important;
+    color: var(--text-main) !important;
 }

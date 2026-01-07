@@ -7,35 +7,77 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: theme.$layer-01;
+  background-color: var(--bg-color);
+  background-image: 
+    linear-gradient(45deg, rgba(0, 255, 255, 0.05) 0%, transparent 70%),
+    linear-gradient(-45deg, rgba(123, 97, 255, 0.05) 0%, transparent 70%);
 
   .login-form-container {
     width: 100%;
-    max-width: 400px;
-    padding: spacing.$spacing-05;
-    background-color: theme.$layer-02;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 420px;
+    padding: 40px;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
 
     h2 {
-      @include type.type-style('heading-03');
-      margin-bottom: spacing.$spacing-05;
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 30px;
       text-align: center;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(123, 97, 255, 0.5);
     }
 
     .cds--form-item {
-      margin-bottom: spacing.$spacing-05;
+      margin-bottom: 24px;
+      
+      label {
+          color: var(--text-muted);
+      }
+      
+      input {
+          background-color: rgba(0,0,0,0.3) !important;
+          color: var(--text-main) !important;
+          border-bottom: 1px solid var(--border-color) !important;
+          
+          &:focus {
+              border-bottom: 2px solid var(--primary-color) !important;
+              box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
+          }
+      }
     }
 
     .login-button {
       width: 100%;
-      margin-top: spacing.$spacing-05;
+      margin-top: 20px;
+      background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+      border: none;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-family: var(--font-heading);
+      
+      &:hover {
+          box-shadow: 0 0 15px rgba(123, 97, 255, 0.6);
+      }
     }
 
     .register-link {
       display: block;
-      margin-top: spacing.$spacing-05;
+      margin-top: 24px;
       text-align: center;
-      @include type.type-style('body-01');
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      
+      &:hover {
+          color: var(--primary-color);
+          text-decoration: underline;
+      }
     }
   }
 }
