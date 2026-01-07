@@ -141,16 +141,20 @@ type Template struct {
 	Tags []string `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty"`
 	// Category of the template.
 	Category string `protobuf:"bytes,8,opt,name=category,proto3" json:"category,omitempty"`
-	// List of user IDs who liked the template.
-	LikedBy []string `protobuf:"bytes,9,rep,name=liked_by,json=likedBy,proto3" json:"liked_by,omitempty"`
-	// List of user IDs who favorited the template.
-	FavoritedBy []string `protobuf:"bytes,10,rep,name=favorited_by,json=favoritedBy,proto3" json:"favorited_by,omitempty"`
+	// Number of likes.
+	LikeCount int32 `protobuf:"varint,9,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	// Number of favorites.
+	FavoriteCount int32 `protobuf:"varint,10,opt,name=favorite_count,json=favoriteCount,proto3" json:"favorite_count,omitempty"`
 	// Timestamp when the template was created.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// Timestamp when the template was last updated.
 	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// The latest version of the template.
 	LatestVersion *TemplateVersion `protobuf:"bytes,13,opt,name=latest_version,json=latestVersion,proto3" json:"latest_version,omitempty"`
+	// Whether the current user has liked this template.
+	IsLiked bool `protobuf:"varint,14,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
+	// Whether the current user has favorited this template.
+	IsFavorited   bool `protobuf:"varint,15,opt,name=is_favorited,json=isFavorited,proto3" json:"is_favorited,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -241,18 +245,18 @@ func (x *Template) GetCategory() string {
 	return ""
 }
 
-func (x *Template) GetLikedBy() []string {
+func (x *Template) GetLikeCount() int32 {
 	if x != nil {
-		return x.LikedBy
+		return x.LikeCount
 	}
-	return nil
+	return 0
 }
 
-func (x *Template) GetFavoritedBy() []string {
+func (x *Template) GetFavoriteCount() int32 {
 	if x != nil {
-		return x.FavoritedBy
+		return x.FavoriteCount
 	}
-	return nil
+	return 0
 }
 
 func (x *Template) GetCreatedAt() *timestamppb.Timestamp {
@@ -274,6 +278,20 @@ func (x *Template) GetLatestVersion() *TemplateVersion {
 		return x.LatestVersion
 	}
 	return nil
+}
+
+func (x *Template) GetIsLiked() bool {
+	if x != nil {
+		return x.IsLiked
+	}
+	return false
+}
+
+func (x *Template) GetIsFavorited() bool {
+	if x != nil {
+		return x.IsFavorited
+	}
+	return false
 }
 
 // TemplateVersion represents a specific version of a template's content.
@@ -985,7 +1003,11 @@ type ListTemplatesRequest struct {
 	// Filter by category.
 	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
 	// Filter by tags.
-	Tags          []string `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty"`
+	Tags []string `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty"`
+	// Filter by user likes.
+	MyLikes bool `protobuf:"varint,7,opt,name=my_likes,json=myLikes,proto3" json:"my_likes,omitempty"`
+	// Filter by user favorites.
+	MyFavorites   bool `protobuf:"varint,8,opt,name=my_favorites,json=myFavorites,proto3" json:"my_favorites,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1060,6 +1082,20 @@ func (x *ListTemplatesRequest) GetTags() []string {
 		return x.Tags
 	}
 	return nil
+}
+
+func (x *ListTemplatesRequest) GetMyLikes() bool {
+	if x != nil {
+		return x.MyLikes
+	}
+	return false
+}
+
+func (x *ListTemplatesRequest) GetMyFavorites() bool {
+	if x != nil {
+		return x.MyFavorites
+	}
+	return false
 }
 
 // ListTemplatesResponse is the response message for ListTemplates.
@@ -1229,6 +1265,202 @@ func (x *DeleteTemplateResponse) GetSuccess() bool {
 	return false
 }
 
+// ToggleLikeRequest is the request message for ToggleLikeTemplate.
+type ToggleLikeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TemplateId    string                 `protobuf:"bytes,1,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToggleLikeRequest) Reset() {
+	*x = ToggleLikeRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToggleLikeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToggleLikeRequest) ProtoMessage() {}
+
+func (x *ToggleLikeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToggleLikeRequest.ProtoReflect.Descriptor instead.
+func (*ToggleLikeRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ToggleLikeRequest) GetTemplateId() string {
+	if x != nil {
+		return x.TemplateId
+	}
+	return ""
+}
+
+// ToggleLikeResponse is the response message for ToggleLikeTemplate.
+type ToggleLikeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsLiked       bool                   `protobuf:"varint,1,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
+	LikeCount     int32                  `protobuf:"varint,2,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToggleLikeResponse) Reset() {
+	*x = ToggleLikeResponse{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToggleLikeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToggleLikeResponse) ProtoMessage() {}
+
+func (x *ToggleLikeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToggleLikeResponse.ProtoReflect.Descriptor instead.
+func (*ToggleLikeResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ToggleLikeResponse) GetIsLiked() bool {
+	if x != nil {
+		return x.IsLiked
+	}
+	return false
+}
+
+func (x *ToggleLikeResponse) GetLikeCount() int32 {
+	if x != nil {
+		return x.LikeCount
+	}
+	return 0
+}
+
+// ToggleFavoriteRequest is the request message for ToggleFavoriteTemplate.
+type ToggleFavoriteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TemplateId    string                 `protobuf:"bytes,1,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToggleFavoriteRequest) Reset() {
+	*x = ToggleFavoriteRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToggleFavoriteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToggleFavoriteRequest) ProtoMessage() {}
+
+func (x *ToggleFavoriteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToggleFavoriteRequest.ProtoReflect.Descriptor instead.
+func (*ToggleFavoriteRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ToggleFavoriteRequest) GetTemplateId() string {
+	if x != nil {
+		return x.TemplateId
+	}
+	return ""
+}
+
+// ToggleFavoriteResponse is the response message for ToggleFavoriteTemplate.
+type ToggleFavoriteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsFavorited   bool                   `protobuf:"varint,1,opt,name=is_favorited,json=isFavorited,proto3" json:"is_favorited,omitempty"`
+	FavoriteCount int32                  `protobuf:"varint,2,opt,name=favorite_count,json=favoriteCount,proto3" json:"favorite_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToggleFavoriteResponse) Reset() {
+	*x = ToggleFavoriteResponse{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToggleFavoriteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToggleFavoriteResponse) ProtoMessage() {}
+
+func (x *ToggleFavoriteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToggleFavoriteResponse.ProtoReflect.Descriptor instead.
+func (*ToggleFavoriteResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ToggleFavoriteResponse) GetIsFavorited() bool {
+	if x != nil {
+		return x.IsFavorited
+	}
+	return false
+}
+
+func (x *ToggleFavoriteResponse) GetFavoriteCount() int32 {
+	if x != nil {
+		return x.FavoriteCount
+	}
+	return 0
+}
+
 // CreatePromptRequest is the request message for CreatePrompt.
 type CreatePromptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1242,7 +1474,7 @@ type CreatePromptRequest struct {
 
 func (x *CreatePromptRequest) Reset() {
 	*x = CreatePromptRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[15]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1254,7 +1486,7 @@ func (x *CreatePromptRequest) String() string {
 func (*CreatePromptRequest) ProtoMessage() {}
 
 func (x *CreatePromptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[15]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1267,7 +1499,7 @@ func (x *CreatePromptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePromptRequest.ProtoReflect.Descriptor instead.
 func (*CreatePromptRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{15}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CreatePromptRequest) GetTemplateId() string {
@@ -1308,7 +1540,7 @@ type CreatePromptResponse struct {
 
 func (x *CreatePromptResponse) Reset() {
 	*x = CreatePromptResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[16]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1320,7 +1552,7 @@ func (x *CreatePromptResponse) String() string {
 func (*CreatePromptResponse) ProtoMessage() {}
 
 func (x *CreatePromptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[16]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1333,7 +1565,7 @@ func (x *CreatePromptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePromptResponse.ProtoReflect.Descriptor instead.
 func (*CreatePromptResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{16}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreatePromptResponse) GetPrompt() *Prompt {
@@ -1353,7 +1585,7 @@ type GetPromptRequest struct {
 
 func (x *GetPromptRequest) Reset() {
 	*x = GetPromptRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[17]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1365,7 +1597,7 @@ func (x *GetPromptRequest) String() string {
 func (*GetPromptRequest) ProtoMessage() {}
 
 func (x *GetPromptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[17]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1378,7 +1610,7 @@ func (x *GetPromptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPromptRequest.ProtoReflect.Descriptor instead.
 func (*GetPromptRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{17}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetPromptRequest) GetId() string {
@@ -1398,7 +1630,7 @@ type GetPromptResponse struct {
 
 func (x *GetPromptResponse) Reset() {
 	*x = GetPromptResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[18]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1410,7 +1642,7 @@ func (x *GetPromptResponse) String() string {
 func (*GetPromptResponse) ProtoMessage() {}
 
 func (x *GetPromptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[18]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1423,7 +1655,7 @@ func (x *GetPromptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPromptResponse.ProtoReflect.Descriptor instead.
 func (*GetPromptResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{18}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetPromptResponse) GetPrompt() *Prompt {
@@ -1447,7 +1679,7 @@ type ListPromptsRequest struct {
 
 func (x *ListPromptsRequest) Reset() {
 	*x = ListPromptsRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[19]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1459,7 +1691,7 @@ func (x *ListPromptsRequest) String() string {
 func (*ListPromptsRequest) ProtoMessage() {}
 
 func (x *ListPromptsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[19]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1472,7 +1704,7 @@ func (x *ListPromptsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPromptsRequest.ProtoReflect.Descriptor instead.
 func (*ListPromptsRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{19}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListPromptsRequest) GetPageSize() int32 {
@@ -1514,7 +1746,7 @@ type ListPromptsResponse struct {
 
 func (x *ListPromptsResponse) Reset() {
 	*x = ListPromptsResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[20]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1526,7 +1758,7 @@ func (x *ListPromptsResponse) String() string {
 func (*ListPromptsResponse) ProtoMessage() {}
 
 func (x *ListPromptsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[20]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1539,7 +1771,7 @@ func (x *ListPromptsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPromptsResponse.ProtoReflect.Descriptor instead.
 func (*ListPromptsResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{20}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListPromptsResponse) GetPrompts() []*Prompt {
@@ -1567,7 +1799,7 @@ type DeletePromptRequest struct {
 
 func (x *DeletePromptRequest) Reset() {
 	*x = DeletePromptRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[21]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1579,7 +1811,7 @@ func (x *DeletePromptRequest) String() string {
 func (*DeletePromptRequest) ProtoMessage() {}
 
 func (x *DeletePromptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[21]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1592,7 +1824,7 @@ func (x *DeletePromptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePromptRequest.ProtoReflect.Descriptor instead.
 func (*DeletePromptRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{21}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DeletePromptRequest) GetId() string {
@@ -1619,7 +1851,7 @@ type DeletePromptResponse struct {
 
 func (x *DeletePromptResponse) Reset() {
 	*x = DeletePromptResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[22]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1631,7 +1863,7 @@ func (x *DeletePromptResponse) String() string {
 func (*DeletePromptResponse) ProtoMessage() {}
 
 func (x *DeletePromptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[22]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1644,7 +1876,7 @@ func (x *DeletePromptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeletePromptResponse.ProtoReflect.Descriptor instead.
 func (*DeletePromptResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{22}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DeletePromptResponse) GetSuccess() bool {
@@ -1668,7 +1900,7 @@ type RegisterRequest struct {
 
 func (x *RegisterRequest) Reset() {
 	*x = RegisterRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[23]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1680,7 +1912,7 @@ func (x *RegisterRequest) String() string {
 func (*RegisterRequest) ProtoMessage() {}
 
 func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[23]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1693,7 +1925,7 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{23}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *RegisterRequest) GetId() string {
@@ -1742,7 +1974,7 @@ type RegisterResponse struct {
 
 func (x *RegisterResponse) Reset() {
 	*x = RegisterResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[24]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1754,7 +1986,7 @@ func (x *RegisterResponse) String() string {
 func (*RegisterResponse) ProtoMessage() {}
 
 func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[24]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1767,7 +1999,7 @@ func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{24}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *RegisterResponse) GetId() string {
@@ -1795,7 +2027,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[25]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1807,7 +2039,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[25]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1820,7 +2052,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{25}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *LoginRequest) GetEmail() string {
@@ -1843,13 +2075,14 @@ type LoginResponse struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
 	DisplayName   string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[26]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1861,7 +2094,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[26]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1874,7 +2107,7 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{26}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *LoginResponse) GetId() string {
@@ -1898,6 +2131,13 @@ func (x *LoginResponse) GetDisplayName() string {
 	return ""
 }
 
+func (x *LoginResponse) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
 // LoginWithOAuthRequest is the request message for LoginWithOAuth.
 type LoginWithOAuthRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1909,7 +2149,7 @@ type LoginWithOAuthRequest struct {
 
 func (x *LoginWithOAuthRequest) Reset() {
 	*x = LoginWithOAuthRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[27]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1921,7 +2161,7 @@ func (x *LoginWithOAuthRequest) String() string {
 func (*LoginWithOAuthRequest) ProtoMessage() {}
 
 func (x *LoginWithOAuthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[27]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1934,7 +2174,7 @@ func (x *LoginWithOAuthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginWithOAuthRequest.ProtoReflect.Descriptor instead.
 func (*LoginWithOAuthRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{27}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *LoginWithOAuthRequest) GetProvider() string {
@@ -1961,7 +2201,7 @@ type ListCategoriesRequest struct {
 
 func (x *ListCategoriesRequest) Reset() {
 	*x = ListCategoriesRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[28]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1973,7 +2213,7 @@ func (x *ListCategoriesRequest) String() string {
 func (*ListCategoriesRequest) ProtoMessage() {}
 
 func (x *ListCategoriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[28]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1986,7 +2226,7 @@ func (x *ListCategoriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCategoriesRequest.ProtoReflect.Descriptor instead.
 func (*ListCategoriesRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{28}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ListCategoriesRequest) GetOwnerId() string {
@@ -2007,7 +2247,7 @@ type CategoryStats struct {
 
 func (x *CategoryStats) Reset() {
 	*x = CategoryStats{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[29]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2019,7 +2259,7 @@ func (x *CategoryStats) String() string {
 func (*CategoryStats) ProtoMessage() {}
 
 func (x *CategoryStats) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[29]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2032,7 +2272,7 @@ func (x *CategoryStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CategoryStats.ProtoReflect.Descriptor instead.
 func (*CategoryStats) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{29}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *CategoryStats) GetName() string {
@@ -2059,7 +2299,7 @@ type ListCategoriesResponse struct {
 
 func (x *ListCategoriesResponse) Reset() {
 	*x = ListCategoriesResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[30]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2071,7 +2311,7 @@ func (x *ListCategoriesResponse) String() string {
 func (*ListCategoriesResponse) ProtoMessage() {}
 
 func (x *ListCategoriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[30]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2084,7 +2324,7 @@ func (x *ListCategoriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCategoriesResponse.ProtoReflect.Descriptor instead.
 func (*ListCategoriesResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{30}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListCategoriesResponse) GetCategories() []*CategoryStats {
@@ -2103,7 +2343,7 @@ type ListTagsRequest struct {
 
 func (x *ListTagsRequest) Reset() {
 	*x = ListTagsRequest{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[31]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2115,7 +2355,7 @@ func (x *ListTagsRequest) String() string {
 func (*ListTagsRequest) ProtoMessage() {}
 
 func (x *ListTagsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[31]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2128,7 +2368,7 @@ func (x *ListTagsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTagsRequest.ProtoReflect.Descriptor instead.
 func (*ListTagsRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{31}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{35}
 }
 
 // TagStats represents a tag and its usage count.
@@ -2142,7 +2382,7 @@ type TagStats struct {
 
 func (x *TagStats) Reset() {
 	*x = TagStats{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[32]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2154,7 +2394,7 @@ func (x *TagStats) String() string {
 func (*TagStats) ProtoMessage() {}
 
 func (x *TagStats) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[32]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2167,7 +2407,7 @@ func (x *TagStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagStats.ProtoReflect.Descriptor instead.
 func (*TagStats) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{32}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *TagStats) GetName() string {
@@ -2194,7 +2434,7 @@ type ListTagsResponse struct {
 
 func (x *ListTagsResponse) Reset() {
 	*x = ListTagsResponse{}
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[33]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2206,7 +2446,7 @@ func (x *ListTagsResponse) String() string {
 func (*ListTagsResponse) ProtoMessage() {}
 
 func (x *ListTagsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_v1_prompt_proto_msgTypes[33]
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2219,7 +2459,7 @@ func (x *ListTagsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTagsResponse.ProtoReflect.Descriptor instead.
 func (*ListTagsResponse) Descriptor() ([]byte, []int) {
-	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{33}
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListTagsResponse) GetTags() []*TagStats {
@@ -2229,11 +2469,255 @@ func (x *ListTagsResponse) GetTags() []*TagStats {
 	return nil
 }
 
+// UpdateProfileRequest is the request message for UpdateProfile.
+type UpdateProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProfileRequest) Reset() {
+	*x = UpdateProfileRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileRequest) ProtoMessage() {}
+
+func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
+func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *UpdateProfileRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+// UpdateProfileResponse is the response message for UpdateProfile.
+type UpdateProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DisplayName   string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProfileResponse) Reset() {
+	*x = UpdateProfileResponse{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileResponse) ProtoMessage() {}
+
+func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
+func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *UpdateProfileResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateProfileResponse) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *UpdateProfileResponse) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+// GetProfileRequest is the request message for GetProfile.
+type GetProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfileRequest) Reset() {
+	*x = GetProfileRequest{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileRequest) ProtoMessage() {}
+
+func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileRequest.ProtoReflect.Descriptor instead.
+func (*GetProfileRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetProfileRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// GetProfileResponse is the response message for GetProfile.
+type GetProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	DisplayName   string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfileResponse) Reset() {
+	*x = GetProfileResponse{}
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileResponse) ProtoMessage() {}
+
+func (x *GetProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_v1_prompt_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileResponse.ProtoReflect.Descriptor instead.
+func (*GetProfileResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_v1_prompt_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetProfileResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
 var File_api_proto_v1_prompt_proto protoreflect.FileDescriptor
 
 const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\n" +
-	"\x19api/proto/v1/prompt.proto\x12\x02v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe3\x03\n" +
+	"\x19api/proto/v1/prompt.proto\x12\x02v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa9\x04\n" +
 	"\bTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bowner_id\x18\x02 \x01(\tR\aownerId\x12\x14\n" +
@@ -2244,15 +2728,18 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"visibility\x12$\n" +
 	"\x04type\x18\x06 \x01(\x0e2\x10.v1.TemplateTypeR\x04type\x12\x12\n" +
 	"\x04tags\x18\a \x03(\tR\x04tags\x12\x1a\n" +
-	"\bcategory\x18\b \x01(\tR\bcategory\x12\x19\n" +
-	"\bliked_by\x18\t \x03(\tR\alikedBy\x12!\n" +
-	"\ffavorited_by\x18\n" +
-	" \x03(\tR\vfavoritedBy\x129\n" +
+	"\bcategory\x18\b \x01(\tR\bcategory\x12\x1d\n" +
+	"\n" +
+	"like_count\x18\t \x01(\x05R\tlikeCount\x12%\n" +
+	"\x0efavorite_count\x18\n" +
+	" \x01(\x05R\rfavoriteCount\x129\n" +
 	"\n" +
 	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12:\n" +
-	"\x0elatest_version\x18\r \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\"\xb1\x01\n" +
+	"\x0elatest_version\x18\r \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\x12\x19\n" +
+	"\bis_liked\x18\x0e \x01(\bR\aisLiked\x12!\n" +
+	"\fis_favorited\x18\x0f \x01(\bR\visFavorited\"\xb1\x01\n" +
 	"\x0fTemplateVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x1f\n" +
 	"\vtemplate_id\x18\x02 \x01(\tR\n" +
@@ -2314,7 +2801,7 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"{\n" +
 	"\x13GetTemplateResponse\x12(\n" +
 	"\btemplate\x18\x01 \x01(\v2\f.v1.TemplateR\btemplate\x12:\n" +
-	"\x0elatest_version\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\"\xcd\x01\n" +
+	"\x0elatest_version\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\"\x8b\x02\n" +
 	"\x14ListTemplatesRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -2324,7 +2811,9 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"visibility\x12\x19\n" +
 	"\bowner_id\x18\x04 \x01(\tR\aownerId\x12\x1a\n" +
 	"\bcategory\x18\x05 \x01(\tR\bcategory\x12\x12\n" +
-	"\x04tags\x18\x06 \x03(\tR\x04tags\"\xdd\x01\n" +
+	"\x04tags\x18\x06 \x03(\tR\x04tags\x12\x19\n" +
+	"\bmy_likes\x18\a \x01(\bR\amyLikes\x12!\n" +
+	"\fmy_favorites\x18\b \x01(\bR\vmyFavorites\"\xdd\x01\n" +
 	"\x15ListTemplatesResponse\x12*\n" +
 	"\ttemplates\x18\x01 \x03(\v2\f.v1.TemplateR\ttemplates\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x129\n" +
@@ -2334,7 +2823,20 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bowner_id\x18\x02 \x01(\tR\aownerId\"2\n" +
 	"\x16DeleteTemplateResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x8e\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"4\n" +
+	"\x11ToggleLikeRequest\x12\x1f\n" +
+	"\vtemplate_id\x18\x01 \x01(\tR\n" +
+	"templateId\"N\n" +
+	"\x12ToggleLikeResponse\x12\x19\n" +
+	"\bis_liked\x18\x01 \x01(\bR\aisLiked\x12\x1d\n" +
+	"\n" +
+	"like_count\x18\x02 \x01(\x05R\tlikeCount\"8\n" +
+	"\x15ToggleFavoriteRequest\x12\x1f\n" +
+	"\vtemplate_id\x18\x01 \x01(\tR\n" +
+	"templateId\"b\n" +
+	"\x16ToggleFavoriteResponse\x12!\n" +
+	"\fis_favorited\x18\x01 \x01(\bR\visFavorited\x12%\n" +
+	"\x0efavorite_count\x18\x02 \x01(\x05R\rfavoriteCount\"\x8e\x01\n" +
 	"\x13CreatePromptRequest\x12\x1f\n" +
 	"\vtemplate_id\x18\x01 \x01(\tR\n" +
 	"templateId\x12\x1d\n" +
@@ -2377,11 +2879,12 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x05token\x18\x02 \x01(\tR\x05token\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"X\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"p\n" +
 	"\rLoginResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05token\x18\x02 \x01(\tR\x05token\x12!\n" +
-	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\"G\n" +
+	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\"G\n" +
 	"\x15LoginWithOAuthRequest\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x12\n" +
 	"\x04code\x18\x02 \x01(\tR\x04code\"2\n" +
@@ -2399,7 +2902,23 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x05R\x05count\"4\n" +
 	"\x10ListTagsResponse\x12 \n" +
-	"\x04tags\x18\x01 \x03(\v2\f.v1.TagStatsR\x04tags*W\n" +
+	"\x04tags\x18\x01 \x03(\v2\f.v1.TagStatsR\x04tags\"}\n" +
+	"\x14UpdateProfileRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12\x1a\n" +
+	"\bpassword\x18\x04 \x01(\tR\bpassword\"b\n" +
+	"\x15UpdateProfileResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\"#\n" +
+	"\x11GetProfileRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"u\n" +
+	"\x12GetProfileResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12!\n" +
+	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar*W\n" +
 	"\n" +
 	"Visibility\x12\x1a\n" +
 	"\x16VISIBILITY_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -2408,17 +2927,22 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\fTemplateType\x12\x1d\n" +
 	"\x19TEMPLATE_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14TEMPLATE_TYPE_SYSTEM\x10\x01\x12\x16\n" +
-	"\x12TEMPLATE_TYPE_USER\x10\x022\xb2\x01\n" +
+	"\x12TEMPLATE_TYPE_USER\x10\x022\xb5\x02\n" +
 	"\vUserService\x125\n" +
 	"\bRegister\x12\x13.v1.RegisterRequest\x1a\x14.v1.RegisterResponse\x12,\n" +
 	"\x05Login\x12\x10.v1.LoginRequest\x1a\x11.v1.LoginResponse\x12>\n" +
-	"\x0eLoginWithOAuth\x12\x19.v1.LoginWithOAuthRequest\x1a\x11.v1.LoginResponse2\x8b\x06\n" +
+	"\x0eLoginWithOAuth\x12\x19.v1.LoginWithOAuthRequest\x1a\x11.v1.LoginResponse\x12D\n" +
+	"\rUpdateProfile\x12\x18.v1.UpdateProfileRequest\x1a\x19.v1.UpdateProfileResponse\x12;\n" +
+	"\n" +
+	"GetProfile\x12\x15.v1.GetProfileRequest\x1a\x16.v1.GetProfileResponse2\xa1\a\n" +
 	"\rPromptService\x12G\n" +
 	"\x0eCreateTemplate\x12\x19.v1.CreateTemplateRequest\x1a\x1a.v1.CreateTemplateResponse\x12G\n" +
 	"\x0eUpdateTemplate\x12\x19.v1.UpdateTemplateRequest\x1a\x1a.v1.UpdateTemplateResponse\x12>\n" +
 	"\vGetTemplate\x12\x16.v1.GetTemplateRequest\x1a\x17.v1.GetTemplateResponse\x12D\n" +
 	"\rListTemplates\x12\x18.v1.ListTemplatesRequest\x1a\x19.v1.ListTemplatesResponse\x12G\n" +
-	"\x0eDeleteTemplate\x12\x19.v1.DeleteTemplateRequest\x1a\x1a.v1.DeleteTemplateResponse\x12A\n" +
+	"\x0eDeleteTemplate\x12\x19.v1.DeleteTemplateRequest\x1a\x1a.v1.DeleteTemplateResponse\x12C\n" +
+	"\x12ToggleLikeTemplate\x12\x15.v1.ToggleLikeRequest\x1a\x16.v1.ToggleLikeResponse\x12O\n" +
+	"\x16ToggleFavoriteTemplate\x12\x19.v1.ToggleFavoriteRequest\x1a\x1a.v1.ToggleFavoriteResponse\x12A\n" +
 	"\fCreatePrompt\x12\x17.v1.CreatePromptRequest\x1a\x18.v1.CreatePromptResponse\x128\n" +
 	"\tGetPrompt\x12\x14.v1.GetPromptRequest\x1a\x15.v1.GetPromptResponse\x12A\n" +
 	"\fDeletePrompt\x12\x17.v1.DeletePromptRequest\x1a\x18.v1.DeletePromptResponse\x12G\n" +
@@ -2439,7 +2963,7 @@ func file_api_proto_v1_prompt_proto_rawDescGZIP() []byte {
 }
 
 var file_api_proto_v1_prompt_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_proto_v1_prompt_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_api_proto_v1_prompt_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_api_proto_v1_prompt_proto_goTypes = []any{
 	(Visibility)(0),                      // 0: v1.Visibility
 	(TemplateType)(0),                    // 1: v1.TemplateType
@@ -2458,36 +2982,44 @@ var file_api_proto_v1_prompt_proto_goTypes = []any{
 	(*ListTemplatesResponse)(nil),        // 14: v1.ListTemplatesResponse
 	(*DeleteTemplateRequest)(nil),        // 15: v1.DeleteTemplateRequest
 	(*DeleteTemplateResponse)(nil),       // 16: v1.DeleteTemplateResponse
-	(*CreatePromptRequest)(nil),          // 17: v1.CreatePromptRequest
-	(*CreatePromptResponse)(nil),         // 18: v1.CreatePromptResponse
-	(*GetPromptRequest)(nil),             // 19: v1.GetPromptRequest
-	(*GetPromptResponse)(nil),            // 20: v1.GetPromptResponse
-	(*ListPromptsRequest)(nil),           // 21: v1.ListPromptsRequest
-	(*ListPromptsResponse)(nil),          // 22: v1.ListPromptsResponse
-	(*DeletePromptRequest)(nil),          // 23: v1.DeletePromptRequest
-	(*DeletePromptResponse)(nil),         // 24: v1.DeletePromptResponse
-	(*RegisterRequest)(nil),              // 25: v1.RegisterRequest
-	(*RegisterResponse)(nil),             // 26: v1.RegisterResponse
-	(*LoginRequest)(nil),                 // 27: v1.LoginRequest
-	(*LoginResponse)(nil),                // 28: v1.LoginResponse
-	(*LoginWithOAuthRequest)(nil),        // 29: v1.LoginWithOAuthRequest
-	(*ListCategoriesRequest)(nil),        // 30: v1.ListCategoriesRequest
-	(*CategoryStats)(nil),                // 31: v1.CategoryStats
-	(*ListCategoriesResponse)(nil),       // 32: v1.ListCategoriesResponse
-	(*ListTagsRequest)(nil),              // 33: v1.ListTagsRequest
-	(*TagStats)(nil),                     // 34: v1.TagStats
-	(*ListTagsResponse)(nil),             // 35: v1.ListTagsResponse
-	(*timestamppb.Timestamp)(nil),        // 36: google.protobuf.Timestamp
+	(*ToggleLikeRequest)(nil),            // 17: v1.ToggleLikeRequest
+	(*ToggleLikeResponse)(nil),           // 18: v1.ToggleLikeResponse
+	(*ToggleFavoriteRequest)(nil),        // 19: v1.ToggleFavoriteRequest
+	(*ToggleFavoriteResponse)(nil),       // 20: v1.ToggleFavoriteResponse
+	(*CreatePromptRequest)(nil),          // 21: v1.CreatePromptRequest
+	(*CreatePromptResponse)(nil),         // 22: v1.CreatePromptResponse
+	(*GetPromptRequest)(nil),             // 23: v1.GetPromptRequest
+	(*GetPromptResponse)(nil),            // 24: v1.GetPromptResponse
+	(*ListPromptsRequest)(nil),           // 25: v1.ListPromptsRequest
+	(*ListPromptsResponse)(nil),          // 26: v1.ListPromptsResponse
+	(*DeletePromptRequest)(nil),          // 27: v1.DeletePromptRequest
+	(*DeletePromptResponse)(nil),         // 28: v1.DeletePromptResponse
+	(*RegisterRequest)(nil),              // 29: v1.RegisterRequest
+	(*RegisterResponse)(nil),             // 30: v1.RegisterResponse
+	(*LoginRequest)(nil),                 // 31: v1.LoginRequest
+	(*LoginResponse)(nil),                // 32: v1.LoginResponse
+	(*LoginWithOAuthRequest)(nil),        // 33: v1.LoginWithOAuthRequest
+	(*ListCategoriesRequest)(nil),        // 34: v1.ListCategoriesRequest
+	(*CategoryStats)(nil),                // 35: v1.CategoryStats
+	(*ListCategoriesResponse)(nil),       // 36: v1.ListCategoriesResponse
+	(*ListTagsRequest)(nil),              // 37: v1.ListTagsRequest
+	(*TagStats)(nil),                     // 38: v1.TagStats
+	(*ListTagsResponse)(nil),             // 39: v1.ListTagsResponse
+	(*UpdateProfileRequest)(nil),         // 40: v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),        // 41: v1.UpdateProfileResponse
+	(*GetProfileRequest)(nil),            // 42: v1.GetProfileRequest
+	(*GetProfileResponse)(nil),           // 43: v1.GetProfileResponse
+	(*timestamppb.Timestamp)(nil),        // 44: google.protobuf.Timestamp
 }
 var file_api_proto_v1_prompt_proto_depIdxs = []int32{
 	0,  // 0: v1.Template.visibility:type_name -> v1.Visibility
 	1,  // 1: v1.Template.type:type_name -> v1.TemplateType
-	36, // 2: v1.Template.created_at:type_name -> google.protobuf.Timestamp
-	36, // 3: v1.Template.updated_at:type_name -> google.protobuf.Timestamp
+	44, // 2: v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	44, // 3: v1.Template.updated_at:type_name -> google.protobuf.Timestamp
 	3,  // 4: v1.Template.latest_version:type_name -> v1.TemplateVersion
-	36, // 5: v1.TemplateVersion.created_at:type_name -> google.protobuf.Timestamp
+	44, // 5: v1.TemplateVersion.created_at:type_name -> google.protobuf.Timestamp
 	3,  // 6: v1.ListTemplateVersionsResponse.versions:type_name -> v1.TemplateVersion
-	36, // 7: v1.Prompt.created_at:type_name -> google.protobuf.Timestamp
+	44, // 7: v1.Prompt.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 8: v1.CreateTemplateRequest.visibility:type_name -> v1.Visibility
 	1,  // 9: v1.CreateTemplateRequest.type:type_name -> v1.TemplateType
 	2,  // 10: v1.CreateTemplateResponse.template:type_name -> v1.Template
@@ -2503,38 +3035,46 @@ var file_api_proto_v1_prompt_proto_depIdxs = []int32{
 	6,  // 20: v1.CreatePromptResponse.prompt:type_name -> v1.Prompt
 	6,  // 21: v1.GetPromptResponse.prompt:type_name -> v1.Prompt
 	6,  // 22: v1.ListPromptsResponse.prompts:type_name -> v1.Prompt
-	31, // 23: v1.ListCategoriesResponse.categories:type_name -> v1.CategoryStats
-	34, // 24: v1.ListTagsResponse.tags:type_name -> v1.TagStats
-	25, // 25: v1.UserService.Register:input_type -> v1.RegisterRequest
-	27, // 26: v1.UserService.Login:input_type -> v1.LoginRequest
-	29, // 27: v1.UserService.LoginWithOAuth:input_type -> v1.LoginWithOAuthRequest
-	7,  // 28: v1.PromptService.CreateTemplate:input_type -> v1.CreateTemplateRequest
-	9,  // 29: v1.PromptService.UpdateTemplate:input_type -> v1.UpdateTemplateRequest
-	11, // 30: v1.PromptService.GetTemplate:input_type -> v1.GetTemplateRequest
-	13, // 31: v1.PromptService.ListTemplates:input_type -> v1.ListTemplatesRequest
-	15, // 32: v1.PromptService.DeleteTemplate:input_type -> v1.DeleteTemplateRequest
-	17, // 33: v1.PromptService.CreatePrompt:input_type -> v1.CreatePromptRequest
-	19, // 34: v1.PromptService.GetPrompt:input_type -> v1.GetPromptRequest
-	23, // 35: v1.PromptService.DeletePrompt:input_type -> v1.DeletePromptRequest
-	30, // 36: v1.PromptService.ListCategories:input_type -> v1.ListCategoriesRequest
-	33, // 37: v1.PromptService.ListTags:input_type -> v1.ListTagsRequest
-	4,  // 38: v1.PromptService.ListTemplateVersions:input_type -> v1.ListTemplateVersionsRequest
-	26, // 39: v1.UserService.Register:output_type -> v1.RegisterResponse
-	28, // 40: v1.UserService.Login:output_type -> v1.LoginResponse
-	28, // 41: v1.UserService.LoginWithOAuth:output_type -> v1.LoginResponse
-	8,  // 42: v1.PromptService.CreateTemplate:output_type -> v1.CreateTemplateResponse
-	10, // 43: v1.PromptService.UpdateTemplate:output_type -> v1.UpdateTemplateResponse
-	12, // 44: v1.PromptService.GetTemplate:output_type -> v1.GetTemplateResponse
-	14, // 45: v1.PromptService.ListTemplates:output_type -> v1.ListTemplatesResponse
-	16, // 46: v1.PromptService.DeleteTemplate:output_type -> v1.DeleteTemplateResponse
-	18, // 47: v1.PromptService.CreatePrompt:output_type -> v1.CreatePromptResponse
-	20, // 48: v1.PromptService.GetPrompt:output_type -> v1.GetPromptResponse
-	24, // 49: v1.PromptService.DeletePrompt:output_type -> v1.DeletePromptResponse
-	32, // 50: v1.PromptService.ListCategories:output_type -> v1.ListCategoriesResponse
-	35, // 51: v1.PromptService.ListTags:output_type -> v1.ListTagsResponse
-	5,  // 52: v1.PromptService.ListTemplateVersions:output_type -> v1.ListTemplateVersionsResponse
-	39, // [39:53] is the sub-list for method output_type
-	25, // [25:39] is the sub-list for method input_type
+	35, // 23: v1.ListCategoriesResponse.categories:type_name -> v1.CategoryStats
+	38, // 24: v1.ListTagsResponse.tags:type_name -> v1.TagStats
+	29, // 25: v1.UserService.Register:input_type -> v1.RegisterRequest
+	31, // 26: v1.UserService.Login:input_type -> v1.LoginRequest
+	33, // 27: v1.UserService.LoginWithOAuth:input_type -> v1.LoginWithOAuthRequest
+	40, // 28: v1.UserService.UpdateProfile:input_type -> v1.UpdateProfileRequest
+	42, // 29: v1.UserService.GetProfile:input_type -> v1.GetProfileRequest
+	7,  // 30: v1.PromptService.CreateTemplate:input_type -> v1.CreateTemplateRequest
+	9,  // 31: v1.PromptService.UpdateTemplate:input_type -> v1.UpdateTemplateRequest
+	11, // 32: v1.PromptService.GetTemplate:input_type -> v1.GetTemplateRequest
+	13, // 33: v1.PromptService.ListTemplates:input_type -> v1.ListTemplatesRequest
+	15, // 34: v1.PromptService.DeleteTemplate:input_type -> v1.DeleteTemplateRequest
+	17, // 35: v1.PromptService.ToggleLikeTemplate:input_type -> v1.ToggleLikeRequest
+	19, // 36: v1.PromptService.ToggleFavoriteTemplate:input_type -> v1.ToggleFavoriteRequest
+	21, // 37: v1.PromptService.CreatePrompt:input_type -> v1.CreatePromptRequest
+	23, // 38: v1.PromptService.GetPrompt:input_type -> v1.GetPromptRequest
+	27, // 39: v1.PromptService.DeletePrompt:input_type -> v1.DeletePromptRequest
+	34, // 40: v1.PromptService.ListCategories:input_type -> v1.ListCategoriesRequest
+	37, // 41: v1.PromptService.ListTags:input_type -> v1.ListTagsRequest
+	4,  // 42: v1.PromptService.ListTemplateVersions:input_type -> v1.ListTemplateVersionsRequest
+	30, // 43: v1.UserService.Register:output_type -> v1.RegisterResponse
+	32, // 44: v1.UserService.Login:output_type -> v1.LoginResponse
+	32, // 45: v1.UserService.LoginWithOAuth:output_type -> v1.LoginResponse
+	41, // 46: v1.UserService.UpdateProfile:output_type -> v1.UpdateProfileResponse
+	43, // 47: v1.UserService.GetProfile:output_type -> v1.GetProfileResponse
+	8,  // 48: v1.PromptService.CreateTemplate:output_type -> v1.CreateTemplateResponse
+	10, // 49: v1.PromptService.UpdateTemplate:output_type -> v1.UpdateTemplateResponse
+	12, // 50: v1.PromptService.GetTemplate:output_type -> v1.GetTemplateResponse
+	14, // 51: v1.PromptService.ListTemplates:output_type -> v1.ListTemplatesResponse
+	16, // 52: v1.PromptService.DeleteTemplate:output_type -> v1.DeleteTemplateResponse
+	18, // 53: v1.PromptService.ToggleLikeTemplate:output_type -> v1.ToggleLikeResponse
+	20, // 54: v1.PromptService.ToggleFavoriteTemplate:output_type -> v1.ToggleFavoriteResponse
+	22, // 55: v1.PromptService.CreatePrompt:output_type -> v1.CreatePromptResponse
+	24, // 56: v1.PromptService.GetPrompt:output_type -> v1.GetPromptResponse
+	28, // 57: v1.PromptService.DeletePrompt:output_type -> v1.DeletePromptResponse
+	36, // 58: v1.PromptService.ListCategories:output_type -> v1.ListCategoriesResponse
+	39, // 59: v1.PromptService.ListTags:output_type -> v1.ListTagsResponse
+	5,  // 60: v1.PromptService.ListTemplateVersions:output_type -> v1.ListTemplateVersionsResponse
+	43, // [43:61] is the sub-list for method output_type
+	25, // [25:43] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name
 	25, // [25:25] is the sub-list for extension extendee
 	0,  // [0:25] is the sub-list for field type_name
@@ -2551,7 +3091,7 @@ func file_api_proto_v1_prompt_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_v1_prompt_proto_rawDesc), len(file_api_proto_v1_prompt_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   34,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

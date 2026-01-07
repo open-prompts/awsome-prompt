@@ -19,50 +19,50 @@ describe('CreateTemplateModal Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    api.getCategories.mockResolvedValue({ 
-      data: { 
+    api.getCategories.mockResolvedValue({
+      data: {
         categories: [
-          { name: 'Coding', count: 10 }, 
+          { name: 'Coding', count: 10 },
           { name: 'Writing', count: 5 }
-        ] 
-      } 
+        ]
+      }
     });
   });
 
   test('does not render when open is false', () => {
     render(
-      <CreateTemplateModal 
-        open={false} 
-        onRequestClose={mockOnRequestClose} 
+      <CreateTemplateModal
+        open={false}
+        onRequestClose={mockOnRequestClose}
       />
     );
-    
+
     expect(screen.queryByText('create_template.title')).not.toBeInTheDocument();
   });
 
   test('renders form when open is true', async () => {
     render(
-      <CreateTemplateModal 
-        open={true} 
-        onRequestClose={mockOnRequestClose} 
+      <CreateTemplateModal
+        open={true}
+        onRequestClose={mockOnRequestClose}
       />
     );
-    
+
     expect(screen.getByText('create_template.title')).toBeInTheDocument();
     expect(screen.getByText('create_template.label_title')).toBeInTheDocument();
-    
+
     // Wait for categories to load
     await waitFor(() => expect(api.getCategories).toHaveBeenCalled());
     // Check if "Create new category..." option is present (implied by rendering logic, but good to check if easy)
-    // Note: Checking options in Select might require interacting with it depending on implementation, 
+    // Note: Checking options in Select might require interacting with it depending on implementation,
     // but at least we know the component rendered without crashing.
   });
 
   test('validates required fields', async () => {
     render(
-      <CreateTemplateModal 
-        open={true} 
-        onRequestClose={mockOnRequestClose} 
+      <CreateTemplateModal
+        open={true}
+        onRequestClose={mockOnRequestClose}
       />
     );
 
@@ -75,9 +75,9 @@ describe('CreateTemplateModal Component', () => {
 
   test('validates custom category when "create_new" is selected', async () => {
     render(
-      <CreateTemplateModal 
-        open={true} 
-        onRequestClose={mockOnRequestClose} 
+      <CreateTemplateModal
+        open={true}
+        onRequestClose={mockOnRequestClose}
       />
     );
 
@@ -106,9 +106,9 @@ describe('CreateTemplateModal Component', () => {
     api.createTemplate.mockResolvedValue({});
 
     render(
-      <CreateTemplateModal 
-        open={true} 
-        onRequestClose={mockOnRequestClose} 
+      <CreateTemplateModal
+        open={true}
+        onRequestClose={mockOnRequestClose}
         onSuccess={mockOnSuccess}
       />
     );
@@ -123,11 +123,11 @@ describe('CreateTemplateModal Component', () => {
     fireEvent.change(screen.getByLabelText('create_template.label_content'), {
       target: { value: 'Hello World' },
     });
-    
+
     // Select Category (might be tricky with Carbon Select, simulating change on underlying select if possible or just assuming text input behavior for test simplicity if Carbon exposes native select)
     // Carbon Select usually hides the native select. We might need to mock or interact with Carbon specific structure.
     // For simplicity, let's just focus on Title and Content which are simple inputs.
-    
+
     fireEvent.click(screen.getByText('common.create'));
 
     await waitFor(() => {
@@ -145,9 +145,9 @@ describe('CreateTemplateModal Component', () => {
     api.createTemplate.mockRejectedValue(new Error('Failed'));
 
     render(
-      <CreateTemplateModal 
-        open={true} 
-        onRequestClose={mockOnRequestClose} 
+      <CreateTemplateModal
+        open={true}
+        onRequestClose={mockOnRequestClose}
       />
     );
 

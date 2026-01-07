@@ -32,24 +32,24 @@ describe('Layout Component', () => {
   });
 
   test('does not show floating button when not authenticated', () => {
-    renderWithRedux(<Layout>Content</Layout>, { 
-      initialState: { auth: { isAuthenticated: false } } 
+    renderWithRedux(<Layout>Content</Layout>, {
+      initialState: { auth: { isAuthenticated: false } }
     });
     expect(screen.queryByTitle('Create Template')).not.toBeInTheDocument();
   });
 
   test('shows floating button when authenticated', () => {
-    renderWithRedux(<Layout>Content</Layout>, { 
-      initialState: { auth: { isAuthenticated: true, user: { id: '1' } } } 
+    renderWithRedux(<Layout>Content</Layout>, {
+      initialState: { auth: { isAuthenticated: true, user: { id: '1' } } }
     });
     expect(screen.getByTitle('Create Template')).toBeInTheDocument();
   });
 
   test('opens modal when clicking floating button', () => {
-    renderWithRedux(<Layout>Content</Layout>, { 
-      initialState: { auth: { isAuthenticated: true, user: { id: '1' } } } 
+    renderWithRedux(<Layout>Content</Layout>, {
+      initialState: { auth: { isAuthenticated: true, user: { id: '1' } } }
     });
-    
+
     fireEvent.click(screen.getByTitle('Create Template'));
     expect(screen.getByTestId('create-modal')).toBeInTheDocument();
   });

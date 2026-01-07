@@ -28,7 +28,7 @@ test('renders header with logo and navigation', () => {
       <Header />
     </BrowserRouter>
   );
-  
+
   const logoElement = screen.getByText(/Awsome Prompt/i);
   expect(logoElement).toBeInTheDocument();
 
@@ -62,7 +62,7 @@ test('renders user profile when logged in', () => {
 
   const userElement = screen.getByText(/John Doe/i);
   expect(userElement).toBeInTheDocument();
-  
+
   // Check dropdown toggle
   fireEvent.click(userElement);
   const logoutButton = screen.getByText(/Logout/i);

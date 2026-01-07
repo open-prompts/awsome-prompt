@@ -32,12 +32,12 @@ const Login = () => {
     try {
       const response = await login({ email, password });
       // Assuming the response contains the token and user info
-      const { token, id, displayName } = response.data;
-      
+      const { token, id, display_name, avatar } = response.data;
+
       // Dispatch login success action
-      dispatch(loginSuccess({ 
-        token, 
-        user: { id, displayName, email } 
+      dispatch(loginSuccess({
+        token,
+        user: { id, displayName: display_name, email, avatar }
       }));
 
       // Redirect to home page
@@ -91,6 +91,11 @@ const Login = () => {
         <Link to="/register" className="register-link">
           {t('login.register_link')}
         </Link>
+        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+          <Link to="/" className="back-home-link">
+            Back to Home
+          </Link>
+        </div>
       </div>
     </div>
   );

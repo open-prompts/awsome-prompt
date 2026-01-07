@@ -6,7 +6,7 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 
 # Install protoc and plugins
-RUN apk add --no-cache protobuf protobuf-dev
+RUN apk add protobuf protobuf-dev
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 

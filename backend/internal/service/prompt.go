@@ -97,11 +97,67 @@ func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTempla
 	}, nil
 }
 
+// ForkTemplate creates a copy of a template for the current user.
+func (s *PromptService) ForkTemplate(ctx context.Context, templateID string) (*pb.CreateTemplateResponse, error) {
+	userID, err := GetUserIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 1. Get Source Template
+	sourceTpl, err := s.TemplateRepo.Get(ctx, templateID, "")
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "source template not found")
+	}
+
+	// 2. Get Source Latest Version
+	sourceVer, err := s.TemplateVersionRepo.GetLatest(ctx, templateID)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "source template has no versions")
+	}
+
+	zap.S().Infof("Forking template %s version %d to user %s", templateID, sourceVer.Version, userID)
+
+	// 3. Create New Template
+	newTpl := &models.Template{
+		OwnerID:     userID,
+		Title:       sourceTpl.Title,
+		Description: sourceTpl.Description,
+		Visibility:  "private", // Always private on fork
+		Type:        "user",
+		Tags:        sourceTpl.Tags,
+		Category:    sourceTpl.Category,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := s.TemplateRepo.Create(ctx, newTpl); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create forked template: %v", err)
+	}
+
+	// 4. Create New Version (copy content)
+	newVer := &models.TemplateVersion{
+		TemplateID: newTpl.ID,
+		Version:    1,
+		Content:    sourceVer.Content,
+		CreatedAt:  time.Now(),
+	}
+
+	if err := s.TemplateVersionRepo.Create(ctx, newVer); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create forked version: %v", err)
+	}
+
+	return &pb.CreateTemplateResponse{
+		Template: s.templateModelToProto(newTpl),
+		Version:  s.versionModelToProto(newVer),
+	}, nil
+}
+
 // UpdateTemplate updates an existing template.
 func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTemplateRequest) (*pb.UpdateTemplateResponse, error) {
 	zap.S().Infof("PromptService.UpdateTemplate: template_id=%s", req.TemplateId)
 	// Get existing template
-	template, err := s.TemplateRepo.Get(ctx, req.TemplateId)
+	template, err := s.TemplateRepo.Get(ctx, req.TemplateId, "")
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "template not found")
 	}
@@ -118,7 +174,27 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 	if req.Description != "" {
 		template.Description = sql.NullString{String: req.Description, Valid: true}
 	}
-	// ... handle other fields ...
+	// Missing field updates added:
+	if req.Visibility != pb.Visibility_VISIBILITY_UNSPECIFIED {
+		template.Visibility = req.Visibility.String()
+		// Also handle short strings "public"/"private" if pb enum strings differ?
+		// The PB enum String() returns "VISIBILITY_PUBLIC".
+		// The DB likely expects "public" or "private".
+		// Let's check model or DB schema.
+		// Assuming DB expects lowercase based on other code.
+		if req.Visibility == pb.Visibility_VISIBILITY_PUBLIC {
+			template.Visibility = "public"
+		} else if req.Visibility == pb.Visibility_VISIBILITY_PRIVATE {
+			template.Visibility = "private"
+		}
+	}
+	if req.Category != "" {
+		template.Category = sql.NullString{String: req.Category, Valid: true}
+	}
+	if len(req.Tags) > 0 {
+		template.Tags = req.Tags
+	}
+
 	template.UpdatedAt = time.Now()
 
 	if err := s.TemplateRepo.Update(ctx, template); err != nil {
@@ -152,7 +228,8 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 // GetTemplate retrieves a template by ID.
 func (s *PromptService) GetTemplate(ctx context.Context, req *pb.GetTemplateRequest) (*pb.GetTemplateResponse, error) {
 	zap.S().Infof("PromptService.GetTemplate: id=%s", req.Id)
-	template, err := s.TemplateRepo.Get(ctx, req.Id)
+	userID, _ := GetUserIDFromContext(ctx)
+	template, err := s.TemplateRepo.Get(ctx, req.Id, userID)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "template not found")
 	}
@@ -177,6 +254,9 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 
 	// Helper to fetch templates and versions
 	fetch := func(limit, offset int, filters map[string]interface{}) ([]*pb.Template, string, error) {
+		if userID != "" {
+			filters["current_user_id"] = userID
+		}
 		templates, err := s.TemplateRepo.List(ctx, limit, offset, filters)
 		if err != nil {
 			return nil, "", err
@@ -195,6 +275,33 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 			nextToken = strconv.Itoa(offset + limit)
 		}
 		return pbTemplates, nextToken, nil
+	}
+
+	// SPECIAL HANDLING: My Likes / My Favorites (Treat as single stream)
+	if userID != "" && (req.MyLikes || req.MyFavorites) {
+		offset := 0
+		if req.PageToken != "" {
+			offset, _ = strconv.Atoi(req.PageToken)
+		}
+		filters := make(map[string]interface{})
+		if req.MyLikes {
+			filters["my_likes"] = true
+		}
+		if req.MyFavorites {
+			filters["my_favorites"] = true
+		}
+		if req.Category != "" {
+			filters["category"] = req.Category
+		}
+		if len(req.Tags) > 0 {
+			filters["tags"] = req.Tags
+		}
+
+		templates, nextToken, err := fetch(limit, offset, filters)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to list templates: %v", err)
+		}
+		return &pb.ListTemplatesResponse{Templates: templates, NextPageToken: nextToken}, nil
 	}
 
 	// 1. No Token: Return Public Only
@@ -346,7 +453,7 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 
 func (s *PromptService) DeleteTemplate(ctx context.Context, req *pb.DeleteTemplateRequest) (*pb.DeleteTemplateResponse, error) {
 	zap.S().Infof("PromptService.DeleteTemplate: id=%s owner_id=%s", req.Id, req.OwnerId)
-	template, err := s.TemplateRepo.Get(ctx, req.Id)
+	template, err := s.TemplateRepo.Get(ctx, req.Id, "")
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "template not found")
 	}
@@ -360,6 +467,44 @@ func (s *PromptService) DeleteTemplate(ctx context.Context, req *pb.DeleteTempla
 	}
 
 	return &pb.DeleteTemplateResponse{Success: true}, nil
+}
+
+// ToggleLikeTemplate toggles the like status of a template.
+func (s *PromptService) ToggleLikeTemplate(ctx context.Context, req *pb.ToggleLikeRequest) (*pb.ToggleLikeResponse, error) {
+	userID, err := GetUserIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	zap.S().Infof("PromptService.ToggleLikeTemplate: user_id=%s template_id=%s", userID, req.TemplateId)
+
+	isLiked, count, err := s.TemplateRepo.ToggleLike(ctx, userID, req.TemplateId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to toggle like: %v", err)
+	}
+
+	return &pb.ToggleLikeResponse{
+		IsLiked:   isLiked,
+		LikeCount: count,
+	}, nil
+}
+
+// ToggleFavoriteTemplate toggles the favorite status of a template.
+func (s *PromptService) ToggleFavoriteTemplate(ctx context.Context, req *pb.ToggleFavoriteRequest) (*pb.ToggleFavoriteResponse, error) {
+	userID, err := GetUserIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	zap.S().Infof("PromptService.ToggleFavoriteTemplate: user_id=%s template_id=%s", userID, req.TemplateId)
+
+	isFavorited, count, err := s.TemplateRepo.ToggleFavorite(ctx, userID, req.TemplateId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to toggle favorite: %v", err)
+	}
+
+	return &pb.ToggleFavoriteResponse{
+		IsFavorited:   isFavorited,
+		FavoriteCount: count,
+	}, nil
 }
 
 func (s *PromptService) ListCategories(ctx context.Context, req *pb.ListCategoriesRequest) (*pb.ListCategoriesResponse, error) {
@@ -559,15 +704,19 @@ func (s *PromptService) templateModelToProto(m *models.Template) *pb.Template {
 	}
 
 	return &pb.Template{
-		Id:          m.ID,
-		OwnerId:     m.OwnerID,
-		Title:       m.Title,
-		Description: m.Description.String,
-		Visibility:  vis,
-		Tags:        m.Tags,
-		Category:    m.Category.String,
-		CreatedAt:   timestamppb.New(m.CreatedAt),
-		UpdatedAt:   timestamppb.New(m.UpdatedAt),
+		Id:            m.ID,
+		OwnerId:       m.OwnerID,
+		Title:         m.Title,
+		Description:   m.Description.String,
+		Visibility:    vis,
+		Tags:          m.Tags,
+		Category:      m.Category.String,
+		CreatedAt:     timestamppb.New(m.CreatedAt),
+		UpdatedAt:     timestamppb.New(m.UpdatedAt),
+		LikeCount:     m.LikeCount,
+		FavoriteCount: m.FavoriteCount,
+		IsLiked:       m.IsLiked,
+		IsFavorited:   m.IsFavorited,
 	}
 }
 

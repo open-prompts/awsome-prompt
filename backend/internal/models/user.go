@@ -11,6 +11,7 @@ type User struct {
 	Mobile       sql.NullString `json:"mobile"`
 	PasswordHash string         `json:"-"`
 	DisplayName  string         `json:"display_name"`
+	Avatar       string         `json:"avatar"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 }

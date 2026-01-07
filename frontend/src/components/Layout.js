@@ -14,8 +14,18 @@ import './Layout.scss';
  * @param {React.ReactNode} props.children - The content to display
  * @param {Function} props.onFilterChange - Callback for sidebar filter changes
  * @param {boolean} props.showSidebar - Whether to show the sidebar (default: true)
+ * @param {boolean} props.showCreateButton - Whether to show the create template button (default: true)
+ * @param {Function} props.onCreateSuccess - Callback when a template is successfully created
  */
-const Layout = ({ children, onFilterChange, currentFilters, showSidebar = true }) => {
+const Layout = ({
+  children,
+  onFilterChange,
+  currentFilters,
+  showSidebar = true,
+  showCreateButton = true,
+  onCreateSuccess,
+  availableTags
+}) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,33 +38,35 @@ const Layout = ({ children, onFilterChange, currentFilters, showSidebar = true }
   };
 
   const handleModalSuccess = () => {
-    // Optionally refresh lists or show success notification via global toast
     console.log("Template created successfully");
+    if (onCreateSuccess) {
+      onCreateSuccess();
+    }
   };
 
   return (
     <div className="app-layout">
       <Header />
       <div className="app-body">
-        {showSidebar && <Sidebar onFilterChange={onFilterChange} currentFilters={currentFilters} />}
+        {showSidebar && <Sidebar onFilterChange={onFilterChange} currentFilters={currentFilters} availableTags={availableTags} />}
         <main className="app-content">
           {children}
         </main>
       </div>
-      
-      {isAuthenticated && (
+
+      {isAuthenticated && showCreateButton && (
         <>
-          <button 
-            className="floating-create-btn" 
-            onClick={handleCreateClick} 
+          <button
+            className="floating-create-btn"
+            onClick={handleCreateClick}
             aria-label="Create Template"
             title="Create Template"
           >
             <Add size={32} />
           </button>
-          
-          <CreateTemplateModal 
-            open={isModalOpen} 
+
+          <CreateTemplateModal
+            open={isModalOpen}
             onRequestClose={handleModalClose}
             onSuccess={handleModalSuccess}
           />

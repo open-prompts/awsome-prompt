@@ -88,7 +88,7 @@ describe('Login Component', () => {
         password: 'password123',
       });
     });
-    
+
     expect(localStorage.getItem('token')).toBe('fake-token');
     expect(mockedNavigate).toHaveBeenCalledWith('/');
   });

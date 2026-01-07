@@ -22,6 +22,8 @@ const (
 	UserService_Register_FullMethodName       = "/v1.UserService/Register"
 	UserService_Login_FullMethodName          = "/v1.UserService/Login"
 	UserService_LoginWithOAuth_FullMethodName = "/v1.UserService/LoginWithOAuth"
+	UserService_UpdateProfile_FullMethodName  = "/v1.UserService/UpdateProfile"
+	UserService_GetProfile_FullMethodName     = "/v1.UserService/GetProfile"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -36,6 +38,10 @@ type UserServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// LoginWithOAuth authenticates a user via an OAuth provider.
 	LoginWithOAuth(ctx context.Context, in *LoginWithOAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	// UpdateProfile updates information for the logged-in user.
+	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
+	// GetProfile retrieves the profile of the logged-in user.
+	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 }
 
 type userServiceClient struct {
@@ -76,6 +82,26 @@ func (c *userServiceClient) LoginWithOAuth(ctx context.Context, in *LoginWithOAu
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProfileResponse)
+	err := c.cc.Invoke(ctx, UserService_UpdateProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProfileResponse)
+	err := c.cc.Invoke(ctx, UserService_GetProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -88,6 +114,10 @@ type UserServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// LoginWithOAuth authenticates a user via an OAuth provider.
 	LoginWithOAuth(context.Context, *LoginWithOAuthRequest) (*LoginResponse, error)
+	// UpdateProfile updates information for the logged-in user.
+	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
+	// GetProfile retrieves the profile of the logged-in user.
+	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -106,6 +136,12 @@ func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*Lo
 }
 func (UnimplementedUserServiceServer) LoginWithOAuth(context.Context, *LoginWithOAuthRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LoginWithOAuth not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
+}
+func (UnimplementedUserServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -182,6 +218,42 @@ func _UserService_LoginWithOAuth_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_UpdateProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -201,23 +273,33 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "LoginWithOAuth",
 			Handler:    _UserService_LoginWithOAuth_Handler,
 		},
+		{
+			MethodName: "UpdateProfile",
+			Handler:    _UserService_UpdateProfile_Handler,
+		},
+		{
+			MethodName: "GetProfile",
+			Handler:    _UserService_GetProfile_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "api/proto/v1/prompt.proto",
 }
 
 const (
-	PromptService_CreateTemplate_FullMethodName       = "/v1.PromptService/CreateTemplate"
-	PromptService_UpdateTemplate_FullMethodName       = "/v1.PromptService/UpdateTemplate"
-	PromptService_GetTemplate_FullMethodName          = "/v1.PromptService/GetTemplate"
-	PromptService_ListTemplates_FullMethodName        = "/v1.PromptService/ListTemplates"
-	PromptService_DeleteTemplate_FullMethodName       = "/v1.PromptService/DeleteTemplate"
-	PromptService_CreatePrompt_FullMethodName         = "/v1.PromptService/CreatePrompt"
-	PromptService_GetPrompt_FullMethodName            = "/v1.PromptService/GetPrompt"
-	PromptService_DeletePrompt_FullMethodName         = "/v1.PromptService/DeletePrompt"
-	PromptService_ListCategories_FullMethodName       = "/v1.PromptService/ListCategories"
-	PromptService_ListTags_FullMethodName             = "/v1.PromptService/ListTags"
-	PromptService_ListTemplateVersions_FullMethodName = "/v1.PromptService/ListTemplateVersions"
+	PromptService_CreateTemplate_FullMethodName         = "/v1.PromptService/CreateTemplate"
+	PromptService_UpdateTemplate_FullMethodName         = "/v1.PromptService/UpdateTemplate"
+	PromptService_GetTemplate_FullMethodName            = "/v1.PromptService/GetTemplate"
+	PromptService_ListTemplates_FullMethodName          = "/v1.PromptService/ListTemplates"
+	PromptService_DeleteTemplate_FullMethodName         = "/v1.PromptService/DeleteTemplate"
+	PromptService_ToggleLikeTemplate_FullMethodName     = "/v1.PromptService/ToggleLikeTemplate"
+	PromptService_ToggleFavoriteTemplate_FullMethodName = "/v1.PromptService/ToggleFavoriteTemplate"
+	PromptService_CreatePrompt_FullMethodName           = "/v1.PromptService/CreatePrompt"
+	PromptService_GetPrompt_FullMethodName              = "/v1.PromptService/GetPrompt"
+	PromptService_DeletePrompt_FullMethodName           = "/v1.PromptService/DeletePrompt"
+	PromptService_ListCategories_FullMethodName         = "/v1.PromptService/ListCategories"
+	PromptService_ListTags_FullMethodName               = "/v1.PromptService/ListTags"
+	PromptService_ListTemplateVersions_FullMethodName   = "/v1.PromptService/ListTemplateVersions"
 )
 
 // PromptServiceClient is the client API for PromptService service.
@@ -236,6 +318,10 @@ type PromptServiceClient interface {
 	ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error)
 	// DeleteTemplate deletes a template.
 	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error)
+	// ToggleLikeTemplate toggles the like status of a template for the current user.
+	ToggleLikeTemplate(ctx context.Context, in *ToggleLikeRequest, opts ...grpc.CallOption) (*ToggleLikeResponse, error)
+	// ToggleFavoriteTemplate toggles the favorite status of a template for the current user.
+	ToggleFavoriteTemplate(ctx context.Context, in *ToggleFavoriteRequest, opts ...grpc.CallOption) (*ToggleFavoriteResponse, error)
 	// CreatePrompt creates a new prompt instance from a template.
 	CreatePrompt(ctx context.Context, in *CreatePromptRequest, opts ...grpc.CallOption) (*CreatePromptResponse, error)
 	// GetPrompt retrieves a prompt by ID.
@@ -302,6 +388,26 @@ func (c *promptServiceClient) DeleteTemplate(ctx context.Context, in *DeleteTemp
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteTemplateResponse)
 	err := c.cc.Invoke(ctx, PromptService_DeleteTemplate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *promptServiceClient) ToggleLikeTemplate(ctx context.Context, in *ToggleLikeRequest, opts ...grpc.CallOption) (*ToggleLikeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ToggleLikeResponse)
+	err := c.cc.Invoke(ctx, PromptService_ToggleLikeTemplate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *promptServiceClient) ToggleFavoriteTemplate(ctx context.Context, in *ToggleFavoriteRequest, opts ...grpc.CallOption) (*ToggleFavoriteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ToggleFavoriteResponse)
+	err := c.cc.Invoke(ctx, PromptService_ToggleFavoriteTemplate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -384,6 +490,10 @@ type PromptServiceServer interface {
 	ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error)
 	// DeleteTemplate deletes a template.
 	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
+	// ToggleLikeTemplate toggles the like status of a template for the current user.
+	ToggleLikeTemplate(context.Context, *ToggleLikeRequest) (*ToggleLikeResponse, error)
+	// ToggleFavoriteTemplate toggles the favorite status of a template for the current user.
+	ToggleFavoriteTemplate(context.Context, *ToggleFavoriteRequest) (*ToggleFavoriteResponse, error)
 	// CreatePrompt creates a new prompt instance from a template.
 	CreatePrompt(context.Context, *CreatePromptRequest) (*CreatePromptResponse, error)
 	// GetPrompt retrieves a prompt by ID.
@@ -420,6 +530,12 @@ func (UnimplementedPromptServiceServer) ListTemplates(context.Context, *ListTemp
 }
 func (UnimplementedPromptServiceServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteTemplate not implemented")
+}
+func (UnimplementedPromptServiceServer) ToggleLikeTemplate(context.Context, *ToggleLikeRequest) (*ToggleLikeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ToggleLikeTemplate not implemented")
+}
+func (UnimplementedPromptServiceServer) ToggleFavoriteTemplate(context.Context, *ToggleFavoriteRequest) (*ToggleFavoriteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ToggleFavoriteTemplate not implemented")
 }
 func (UnimplementedPromptServiceServer) CreatePrompt(context.Context, *CreatePromptRequest) (*CreatePromptResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreatePrompt not implemented")
@@ -546,6 +662,42 @@ func _PromptService_DeleteTemplate_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PromptServiceServer).DeleteTemplate(ctx, req.(*DeleteTemplateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PromptService_ToggleLikeTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ToggleLikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PromptServiceServer).ToggleLikeTemplate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PromptService_ToggleLikeTemplate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PromptServiceServer).ToggleLikeTemplate(ctx, req.(*ToggleLikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PromptService_ToggleFavoriteTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ToggleFavoriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PromptServiceServer).ToggleFavoriteTemplate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PromptService_ToggleFavoriteTemplate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PromptServiceServer).ToggleFavoriteTemplate(ctx, req.(*ToggleFavoriteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -684,6 +836,14 @@ var PromptService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTemplate",
 			Handler:    _PromptService_DeleteTemplate_Handler,
+		},
+		{
+			MethodName: "ToggleLikeTemplate",
+			Handler:    _PromptService_ToggleLikeTemplate_Handler,
+		},
+		{
+			MethodName: "ToggleFavoriteTemplate",
+			Handler:    _PromptService_ToggleFavoriteTemplate_Handler,
 		},
 		{
 			MethodName: "CreatePrompt",

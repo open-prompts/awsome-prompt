@@ -39,6 +39,11 @@ func (m *MockUserRepository) GetByID(ctx context.Context, id string) (*models.Us
 	return args.Get(0).(*models.User), args.Error(1)
 }
 
+func (m *MockUserRepository) Update(ctx context.Context, user *models.User) error {
+	args := m.Called(ctx, user)
+	return args.Error(0)
+}
+
 func TestRegister(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		mockRepo := new(MockUserRepository)
@@ -180,5 +185,37 @@ func TestLogin(t *testing.T) {
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 		assert.Contains(t, err.Error(), "invalid credentials")
+	})
+}
+
+func TestUpdateProfile(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		mockRepo := new(MockUserRepository)
+		svc := NewUserService(mockRepo, "secret")
+
+		userID := "user_123"
+		existingUser := &models.User{
+			ID:           userID,
+			DisplayName:  "Old Name",
+			PasswordHash: "hashed_password",
+		}
+
+		req := &pb.UpdateProfileRequest{
+			Id:          userID,
+			DisplayName: "New Name",
+			Avatar:      "avatar_data",
+		}
+
+		mockRepo.On("GetByID", mock.Anything, userID).Return(existingUser, nil)
+		mockRepo.On("Update", mock.Anything, mock.MatchedBy(func(u *models.User) bool {
+			return u.ID == userID && u.DisplayName == "New Name" && u.Avatar == "avatar_data"
+		})).Return(nil)
+
+		resp, err := svc.UpdateProfile(context.Background(), req)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "New Name", resp.DisplayName)
+		assert.Equal(t, "avatar_data", resp.Avatar)
+		mockRepo.AssertExpectations(t)
 	})
 }

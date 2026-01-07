@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { UserAvatar } from '@carbon/icons-react';
 import { logout } from '../store/authSlice';
 import './Header.scss';
+
 
 /**
  * Header component for the application.
@@ -28,41 +30,41 @@ const Header = () => {
     <header className="app-header">
       <div className="header-left">
         <Link to="/" className="logo">
+          <img src="/images/logo.jpg" alt="Logo" style={{ height: '32px', marginRight: '10px', borderRadius: '50%' }} />
           Awsome Prompt
         </Link>
-        <nav className="main-nav">
-          <Link to="/">Home</Link>
-        </nav>
       </div>
       <div className="header-right">
         {user ? (
           <div className="user-profile" style={{ position: 'relative' }}>
-             <button 
-              className="user-name-btn" 
+             <button
+              className="user-name-btn"
               onClick={toggleDropdown}
               style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'inherit' }}
             >
               <span className="user-name" style={{ marginRight: '8px' }}>{user.displayName || user.email || 'User'}</span>
-              <div className="avatar-circle">
-                {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-              </div>
+              {user.avatar ? (
+                <img src={user.avatar} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+              ) : (
+                <UserAvatar size={32} />
+              )}
             </button>
-            
+
             {isDropdownOpen && (
-              <div className="profile-dropdown" style={{ 
-                position: 'absolute', 
-                top: '100%', 
-                right: 0, 
-                backgroundColor: 'white', 
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)', 
+              <div className="profile-dropdown" style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                backgroundColor: 'white',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                 borderRadius: '4px',
                 padding: '8px 0',
                 minWidth: '150px',
                 zIndex: 1000,
                 color: 'black'
               }}>
-                <div style={{ padding: '8px 16px', borderBottom: '1px solid #eee', cursor: 'pointer' }} onClick={() => console.log('Profile Settings')}>
-                  Profile Settings
+                <div style={{ padding: '8px 16px', borderBottom: '1px solid #eee', cursor: 'pointer' }} onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}>
+                  Profile
                 </div>
                  <div style={{ padding: '8px 16px', cursor: 'pointer', color: 'red' }} onClick={handleLogout}>
                   Logout

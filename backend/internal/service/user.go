@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -132,6 +133,62 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 		Id:          user.ID,
 		Token:       token,
 		DisplayName: user.DisplayName,
+		Avatar:      user.Avatar,
+	}, nil
+}
+
+func (s *UserService) UpdateProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.UpdateProfileResponse, error) {
+	zap.S().Infof("UserService.UpdateProfile: id=%s", req.Id)
+
+	user, err := s.Repo.GetByID(ctx, req.Id)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to get user: %v", err)
+	}
+
+	if req.DisplayName != "" {
+		user.DisplayName = req.DisplayName
+	}
+	if req.Avatar != "" {
+		user.Avatar = req.Avatar
+	}
+	if strings.TrimSpace(req.Password) != "" {
+		hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to hash password: %v", err)
+		}
+		user.PasswordHash = string(hash)
+	}
+
+	if err := s.Repo.Update(ctx, user); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
+	}
+
+	return &pb.UpdateProfileResponse{
+		Id:          user.ID,
+		DisplayName: user.DisplayName,
+		Avatar:      user.Avatar,
+	}, nil
+}
+
+func (s *UserService) GetProfile(ctx context.Context, req *pb.GetProfileRequest) (*pb.GetProfileResponse, error) {
+	zap.S().Infof("UserService.GetProfile: id=%s", req.Id)
+
+	user, err := s.Repo.GetByID(ctx, req.Id)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
+		return nil, status.Errorf(codes.Internal, "failed to get user: %v", err)
+	}
+
+	return &pb.GetProfileResponse{
+		Id:          user.ID,
+		Email:       user.Email,
+		DisplayName: user.DisplayName,
+		Avatar:      user.Avatar,
 	}, nil
 }
 

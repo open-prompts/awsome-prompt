@@ -29,13 +29,13 @@
         font-size: 0.9rem;
         display: flex;
         justify-content: space-between;
-        
+
         &.active {
           font-weight: bold;
           color: #0f62fe;
           background-color: #f0f8ff; // Light background
           padding-left: 8px;
-          margin-left: -8px; 
+          margin-left: -8px;
           border-left: 3px solid #0f62fe;
         }
 

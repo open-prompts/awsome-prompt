@@ -30,9 +30,9 @@ api.interceptors.response.use(
       // Clear local storage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      
+
       // Redirect to login page
-      // Using window.location to ensure a full redirect, 
+      // Using window.location to ensure a full redirect,
       // though ideally we could use a history object if we had access to it outside of React context
       if (window.location.pathname !== '/login') {
          window.location.href = '/login';
@@ -71,6 +71,18 @@ export const deleteTemplate = (id) => {
   return api.delete(`/templates/${id}`);
 };
 
+export const toggleTemplateLike = (id) => {
+  return api.post(`/templates/${id}/like`);
+};
+
+export const toggleTemplateFavorite = (id) => {
+  return api.post(`/templates/${id}/favorite`);
+};
+
+export const forkTemplate = (id) => {
+  return api.post(`/templates/${id}/fork`);
+};
+
 export const listTemplateVersions = (templateId, params) => {
   return api.get(`/templates/${templateId}/versions`, { params });
 };
@@ -88,13 +100,20 @@ export const deletePrompt = (id) => {
   return api.delete(`/prompts/${id}`);
 };
 
-// API methods for Auth (placeholder for now)
 export const login = (credentials) => {
   return api.post('/login', credentials);
 };
 
 export const register = (userData) => {
   return api.post('/register', userData);
+};
+
+export const updateProfile = (userData) => {
+  return api.put('/profile', userData);
+};
+
+export const getProfile = () => {
+  return api.get('/profile');
 };
 
 export default api;

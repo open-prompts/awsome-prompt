@@ -16,6 +16,12 @@ service UserService {
 
   // LoginWithOAuth authenticates a user via an OAuth provider.
   rpc LoginWithOAuth(LoginWithOAuthRequest) returns (LoginResponse);
+
+  // UpdateProfile updates information for the logged-in user.
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+
+  // GetProfile retrieves the profile of the logged-in user.
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
 }
 
 // PromptService defines the RPC methods for managing templates and prompts.
@@ -36,6 +42,12 @@ service PromptService {
 
   // DeleteTemplate deletes a template.
   rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse);
+
+  // ToggleLikeTemplate toggles the like status of a template for the current user.
+  rpc ToggleLikeTemplate(ToggleLikeRequest) returns (ToggleLikeResponse);
+
+  // ToggleFavoriteTemplate toggles the favorite status of a template for the current user.
+  rpc ToggleFavoriteTemplate(ToggleFavoriteRequest) returns (ToggleFavoriteResponse);
 
   // Prompt RPCs
 
@@ -90,16 +102,20 @@ message Template {
   repeated string tags = 7;
   // Category of the template.
   string category = 8;
-  // List of user IDs who liked the template.
-  repeated string liked_by = 9;
-  // List of user IDs who favorited the template.
-  repeated string favorited_by = 10;
+  // Number of likes.
+  int32 like_count = 9;
+  // Number of favorites.
+  int32 favorite_count = 10;
   // Timestamp when the template was created.
   google.protobuf.Timestamp created_at = 11;
   // Timestamp when the template was last updated.
   google.protobuf.Timestamp updated_at = 12;
   // The latest version of the template.
   TemplateVersion latest_version = 13;
+  // Whether the current user has liked this template.
+  bool is_liked = 14;
+  // Whether the current user has favorited this template.
+  bool is_favorited = 15;
 }
 
 // TemplateVersion represents a specific version of a template's content.
@@ -208,6 +224,10 @@ message ListTemplatesRequest {
   string category = 5;
   // Filter by tags.
   repeated string tags = 6;
+  // Filter by user likes.
+  bool my_likes = 7;
+  // Filter by user favorites.
+  bool my_favorites = 8;
 }
 
 // ListTemplatesResponse is the response message for ListTemplates.
@@ -227,6 +247,28 @@ message DeleteTemplateRequest {
 // DeleteTemplateResponse is the response message for DeleteTemplate.
 message DeleteTemplateResponse {
   bool success = 1;
+}
+
+// ToggleLikeRequest is the request message for ToggleLikeTemplate.
+message ToggleLikeRequest {
+  string template_id = 1;
+}
+
+// ToggleLikeResponse is the response message for ToggleLikeTemplate.
+message ToggleLikeResponse {
+  bool is_liked = 1;
+  int32 like_count = 2;
+}
+
+// ToggleFavoriteRequest is the request message for ToggleFavoriteTemplate.
+message ToggleFavoriteRequest {
+  string template_id = 1;
+}
+
+// ToggleFavoriteResponse is the response message for ToggleFavoriteTemplate.
+message ToggleFavoriteResponse {
+  bool is_favorited = 1;
+  int32 favorite_count = 2;
 }
 
 // CreatePromptRequest is the request message for CreatePrompt.
@@ -304,6 +346,7 @@ message LoginResponse {
   string id = 1;
   string token = 2;
   string display_name = 3;
+  string avatar = 4;
 }
 
 // LoginWithOAuthRequest is the request message for LoginWithOAuth.
@@ -340,4 +383,32 @@ message TagStats {
 // ListTagsResponse is the response message for ListTags.
 message ListTagsResponse {
   repeated TagStats tags = 1;
+}
+
+// UpdateProfileRequest is the request message for UpdateProfile.
+message UpdateProfileRequest {
+  string id = 1;
+  string display_name = 2;
+  string avatar = 3;
+  string password = 4;
+}
+
+// UpdateProfileResponse is the response message for UpdateProfile.
+message UpdateProfileResponse {
+  string id = 1;
+  string display_name = 2;
+  string avatar = 3;
+}
+
+// GetProfileRequest is the request message for GetProfile.
+message GetProfileRequest {
+  string id = 1;
+}
+
+// GetProfileResponse is the response message for GetProfile.
+message GetProfileResponse {
+  string id = 1;
+  string email = 2;
+  string display_name = 3;
+  string avatar = 4;
 }

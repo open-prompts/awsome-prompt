@@ -221,6 +221,12 @@ func main() {
 			if len(req.Tags) == 0 {
 				req.Tags = q["tags[]"] // Supports ?tags[]=a&tags[]=b
 			}
+			if v := q.Get("my_likes"); v == "true" {
+				req.MyLikes = true
+			}
+			if v := q.Get("my_favorites"); v == "true" {
+				req.MyFavorites = true
+			}
 
 			resp, err := svc.ListTemplates(ctx, req)
 			if err != nil {
@@ -273,7 +279,7 @@ func main() {
 		// Enable CORS
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		if r.Method == http.MethodOptions {
 			return
@@ -282,6 +288,36 @@ func main() {
 		id := strings.TrimPrefix(r.URL.Path, "/api/v1/templates/")
 		if id == "" {
 			http.Error(w, "ID required", http.StatusBadRequest)
+			return
+		}
+
+		if strings.HasSuffix(id, "/fork") {
+			if r.Method != http.MethodPost {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Authorization header required", http.StatusUnauthorized)
+				return
+			}
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			userID, err := authInterceptor.VerifyToken(tokenStr)
+			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			ctx := service.ContextWithUserID(context.Background(), userID)
+
+			templateID := strings.TrimSuffix(id, "/fork")
+			resp, err := svc.ForkTemplate(ctx, templateID)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
 			return
 		}
 
@@ -312,10 +348,79 @@ func main() {
 			return
 		}
 
+		if strings.HasSuffix(id, "/like") {
+			if r.Method != http.MethodPost {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Authorization header required", http.StatusUnauthorized)
+				return
+			}
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			userID, err := authInterceptor.VerifyToken(tokenStr)
+			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			ctx := service.ContextWithUserID(context.Background(), userID)
+
+			templateID := strings.TrimSuffix(id, "/like")
+			req := &pb.ToggleLikeRequest{TemplateId: templateID}
+			resp, err := svc.ToggleLikeTemplate(ctx, req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+			return
+		}
+
+		if strings.HasSuffix(id, "/favorite") {
+			if r.Method != http.MethodPost {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Authorization header required", http.StatusUnauthorized)
+				return
+			}
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			userID, err := authInterceptor.VerifyToken(tokenStr)
+			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			ctx := service.ContextWithUserID(context.Background(), userID)
+
+			templateID := strings.TrimSuffix(id, "/favorite")
+			req := &pb.ToggleFavoriteRequest{TemplateId: templateID}
+			resp, err := svc.ToggleFavoriteTemplate(ctx, req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+			return
+		}
+
 		switch r.Method {
 		case http.MethodGet:
+			ctx := context.Background()
+			if authHeader := r.Header.Get("Authorization"); authHeader != "" {
+				tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+				if userID, err := authInterceptor.VerifyToken(tokenStr); err == nil {
+					ctx = service.ContextWithUserID(ctx, userID)
+				}
+			}
 			req := &pb.GetTemplateRequest{Id: id}
-			resp, err := svc.GetTemplate(context.Background(), req)
+			resp, err := svc.GetTemplate(ctx, req)
 			if err != nil {
 				writeError(w, err)
 				return
@@ -325,6 +430,19 @@ func main() {
 			_, _ = w.Write(b)
 
 		case http.MethodPut:
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Authorization header required", http.StatusUnauthorized)
+				return
+			}
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			userID, err := authInterceptor.VerifyToken(tokenStr)
+			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			ctx := service.ContextWithUserID(context.Background(), userID)
+
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				http.Error(w, "Failed to read body", http.StatusBadRequest)
@@ -336,7 +454,7 @@ func main() {
 				return
 			}
 			req.TemplateId = id
-			resp, err := svc.UpdateTemplate(context.Background(), &req)
+			resp, err := svc.UpdateTemplate(ctx, &req)
 			if err != nil {
 				writeError(w, err)
 				return
@@ -346,9 +464,22 @@ func main() {
 			_, _ = w.Write(b)
 
 		case http.MethodDelete:
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Authorization header required", http.StatusUnauthorized)
+				return
+			}
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			userID, err := authInterceptor.VerifyToken(tokenStr)
+			if err != nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			ctx := service.ContextWithUserID(context.Background(), userID)
+
 			ownerID := r.URL.Query().Get("owner_id")
 			req := &pb.DeleteTemplateRequest{Id: id, OwnerId: ownerID}
-			resp, err := svc.DeleteTemplate(context.Background(), req)
+			resp, err := svc.DeleteTemplate(ctx, req)
 			if err != nil {
 				writeError(w, err)
 				return
@@ -429,6 +560,69 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		b, _ := marshaler.Marshal(resp)
 		_, _ = w.Write(b)
+	})
+
+	http.HandleFunc("/api/v1/profile", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
+
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Authorization header required", http.StatusUnauthorized)
+			return
+		}
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		userID, err := authInterceptor.VerifyToken(tokenStr)
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+		ctx := service.ContextWithUserID(context.Background(), userID)
+
+		switch r.Method {
+		case http.MethodPut:
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				http.Error(w, "Failed to read body", http.StatusBadRequest)
+				return
+			}
+			var req pb.UpdateProfileRequest
+			if err := unmarshaler.Unmarshal(body, &req); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			req.Id = userID
+
+			resp, err := userSvc.UpdateProfile(ctx, &req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+
+		case http.MethodGet:
+			req := &pb.GetProfileRequest{}
+			req.Id = userID
+
+			resp, err := userSvc.GetProfile(ctx, req)
+			if err != nil {
+				writeError(w, err)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			b, _ := marshaler.Marshal(resp)
+			_, _ = w.Write(b)
+
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 	})
 
 	// Prompt Handlers

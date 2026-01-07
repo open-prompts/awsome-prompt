@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { 
-  getTemplate, 
-  listTemplateVersions, 
-  updateTemplate, 
-  createPrompt, 
-  listPrompts, 
-  deletePrompt 
+import {
+  getTemplate,
+  listTemplateVersions,
+  updateTemplate,
+  createPrompt,
+  listPrompts,
+  deletePrompt,
+  deleteTemplate,
+  toggleTemplateLike,
+  toggleTemplateFavorite,
+  forkTemplate
 } from '../services/api';
+import { Modal } from '@carbon/react';
 import Layout from '../components/Layout';
 import './TemplateDetails.scss';
 
@@ -16,20 +21,35 @@ const TemplateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  
+
   const [template, setTemplate] = useState(null);
   const [versions, setVersions] = useState([]);
   const [selectedVersionId, setSelectedVersionId] = useState(null);
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
+  // Social Stats
+  const [isLiked, setIsLiked] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
   // Editor state
   const [editContent, setEditContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  
+
   // Generator state
   const [variableValues, setVariableValues] = useState([]);
-  const [generationResult, setGenerationResult] = useState('');
+
+  // Delete Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [promptToDelete, setPromptToDelete] = useState(null);
+
+  // Template Delete Modal State
+  const [isTemplateDeleteModalOpen, setIsTemplateDeleteModalOpen] = useState(false);
+
+  // Template Fork Modal State
+  const [isForkModalOpen, setIsForkModalOpen] = useState(false);
 
   // Notifications
   const [notifications, setNotifications] = useState([]);
@@ -41,7 +61,7 @@ const TemplateDetails = () => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 3000);
   }, []);
-  
+
   // Initial Data Fetch
   useEffect(() => {
     const fetchData = async () => {
@@ -56,7 +76,12 @@ const TemplateDetails = () => {
         setTemplate(tplRes.data.template);
         setVersions(verRes.data.versions || []);
         setPrompts(pmtRes.data.prompts || []);
-        
+
+        setIsLiked(tplRes.data.template.is_liked || false);
+        setIsFavorited(tplRes.data.template.is_favorited || false);
+        setLikesCount(tplRes.data.template.likes_count || 0);
+        setFavoritesCount(tplRes.data.template.favorites_count || 0);
+
         // Select latest version by default
         if (tplRes.data.latest_version) {
           setSelectedVersionId(tplRes.data.latest_version.id);
@@ -73,7 +98,7 @@ const TemplateDetails = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [id, user]);
 
@@ -101,9 +126,9 @@ const TemplateDetails = () => {
         tags: template.tags,
         content: editContent
       };
-      
+
       const res = await updateTemplate(template.id, updateData);
-      
+
       // Update local state with new version
       const newVersion = res.data.new_version;
       setVersions([newVersion, ...versions]);
@@ -113,6 +138,44 @@ const TemplateDetails = () => {
     } catch (error) {
       console.error("Failed to update template", error);
       showNotification('Failed to update template.', 'error');
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+        showNotification("Please login to like templates", "error");
+        return;
+    }
+    const oldState = isLiked;
+    setIsLiked(!oldState);
+    setLikesCount(prev => oldState ? prev - 1 : prev + 1);
+
+    try {
+        await toggleTemplateLike(template.id);
+    } catch (error) {
+        // Revert
+        setIsLiked(oldState);
+        setLikesCount(prev => oldState ? prev + 1 : prev - 1);
+        showNotification("Failed to toggle like", "error");
+    }
+  };
+
+  const handleFavorite = async () => {
+    if (!user) {
+        showNotification("Please login to favorite templates", "error");
+        return;
+    }
+    const oldState = isFavorited;
+    setIsFavorited(!oldState);
+    setFavoritesCount(prev => oldState ? prev - 1 : prev + 1);
+
+    try {
+        await toggleTemplateFavorite(template.id);
+    } catch (error) {
+        // Revert
+        setIsFavorited(oldState);
+        setFavoritesCount(prev => oldState ? prev + 1 : prev - 1);
+        showNotification("Failed to toggle favorite", "error");
     }
   };
 
@@ -171,15 +234,103 @@ const TemplateDetails = () => {
     }
   };
 
-  // Handle Delete Prompt
-  const handleDeletePrompt = async (promptId) => {
-    if (!window.confirm("Are you sure you want to delete this prompt?")) return;
+  // Handle Delete Prompt (Open Modal)
+  const handleDeletePrompt = (promptId) => {
+    setPromptToDelete(promptId);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Confirm Delete
+  const confirmDeletePrompt = async () => {
+    if (!promptToDelete) return;
     try {
-      await deletePrompt(promptId);
-      setPrompts(prompts.filter(p => p.id !== promptId));
+      await deletePrompt(promptToDelete);
+      setPrompts(prompts.filter(p => p.id !== promptToDelete));
+      showNotification("Prompt deleted successfully", "success");
     } catch (error) {
       console.error("Failed to delete prompt", error);
+      showNotification("Failed to delete prompt", "error");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setPromptToDelete(null);
     }
+  };
+
+  // Handle Template Actions
+  const handleShare = async () => {
+    try {
+      // Create update payload with ALL required fields + new visibility
+      const updateData = {
+         template_id: template.id,
+         owner_id: template.owner_id,
+         title: template.title,
+         description: template.description,
+         category: template.category,
+         tags: template.tags,
+         visibility: "VISIBILITY_PUBLIC", // Change to public
+         content: editContent // Keep current content
+      };
+      const res = await updateTemplate(template.id, updateData);
+      setTemplate(res.data.template); // Update local state
+      showNotification("Template is now Public", "success");
+    } catch (error) {
+      console.error("Failed to share template", error);
+      showNotification("Failed to share template", "error");
+    }
+  };
+
+  const handleUnshare = async () => {
+    try {
+      const updateData = {
+         template_id: template.id,
+         owner_id: template.owner_id,
+         title: template.title,
+         description: template.description,
+         category: template.category,
+         tags: template.tags,
+         visibility: "VISIBILITY_PRIVATE", // Change to private
+         content: editContent
+      };
+      const res = await updateTemplate(template.id, updateData);
+      setTemplate(res.data.template);
+      showNotification("Template is now Private", "success");
+    } catch (error) {
+      console.error("Failed to unshare template", error);
+      showNotification("Failed to unshare template", "error");
+    }
+  };
+
+  const handleFork = () => {
+    setIsForkModalOpen(true);
+  };
+
+  const confirmFork = async () => {
+    try {
+        const res = await forkTemplate(template.id);
+        setIsForkModalOpen(false);
+        showNotification("Template forked successfully!", "success");
+        // Navigate to the new template
+        // Assuming API returns { template: { id: ... }, version: ... }
+        const newId = res.data.template.id;
+        navigate(`/templates/${newId}`);
+    } catch (error) {
+        console.error("Failed to fork template", error);
+        showNotification("Failed to fork template", "error");
+        setIsForkModalOpen(false);
+    }
+  };
+
+  const confirmDeleteTemplate = async () => {
+      try {
+          await deleteTemplate(template.id);
+          showNotification("Template deleted successfully", "success");
+          // Navigate home after a short delay so user sees notification
+          setTimeout(() => navigate('/'), 1000);
+      } catch (error) {
+          console.error("Failed to delete template", error);
+          showNotification("Failed to delete template", "error");
+          setIsTemplateDeleteModalOpen(false);
+      }
   };
 
   // Copy to Clipboard
@@ -199,11 +350,11 @@ const TemplateDetails = () => {
       }
   };
 
-  if (loading) return <Layout><div className="loading">Loading...</div></Layout>;
-  if (!template) return <Layout><div className="not-found">Template not found.</div></Layout>;
+  if (loading) return <Layout showCreateButton={false}><div className="loading">Loading...</div></Layout>;
+  if (!template) return <Layout showCreateButton={false}><div className="not-found">Template not found.</div></Layout>;
 
   return (
-    <Layout showSidebar={false}>
+    <Layout showSidebar={false} showCreateButton={false}>
       <div className="notification-container">
         {notifications.map(n => (
           <div key={n.id} className={`notification-toast ${n.type}`}>
@@ -217,7 +368,27 @@ const TemplateDetails = () => {
             &larr; Back to Home
           </button>
           <div className="title-section">
-            <h2>{template.title}</h2>
+            <div className="title-row">
+              <h2>{template.title}</h2>
+              <div className="social-actions">
+                <button
+                  className={`social-btn like ${isLiked ? 'active' : ''}`}
+                  onClick={handleLike}
+                  title={isLiked ? "Unlike" : "Like"}
+                >
+                  <span className="icon">{isLiked ? '❤️' : '🤍'}</span>
+                  <span className="count">{likesCount}</span>
+                </button>
+                <button
+                  className={`social-btn favorite ${isFavorited ? 'active' : ''}`}
+                  onClick={handleFavorite}
+                  title={isFavorited ? "Unfavorite" : "Favorite"}
+                >
+                  <span className="icon">{isFavorited ? '⭐' : '☆'}</span>
+                  <span className="count">{favoritesCount}</span>
+                </button>
+              </div>
+            </div>
             <div className="meta">
                 <span>By {template.owner_id}</span>
                 <span>•</span>
@@ -228,6 +399,23 @@ const TemplateDetails = () => {
             </div>
             <p>{template.description}</p>
           </div>
+
+          {user && (
+              <div className="template-actions">
+                  {user.id === template.owner_id ? (
+                      <>
+                        {template.visibility === 'VISIBILITY_PRIVATE' ? (
+                            <button className="action-btn share" onClick={handleShare}>Share (Public)</button>
+                        ) : (
+                            <button className="action-btn unshare" onClick={handleUnshare}>Unshare (Private)</button>
+                        )}
+                        <button className="action-btn delete" onClick={() => setIsTemplateDeleteModalOpen(true)}>Delete Template</button>
+                      </>
+                  ) : (
+                      <button className="action-btn fork" onClick={handleFork}>Fork Template</button>
+                  )}
+              </div>
+          )}
         </div>
 
         <div className="content-layout">
@@ -235,11 +423,11 @@ const TemplateDetails = () => {
             {/* Version Selection & Editor */}
             <div className="section template-content">
               <h3>Template Content</h3>
-              
+
               <div className="version-selector">
                 <label>Version:</label>
-                <select 
-                    value={selectedVersionId || ''} 
+                <select
+                    value={selectedVersionId || ''}
                     onChange={handleVersionChange}
                     disabled={isEditing}
                 >
@@ -252,7 +440,7 @@ const TemplateDetails = () => {
               </div>
 
               {isEditing ? (
-                  <textarea 
+                  <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                   />
@@ -261,7 +449,7 @@ const TemplateDetails = () => {
                       <pre>{versions.find(v => v.id === selectedVersionId)?.content}</pre>
                   </div>
               )}
-              
+
               <div className="actions">
                 {isEditing ? (
                     <>
@@ -279,14 +467,14 @@ const TemplateDetails = () => {
             {/* Prompt Generator */}
             <div className="section prompt-generator">
                 <h3>Generate Prompt</h3>
-                
+
                 {variableCount > 0 ? (
                     <div className="variables-form">
                         {Array.from({ length: variableCount }).map((_, idx) => (
                             <div key={idx} className="form-group">
                                 <label>Variable {idx + 1}</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={variableValues[idx] || ''}
                                     onChange={(e) => handleVariableChange(idx, e.target.value)}
                                     placeholder="Enter value..."
@@ -326,7 +514,7 @@ const TemplateDetails = () => {
                     ) : (
                         prompts.map(p => {
                             // Reconstruct content for display
-                            // Note: This matches the *current* template version logic, but saved prompts 
+                            // Note: This matches the *current* template version logic, but saved prompts
                             // refer to specific versions. Complex to reconstruct perfectly without fetching that specific version content
                             // For MVP, we just list them.
                             return (
@@ -338,13 +526,13 @@ const TemplateDetails = () => {
                                         Variables: {p.variables ? p.variables.join(', ') : 'None'}
                                     </div>
                                     <div className="prompt-actions">
-                                        <button 
+                                        <button
                                             className="load-btn"
                                             onClick={() => handleLoadPrompt(p)}
                                         >
                                             Load
                                         </button>
-                                        <button 
+                                        <button
                                             className="delete-btn"
                                             onClick={() => handleDeletePrompt(p.id)}
                                         >
@@ -360,6 +548,44 @@ const TemplateDetails = () => {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={isDeleteModalOpen}
+        modalHeading="Delete Prompt"
+        modalLabel="Confirmation"
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        danger
+        onRequestClose={() => setIsDeleteModalOpen(false)}
+        onRequestSubmit={confirmDeletePrompt}
+      >
+        <p>Are you sure you want to delete this prompt? This action cannot be undone.</p>
+      </Modal>
+
+      <Modal
+        open={isTemplateDeleteModalOpen}
+        modalHeading="Delete Template"
+        modalLabel="Confirmation"
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        danger
+        onRequestClose={() => setIsTemplateDeleteModalOpen(false)}
+        onRequestSubmit={confirmDeleteTemplate}
+      >
+        <p>Are you sure you want to delete this entire template? All associated prompts and versions will be lost. This action cannot be undone.</p>
+      </Modal>
+
+      <Modal
+        open={isForkModalOpen}
+        modalHeading="Fork Template"
+        modalLabel="Confirmation"
+        primaryButtonText="Fork"
+        secondaryButtonText="Cancel"
+        onRequestClose={() => setIsForkModalOpen(false)}
+        onRequestSubmit={confirmFork}
+      >
+        <p>Are you sure you want to fork this template to your private library? The latest version content will be copied.</p>
+      </Modal>
     </Layout>
   );
 };

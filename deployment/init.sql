@@ -22,6 +22,14 @@ COMMENT ON COLUMN users.mobile IS 'Unique mobile number';
 COMMENT ON COLUMN users.password_hash IS 'Bcrypt hash of the password';
 COMMENT ON COLUMN users.display_name IS 'User display name';
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='avatar') THEN
+        ALTER TABLE users ADD COLUMN avatar TEXT;
+        COMMENT ON COLUMN users.avatar IS 'User avatar URL or base64 string';
+    END IF;
+END $$;
+
 -- -----------------------------------------------------------------------------
 -- Table: user_identities
 -- Description: Stores OAuth identities for users (SSO).
@@ -53,8 +61,8 @@ CREATE TABLE IF NOT EXISTS templates (
     type TEXT NOT NULL CHECK (type IN ('system', 'user')),
     tags TEXT[], -- Array of strings for tags
     category TEXT,
-    liked_by TEXT[], -- Array of user IDs who liked this template
-    favorited_by TEXT[], -- Array of user IDs who favorited this template
+    like_count INT NOT NULL DEFAULT 0,
+    favorite_count INT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -67,8 +75,8 @@ COMMENT ON COLUMN templates.title IS 'Title of the template';
 COMMENT ON COLUMN templates.visibility IS 'Visibility status: public or private';
 COMMENT ON COLUMN templates.type IS 'Type of template: system or user';
 COMMENT ON COLUMN templates.tags IS 'List of tags associated with the template';
-COMMENT ON COLUMN templates.liked_by IS 'List of user IDs who liked the template';
-COMMENT ON COLUMN templates.favorited_by IS 'List of user IDs who favorited the template';
+COMMENT ON COLUMN templates.like_count IS 'Number of likes';
+COMMENT ON COLUMN templates.favorite_count IS 'Number of favorites';
 
 -- Indexes for templates
 CREATE INDEX IF NOT EXISTS idx_templates_owner_id ON templates(owner_id);
@@ -76,6 +84,28 @@ CREATE INDEX IF NOT EXISTS idx_templates_visibility ON templates(visibility);
 CREATE INDEX IF NOT EXISTS idx_templates_category ON templates(category);
 CREATE INDEX IF NOT EXISTS idx_templates_tags ON templates USING GIN(tags);
 CREATE INDEX IF NOT EXISTS idx_templates_created_at ON templates(created_at);
+
+-- -----------------------------------------------------------------------------
+-- Table: template_likes
+-- Description: Stores user likes for templates.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS template_likes (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    template_id UUID NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, template_id)
+);
+
+-- -----------------------------------------------------------------------------
+-- Table: template_favorites
+-- Description: Stores user favorites for templates.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS template_favorites (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    template_id UUID NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, template_id)
+);
 
 -- -----------------------------------------------------------------------------
 -- Table: template_versions

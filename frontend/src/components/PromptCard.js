@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toggleTemplateLike, toggleTemplateFavorite } from '../services/api';
 import './PromptCard.scss';
 
 /**
@@ -10,6 +11,32 @@ import './PromptCard.scss';
  */
 const PromptCard = ({ template }) => {
   const navigate = useNavigate();
+  const [liked, setLiked] = useState(template.is_liked);
+  const [likeCount, setLikeCount] = useState(template.like_count || 0);
+  const [favorited, setFavorited] = useState(template.is_favorited);
+  const [favCount, setFavCount] = useState(template.favorite_count || 0);
+
+  const handleLike = async (e) => {
+    e.stopPropagation();
+    try {
+      const resp = await toggleTemplateLike(template.id);
+      setLiked(resp.data.is_liked);
+      setLikeCount(resp.data.like_count);
+    } catch (err) {
+      console.error('Failed to toggle like', err);
+    }
+  };
+
+  const handleFavorite = async (e) => {
+    e.stopPropagation();
+    try {
+      const resp = await toggleTemplateFavorite(template.id);
+      setFavorited(resp.data.is_favorited);
+      setFavCount(resp.data.favorite_count);
+    } catch (err) {
+      console.error('Failed to toggle favorite', err);
+    }
+  };
 
   return (
     <div className="prompt-card" onClick={() => navigate(`/templates/${template.id}`)} style={{ cursor: 'pointer' }}>
@@ -32,8 +59,12 @@ const PromptCard = ({ template }) => {
           ))}
         </div>
         <div className="stats">
-          {/* Placeholder for stats if available in template object */}
-          {/* <span>❤️ {template.liked_by?.length || 0}</span> */}
+          <span className="stat-item" onClick={handleLike} title="Like">
+            {liked ? '❤️' : '🤍'} {likeCount}
+          </span>
+          <span className="stat-item" onClick={handleFavorite} title="Favorite">
+            {favorited ? '⭐' : '☆'} {favCount}
+          </span>
         </div>
       </div>
     </div>

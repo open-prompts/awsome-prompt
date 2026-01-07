@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Modal, 
-  TextInput, 
-  TextArea, 
-  Select, 
+import {
+  Modal,
+  TextInput,
+  TextArea,
+  Select,
   SelectItem,
-  InlineNotification 
+  InlineNotification
 } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { createTemplate, getCategories } from '../services/api';
@@ -24,7 +24,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
     title: '',
     description: '',
     content: '',
-    visibility: 'public',
+    visibility: 'private',
     category: '',
     tags: '',
   });
@@ -42,7 +42,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
         title: '',
         description: '',
         content: '',
-        visibility: 'public',
+        visibility: 'private',
         category: '',
         tags: '',
       });
@@ -87,7 +87,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
 
     // Validate custom category if selected
     if (formData.category === 'create_new' && !customCategory.trim()) {
-      setError(t('create_template.error_required_category') || "Please enter a category name");
+      setError(t('create_template.error_required_category'));
       return;
     }
 
@@ -117,9 +117,9 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
   return (
     <Modal
       open={open}
-      modalHeading={t('create_template.title') || "Create New Template"}
-      primaryButtonText={loading ? t('common.saving') || "Saving..." : t('common.create') || "Create"}
-      secondaryButtonText={t('common.cancel') || "Cancel"}
+      modalHeading={t('create_template.title')}
+      primaryButtonText={loading ? t('common.saving') : t('common.create')}
+      secondaryButtonText={t('common.cancel')}
       onRequestClose={onRequestClose}
       onRequestSubmit={handleSubmit}
       danger={false}
@@ -137,33 +137,33 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       <div className="create-template-form">
         <TextInput
           id="title"
-          labelText={t('create_template.label_title') || "Title"}
-          placeholder="e.g. Code Review Assistant"
+          labelText={t('create_template.label_title')}
+          placeholder={t('create_template.ph_title')}
           value={formData.title}
           onChange={handleChange}
           required
           className="form-field"
         />
-        
+
         <Select
           id="category"
-          labelText={t('create_template.label_category') || "Category"}
+          labelText={t('create_template.label_category')}
           value={formData.category}
           onChange={handleChange}
           className="form-field"
         >
-          <SelectItem value="" text="Choose a category" />
+          <SelectItem value="" text={t('create_template.choose_category')} />
           {categories.map((cat, idx) => (
             <SelectItem key={idx} value={cat} text={cat} />
           ))}
-          <SelectItem value="create_new" text={t('create_template.create_new_category') || "Create new category..."} />
+          <SelectItem value="create_new" text={t('create_template.create_new_category')} />
         </Select>
 
         {formData.category === 'create_new' && (
           <TextInput
             id="customCategory"
-            labelText={t('create_template.label_new_category') || "New Category Name"}
-            placeholder="Enter new category name"
+            labelText={t('create_template.label_new_category')}
+            placeholder={t('create_template.ph_new_category')}
             value={customCategory}
             onChange={(e) => setCustomCategory(e.target.value)}
             className="form-field"
@@ -173,8 +173,8 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
 
         <TextInput
           id="tags"
-          labelText={t('create_template.label_tags') || "Tags"}
-          placeholder="e.g. python, coding, review (comma separated)"
+          labelText={t('create_template.label_tags')}
+          placeholder={t('create_template.ph_tags')}
           value={formData.tags}
           onChange={handleChange}
           className="form-field"
@@ -182,19 +182,19 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
 
         <Select
           id="visibility"
-          labelText={t('create_template.label_visibility') || "Visibility"}
+          labelText={t('create_template.label_visibility')}
           value={formData.visibility}
           onChange={handleChange}
           className="form-field"
         >
-          <SelectItem value="public" text="Public" />
-          <SelectItem value="private" text="Private" />
+          <SelectItem value="public" text={t('create_template.visibility_public')} />
+          <SelectItem value="private" text={t('create_template.visibility_private')} />
         </Select>
 
         <TextArea
           id="description"
-          labelText={t('create_template.label_description') || "Description"}
-          placeholder="Brief description of what this template does"
+          labelText={t('create_template.label_description')}
+          placeholder={t('create_template.ph_description')}
           value={formData.description}
           onChange={handleChange}
           className="form-field"
@@ -202,8 +202,8 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
 
         <TextArea
           id="content"
-          labelText={t('create_template.label_content') || "Prompt Content"}
-          placeholder="You are a helpful assistant..."
+          labelText={t('create_template.label_content')}
+          placeholder={t('create_template.ph_content')}
           value={formData.content}
           onChange={handleChange}
           required

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Layout from '../components/Layout';
 import PromptCard from '../components/PromptCard';
@@ -43,7 +43,7 @@ const Home = () => {
     try {
       // If new filter, use empty token. Else use stored next token.
       const currentToken = isNewFilter ? '' : nextPageToken;
-      
+
       const params = {
         page_size: pageSize,
         page_token: currentToken,
@@ -51,7 +51,7 @@ const Home = () => {
       };
 
       const response = await getTemplates(params);
-      
+
       // Handle Public Templates (legacy field 'templates')
       const newTemplates = response.data.templates || [];
       // Handle Private Templates (new field)
@@ -59,25 +59,25 @@ const Home = () => {
 
       // Backend returns next_page_token for mixed view (combined) or simple view
       // Just store it.
-      const newNextToken = response.data.next_page_token || ""; 
-      // Note: Backend logic puts combined token in next_page_token? 
-      // Let's check backend logic again. 
+      // const newNextToken = response.data.next_page_token || "";
+      // Note: Backend logic puts combined token in next_page_token?
+      // Let's check backend logic again.
       // Yes: return &pb.ListTemplatesResponse{ ..., NextPageToken: nextPublicToken (Wait!) }
       // I made a mistake in backend. I returned nextPublicToken as NextPageToken.
       // And nextPrivateToken as PrivateNextPageToken.
-      // If I want "independent pagination" but a single "Load More" trigger, 
+      // If I want "independent pagination" but a single "Load More" trigger,
       // I should combine them in the frontend or backend.
       // My backend returned specific tokens.
       // Frontend needs to combine them to send back in `page_token`.
       // Format: "public:private"
-      
+
       let nextTokenToStore = "";
       if (response.data.private_next_page_token) {
           // Mixed mode logic check:
           // Backend should have returned combined token if it wanted client to be opaque?
           // I used `strings.Split` in backend.
           // So I should construct the token here.
-          const pToken = response.data.next_page_token || (newTemplates.length ? "0" : ""); // unsafe assumption?
+          // const pToken = response.data.next_page_token || (newTemplates.length ? "0" : ""); // unsafe assumption?
           // If backend returns "" it means end of list.
           // If backend returns token, it's the offset.
           // My backend logic:
@@ -113,7 +113,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters, nextPageToken, loading, pageSize]); // Add nextPageToken to deps? 
+  }, [filters, nextPageToken, loading, pageSize]); // Add nextPageToken to deps?
   // No, nextPageToken is state, if I include it, it might trigger loops if not careful.
   // But strictly `fetchTemplates` depends on current `nextPageToken` state if `!isNewFilter`.
   // Actually, usually we pass token as arg or use ref. State is fine if we are careful.
@@ -123,12 +123,17 @@ const Home = () => {
   useEffect(() => {
     fetchTemplates(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]); 
+  }, [filters]);
   // removed page dep. added filters.
 
   // Handle filter changes from Sidebar
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
+  };
+
+  // Refresh list trigger (can be passed to children if needed)
+  const refreshList = () => {
+    fetchTemplates(true);
   };
 
   // Infinite scroll handler
@@ -139,18 +144,47 @@ const Home = () => {
     }
   };
 
-  const isMixedView = !filters.visibility && isAuthenticated;
+  const isMixedView = !filters.visibility && isAuthenticated && !filters.my_likes && !filters.my_favorites;
+  const isSpecialView = filters.my_likes || filters.my_favorites;
+
+  // Calculate tags from visible templates for Sidebar
+  const visibleTags = useMemo(() => {
+    const allTemplates = [...templates, ...privateTemplates];
+    const tagCounts = {};
+    allTemplates.forEach(t => {
+      if (t.tags && Array.isArray(t.tags)) {
+        t.tags.forEach(tag => {
+          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+      }
+    });
+    // Convert to array format expected by Sidebar [{ name, count }]
+    return Object.entries(tagCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [templates, privateTemplates]);
 
   return (
-    <Layout onFilterChange={handleFilterChange} currentFilters={filters}>
+    <Layout
+      onFilterChange={handleFilterChange}
+      currentFilters={filters}
+      onCreateSuccess={refreshList}
+      availableTags={visibleTags}
+    >
       <div className="home-page" onScroll={handleScroll}>
-        
+
+        {isSpecialView && (
+             <div className="section-header">
+             <h2>{filters.my_likes ? 'My Likes' : 'My Favorites'}</h2>
+          </div>
+        )}
+
         {isMixedView && privateTemplates.length > 0 && (
           <div className="section-header">
              <h2>My Private Prompts</h2>
           </div>
         )}
-        
+
         {privateTemplates.length > 0 && (
            <div className="templates-grid private-grid">
             {privateTemplates.map((template) => (
@@ -170,7 +204,7 @@ const Home = () => {
             <PromptCard key={template.id} template={template} />
           ))}
         </div>
-        
+
         {loading && <div className="loading">Loading...</div>}
         {!loading && templates.length === 0 && privateTemplates.length === 0 && (
           <div className="no-results">No templates found.</div>

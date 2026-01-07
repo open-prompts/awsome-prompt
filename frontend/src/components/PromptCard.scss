@@ -87,15 +87,45 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #f4f4f4;
 
     .tags {
       display: flex;
+      flex-wrap: wrap;
       gap: 4px;
       overflow: hidden;
+      max-width: 60%;
 
       .tag {
-        font-size: 0.8rem;
-        color: #0f62fe;
+        font-size: 0.75rem;
+        background-color: #e5f1ff;
+        color: #0043ce;
+        padding: 2px 6px;
+        border-radius: 8px;
+        white-space: nowrap;
+      }
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: #666;
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        transition: transform 0.1s;
+        user-select: none;
+
+        &:hover {
+          transform: scale(1.1);
+        }
       }
     }
   }

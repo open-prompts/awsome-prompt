@@ -16,9 +16,11 @@ type TemplateRepository interface {
 	Create(ctx context.Context, template *models.Template) error
 	Update(ctx context.Context, template *models.Template) error
 	Delete(ctx context.Context, id string) error
-	Get(ctx context.Context, id string) (*models.Template, error)
+	Get(ctx context.Context, id string, currentUserID string) (*models.Template, error)
 	ListCategories(ctx context.Context, filters map[string]interface{}) ([]*models.CategoryStat, error)
 	ListTags(ctx context.Context, filters map[string]interface{}) ([]*models.TagStat, error)
+	ToggleLike(ctx context.Context, userID, templateID string) (bool, int32, error)
+	ToggleFavorite(ctx context.Context, userID, templateID string) (bool, int32, error)
 }
 
 // templateRepository implements TemplateRepository.
@@ -76,16 +78,23 @@ func (r *templateRepository) Delete(ctx context.Context, id string) error {
 }
 
 // Get retrieves a template by ID.
-func (r *templateRepository) Get(ctx context.Context, id string) (*models.Template, error) {
+func (r *templateRepository) Get(ctx context.Context, id string, currentUserID string) (*models.Template, error) {
 	query := `
-		SELECT id, owner_id, title, description, visibility, type, tags, category, liked_by, favorited_by, created_at, updated_at
-		FROM templates
-		WHERE id = $1
+		SELECT
+			t.id, t.owner_id, t.title, t.description, t.visibility, t.type, t.tags, t.category,
+			t.like_count, t.favorite_count, t.created_at, t.updated_at,
+			CASE WHEN tl.user_id IS NOT NULL THEN true ELSE false END as is_liked,
+			CASE WHEN tf.user_id IS NOT NULL THEN true ELSE false END as is_favorited
+		FROM templates t
+		LEFT JOIN template_likes tl ON t.id = tl.template_id AND tl.user_id = $2
+		LEFT JOIN template_favorites tf ON t.id = tf.template_id AND tf.user_id = $2
+		WHERE t.id = $1
 	`
 	var t models.Template
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
+	err := r.db.QueryRowContext(ctx, query, id, currentUserID).Scan(
 		&t.ID, &t.OwnerID, &t.Title, &t.Description, &t.Visibility, &t.Type,
-		&t.Tags, &t.Category, &t.LikedBy, &t.FavoritedBy, &t.CreatedAt, &t.UpdatedAt,
+		&t.Tags, &t.Category, &t.LikeCount, &t.FavoriteCount, &t.CreatedAt, &t.UpdatedAt,
+		&t.IsLiked, &t.IsFavorited,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -98,42 +107,59 @@ func (r *templateRepository) Get(ctx context.Context, id string) (*models.Templa
 
 // List retrieves a list of templates based on filters and pagination.
 func (r *templateRepository) List(ctx context.Context, limit, offset int, filters map[string]interface{}) ([]*models.Template, error) {
+	currentUserID := ""
+	if val, ok := filters["current_user_id"]; ok {
+		currentUserID = val.(string)
+	}
+
 	query := `
-		SELECT id, owner_id, title, description, visibility, type, tags, category, liked_by, favorited_by, created_at, updated_at
-		FROM templates
+		SELECT
+			t.id, t.owner_id, t.title, t.description, t.visibility, t.type, t.tags, t.category,
+			t.like_count, t.favorite_count, t.created_at, t.updated_at,
+			CASE WHEN tl.user_id IS NOT NULL THEN true ELSE false END as is_liked,
+			CASE WHEN tf.user_id IS NOT NULL THEN true ELSE false END as is_favorited
+		FROM templates t
+		LEFT JOIN template_likes tl ON t.id = tl.template_id AND tl.user_id = $1
+		LEFT JOIN template_favorites tf ON t.id = tf.template_id AND tf.user_id = $1
 		WHERE 1=1
 	`
-	var args []interface{}
-	argID := 1
+	args := []interface{}{currentUserID}
+	argID := 2
 
 	if val, ok := filters["visibility"]; ok && val != "" {
-		query += fmt.Sprintf(" AND visibility = $%d", argID)
+		query += fmt.Sprintf(" AND t.visibility = $%d", argID)
 		args = append(args, val)
 		argID++
 	}
 	if val, ok := filters["owner_id"]; ok && val != "" {
-		query += fmt.Sprintf(" AND owner_id = $%d", argID)
+		query += fmt.Sprintf(" AND t.owner_id = $%d", argID)
 		args = append(args, val)
 		argID++
 	}
 	if val, ok := filters["category"]; ok && val != "" {
-		query += fmt.Sprintf(" AND category = $%d", argID)
+		query += fmt.Sprintf(" AND t.category = $%d", argID)
 		args = append(args, val)
 		argID++
 	}
 	if val, ok := filters["tags"]; ok {
 		tags := val.([]string)
 		if len(tags) > 0 {
-			query += fmt.Sprintf(" AND tags @> $%d", argID)
+			query += fmt.Sprintf(" AND t.tags @> $%d", argID)
 			args = append(args, pq.Array(tags))
 			argID++
 		}
 	}
+	if val, ok := filters["my_likes"]; ok && val.(bool) {
+		query += " AND tl.user_id IS NOT NULL"
+	}
+	if val, ok := filters["my_favorites"]; ok && val.(bool) {
+		query += " AND tf.user_id IS NOT NULL"
+	}
 
-	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", argID, argID+1)
+	query += fmt.Sprintf(" ORDER BY t.created_at DESC LIMIT $%d OFFSET $%d", argID, argID+1)
 	args = append(args, limit, offset)
 
-	fmt.Printf("List Query: %s, Args: %v\n", query, args)
+	// fmt.Printf("List Query: %s, Args: %v\n", query, args)
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -148,7 +174,8 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 		var t models.Template
 		if err := rows.Scan(
 			&t.ID, &t.OwnerID, &t.Title, &t.Description, &t.Visibility, &t.Type,
-			&t.Tags, &t.Category, &t.LikedBy, &t.FavoritedBy, &t.CreatedAt, &t.UpdatedAt,
+			&t.Tags, &t.Category, &t.LikeCount, &t.FavoriteCount, &t.CreatedAt, &t.UpdatedAt,
+			&t.IsLiked, &t.IsFavorited,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan template: %w", err)
 		}
@@ -251,4 +278,86 @@ func (r *templateRepository) ListTags(ctx context.Context, filters map[string]in
 		stats = append(stats, &s)
 	}
 	return stats, nil
+}
+
+// ToggleLike toggles the like status of a template for a user.
+func (r *templateRepository) ToggleLike(ctx context.Context, userID, templateID string) (bool, int32, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return false, 0, err
+	}
+	defer tx.Rollback()
+
+	var exists bool
+	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM template_likes WHERE user_id=$1 AND template_id=$2)", userID, templateID).Scan(&exists)
+	if err != nil {
+		return false, 0, err
+	}
+
+	if exists {
+		_, err = tx.ExecContext(ctx, "DELETE FROM template_likes WHERE user_id=$1 AND template_id=$2", userID, templateID)
+	} else {
+		_, err = tx.ExecContext(ctx, "INSERT INTO template_likes (user_id, template_id) VALUES ($1, $2)", userID, templateID)
+	}
+	if err != nil {
+		return false, 0, err
+	}
+
+	var count int32
+	err = tx.QueryRowContext(ctx, "SELECT COUNT(*) FROM template_likes WHERE template_id=$1", templateID).Scan(&count)
+	if err != nil {
+		return false, 0, err
+	}
+
+	_, err = tx.ExecContext(ctx, "UPDATE templates SET like_count=$1 WHERE id=$2", count, templateID)
+	if err != nil {
+		return false, 0, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, 0, err
+	}
+
+	return !exists, count, nil
+}
+
+// ToggleFavorite toggles the favorite status of a template for a user.
+func (r *templateRepository) ToggleFavorite(ctx context.Context, userID, templateID string) (bool, int32, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return false, 0, err
+	}
+	defer tx.Rollback()
+
+	var exists bool
+	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM template_favorites WHERE user_id=$1 AND template_id=$2)", userID, templateID).Scan(&exists)
+	if err != nil {
+		return false, 0, err
+	}
+
+	if exists {
+		_, err = tx.ExecContext(ctx, "DELETE FROM template_favorites WHERE user_id=$1 AND template_id=$2", userID, templateID)
+	} else {
+		_, err = tx.ExecContext(ctx, "INSERT INTO template_favorites (user_id, template_id) VALUES ($1, $2)", userID, templateID)
+	}
+	if err != nil {
+		return false, 0, err
+	}
+
+	var count int32
+	err = tx.QueryRowContext(ctx, "SELECT COUNT(*) FROM template_favorites WHERE template_id=$1", templateID).Scan(&count)
+	if err != nil {
+		return false, 0, err
+	}
+
+	_, err = tx.ExecContext(ctx, "UPDATE templates SET favorite_count=$1 WHERE id=$2", count, templateID)
+	if err != nil {
+		return false, 0, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, 0, err
+	}
+
+	return !exists, count, nil
 }

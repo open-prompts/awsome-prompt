@@ -18,5 +18,33 @@
     "submit": "Register",
     "login_link": "Already have an account? Login here.",
     "error": "Registration failed. Please try again."
+  },
+  "common": {
+    "saving": "Saving...",
+    "create": "Create",
+    "cancel": "Cancel",
+    "submit": "Submit"
+  },
+  "create_template": {
+    "title": "Create New Template",
+    "label_title": "Title",
+    "ph_title": "e.g. Code Review Assistant",
+    "label_category": "Category",
+    "choose_category": "Choose a category",
+    "create_new_category": "Create new category...",
+    "label_new_category": "New Category Name",
+    "ph_new_category": "Enter new category name",
+    "label_tags": "Tags",
+    "ph_tags": "e.g. python, coding, review (comma separated)",
+    "label_visibility": "Visibility",
+    "visibility_public": "Public",
+    "visibility_private": "Private",
+    "label_description": "Description",
+    "ph_description": "Brief description of what this template does",
+    "label_content": "Prompt Content",
+    "ph_content": "You are a helpful assistant...",
+    "error_required_fields": "Please fill in all required fields",
+    "error_required_category": "Please enter a category name",
+    "error_submit": "Failed to create template"
   }
 }

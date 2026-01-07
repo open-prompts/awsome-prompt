@@ -18,5 +18,33 @@
     "submit": "注册",
     "login_link": "已有账号？点击登录",
     "error": "注册失败，请重试。"
+  },
+  "common": {
+    "saving": "保存中...",
+    "create": "创建",
+    "cancel": "取消",
+    "submit": "提交"
+  },
+  "create_template": {
+    "title": "创建新模版",
+    "label_title": "标题",
+    "ph_title": "例如：代码审查助手",
+    "label_category": "分类",
+    "choose_category": "选择分类",
+    "create_new_category": "创建新分类...",
+    "label_new_category": "新分类名称",
+    "ph_new_category": "输入新分类名称",
+    "label_tags": "标签",
+    "ph_tags": "例如：python, coding, review (逗号分隔)",
+    "label_visibility": "可见性",
+    "visibility_public": "公开",
+    "visibility_private": "私有",
+    "label_description": "描述",
+    "ph_description": "简要描述该模版的功能",
+    "label_content": "提示词内容",
+    "ph_content": "你是一个有用的助手...",
+    "error_required_fields": "请填写所有必填字段",
+    "error_required_category": "请输入分类名称",
+    "error_submit": "创建模版失败"
   }
 }
