@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/open-prompts/awsome-prompt/compare/v1.3.0...v1.3.1) (2026-01-07)
+
+
+### Bug Fixes
+
+* fix home page issues ([bc5a01d](https://github.com/open-prompts/awsome-prompt/commit/bc5a01d2c82aa6359f7e4fa60ea4e966e575e61b))
+
 # [1.3.0](https://github.com/open-prompts/awsome-prompt/compare/v1.2.0...v1.3.0) (2026-01-06)
 
 
