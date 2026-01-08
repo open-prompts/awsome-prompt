@@ -18,6 +18,7 @@ type Template struct {
 	Type          string         `json:"type"`
 	Tags          pq.StringArray `json:"tags"`
 	Category      sql.NullString `json:"category"`
+	Language      string         `json:"language"`
 	LikeCount     int32          `json:"like_count"`
 	FavoriteCount int32          `json:"favorite_count"`
 	CreatedAt     time.Time      `json:"created_at"`

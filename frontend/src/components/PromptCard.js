@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useNotification } from '../context/NotificationContext';
 import { toggleTemplateLike, toggleTemplateFavorite } from '../services/api';
 import './PromptCard.scss';
 
@@ -10,6 +12,8 @@ import './PromptCard.scss';
  * @param {Object} props.template - The template data
  */
 const PromptCard = ({ template }) => {
+  const { t } = useTranslation();
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
   const [liked, setLiked] = useState(template.is_liked);
   const [likeCount, setLikeCount] = useState(template.like_count || 0);
@@ -24,6 +28,7 @@ const PromptCard = ({ template }) => {
       setLikeCount(resp.data.like_count);
     } catch (err) {
       console.error('Failed to toggle like', err);
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('prompt_card.error_like') });
     }
   };
 
@@ -35,6 +40,7 @@ const PromptCard = ({ template }) => {
       setFavCount(resp.data.favorite_count);
     } catch (err) {
       console.error('Failed to toggle favorite', err);
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('prompt_card.error_favorite') });
     }
   };
 
@@ -43,7 +49,7 @@ const PromptCard = ({ template }) => {
       <div className="card-header">
         <h4 className="title">{template.title}</h4>
         <span className={`visibility ${template.visibility.toLowerCase()}`}>
-          {template.visibility === 'VISIBILITY_PUBLIC' ? 'Public' : 'Private'}
+          {template.visibility === 'VISIBILITY_PUBLIC' ? t('create_template.visibility_public') : t('create_template.visibility_private')}
         </span>
       </div>
       <p className="description">{template.description}</p>
@@ -59,10 +65,10 @@ const PromptCard = ({ template }) => {
           ))}
         </div>
         <div className="stats">
-          <span className="stat-item" onClick={handleLike} title="Like">
+          <span className="stat-item" onClick={handleLike} title={t('template_details.like')}>
             {liked ? '❤️' : '🤍'} {likeCount}
           </span>
-          <span className="stat-item" onClick={handleFavorite} title="Favorite">
+          <span className="stat-item" onClick={handleFavorite} title={t('template_details.favorite')}>
             {favorited ? '⭐' : '☆'} {favCount}
           </span>
         </div>

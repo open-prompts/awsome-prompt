@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS templates (
     type TEXT NOT NULL CHECK (type IN ('system', 'user')),
     tags TEXT[], -- Array of strings for tags
     category TEXT,
+    language TEXT NOT NULL DEFAULT 'en',
     like_count INT NOT NULL DEFAULT 0,
     favorite_count INT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -75,6 +76,7 @@ COMMENT ON COLUMN templates.title IS 'Title of the template';
 COMMENT ON COLUMN templates.visibility IS 'Visibility status: public or private';
 COMMENT ON COLUMN templates.type IS 'Type of template: system or user';
 COMMENT ON COLUMN templates.tags IS 'List of tags associated with the template';
+COMMENT ON COLUMN templates.language IS 'Language of the template';
 COMMENT ON COLUMN templates.like_count IS 'Number of likes';
 COMMENT ON COLUMN templates.favorite_count IS 'Number of favorites';
 
@@ -84,6 +86,15 @@ CREATE INDEX IF NOT EXISTS idx_templates_visibility ON templates(visibility);
 CREATE INDEX IF NOT EXISTS idx_templates_category ON templates(category);
 CREATE INDEX IF NOT EXISTS idx_templates_tags ON templates USING GIN(tags);
 CREATE INDEX IF NOT EXISTS idx_templates_created_at ON templates(created_at);
+CREATE INDEX IF NOT EXISTS idx_templates_language ON templates(language);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='templates' AND column_name='language') THEN
+        ALTER TABLE templates ADD COLUMN language TEXT NOT NULL DEFAULT 'en';
+        CREATE INDEX IF NOT EXISTS idx_templates_language ON templates(language);
+    END IF;
+END $$;
 
 -- -----------------------------------------------------------------------------
 -- Table: template_likes

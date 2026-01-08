@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { UserAvatar } from '@carbon/icons-react';
 import { logout } from '../store/authSlice';
 import './Header.scss';
@@ -11,6 +12,7 @@ import './Header.scss';
  * Displays the logo, navigation links, and user authentication status.
  */
 const Header = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
@@ -68,18 +70,18 @@ const Header = () => {
             {isDropdownOpen && (
               <div className="profile-dropdown">
                 <div className="dropdown-item" onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}>
-                  Profile
+                  {t('header.profile')}
                 </div>
                  <div className="dropdown-item logout" onClick={handleLogout}>
-                  Logout
+                  {t('header.logout')}
                 </div>
               </div>
             )}
           </div>
         ) : (
           <div className="auth-buttons">
-            <button className="btn-login" onClick={() => navigate('/login')}>Login</button>
-            <button className="btn-register" onClick={() => navigate('/register')}>Register</button>
+            <button className="btn-login" onClick={() => navigate('/login')}>{t('header.login')}</button>
+            <button className="btn-register" onClick={() => navigate('/register')}>{t('register.title')}</button>
           </div>
         )}
       </div>

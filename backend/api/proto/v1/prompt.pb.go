@@ -154,7 +154,9 @@ type Template struct {
 	// Whether the current user has liked this template.
 	IsLiked bool `protobuf:"varint,14,opt,name=is_liked,json=isLiked,proto3" json:"is_liked,omitempty"`
 	// Whether the current user has favorited this template.
-	IsFavorited   bool `protobuf:"varint,15,opt,name=is_favorited,json=isFavorited,proto3" json:"is_favorited,omitempty"`
+	IsFavorited bool `protobuf:"varint,15,opt,name=is_favorited,json=isFavorited,proto3" json:"is_favorited,omitempty"`
+	// Language of the template (e.g. "en", "zh").
+	Language      string `protobuf:"bytes,16,opt,name=language,proto3" json:"language,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -292,6 +294,13 @@ func (x *Template) GetIsFavorited() bool {
 		return x.IsFavorited
 	}
 	return false
+}
+
+func (x *Template) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
 }
 
 // TemplateVersion represents a specific version of a template's content.
@@ -592,7 +601,9 @@ type CreateTemplateRequest struct {
 	Tags        []string               `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty"`
 	Category    string                 `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
 	// Initial content for the first version.
-	Content       string `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	Content string `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	// Language of the template.
+	Language      string `protobuf:"bytes,9,opt,name=language,proto3" json:"language,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -683,6 +694,13 @@ func (x *CreateTemplateRequest) GetContent() string {
 	return ""
 }
 
+func (x *CreateTemplateRequest) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
+}
+
 // CreateTemplateResponse is the response message for CreateTemplate.
 type CreateTemplateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -747,7 +765,9 @@ type UpdateTemplateRequest struct {
 	Tags        []string               `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty"`
 	Category    string                 `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
 	// New content, which triggers a new version creation.
-	Content       string `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	Content string `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	// Language of the template.
+	Language      string `protobuf:"bytes,9,opt,name=language,proto3" json:"language,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -834,6 +854,13 @@ func (x *UpdateTemplateRequest) GetCategory() string {
 func (x *UpdateTemplateRequest) GetContent() string {
 	if x != nil {
 		return x.Content
+	}
+	return ""
+}
+
+func (x *UpdateTemplateRequest) GetLanguage() string {
+	if x != nil {
+		return x.Language
 	}
 	return ""
 }
@@ -1007,7 +1034,9 @@ type ListTemplatesRequest struct {
 	// Filter by user likes.
 	MyLikes bool `protobuf:"varint,7,opt,name=my_likes,json=myLikes,proto3" json:"my_likes,omitempty"`
 	// Filter by user favorites.
-	MyFavorites   bool `protobuf:"varint,8,opt,name=my_favorites,json=myFavorites,proto3" json:"my_favorites,omitempty"`
+	MyFavorites bool `protobuf:"varint,8,opt,name=my_favorites,json=myFavorites,proto3" json:"my_favorites,omitempty"`
+	// Filter by language.
+	Language      string `protobuf:"bytes,9,opt,name=language,proto3" json:"language,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1096,6 +1125,13 @@ func (x *ListTemplatesRequest) GetMyFavorites() bool {
 		return x.MyFavorites
 	}
 	return false
+}
+
+func (x *ListTemplatesRequest) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
 }
 
 // ListTemplatesResponse is the response message for ListTemplates.
@@ -2717,7 +2753,7 @@ var File_api_proto_v1_prompt_proto protoreflect.FileDescriptor
 
 const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\n" +
-	"\x19api/proto/v1/prompt.proto\x12\x02v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa9\x04\n" +
+	"\x19api/proto/v1/prompt.proto\x12\x02v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x04\n" +
 	"\bTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bowner_id\x18\x02 \x01(\tR\aownerId\x12\x14\n" +
@@ -2739,7 +2775,8 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12:\n" +
 	"\x0elatest_version\x18\r \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\x12\x19\n" +
 	"\bis_liked\x18\x0e \x01(\bR\aisLiked\x12!\n" +
-	"\fis_favorited\x18\x0f \x01(\bR\visFavorited\"\xb1\x01\n" +
+	"\fis_favorited\x18\x0f \x01(\bR\visFavorited\x12\x1a\n" +
+	"\blanguage\x18\x10 \x01(\tR\blanguage\"\xb1\x01\n" +
 	"\x0fTemplateVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x1f\n" +
 	"\vtemplate_id\x18\x02 \x01(\tR\n" +
@@ -2766,7 +2803,7 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\bowner_id\x18\x04 \x01(\tR\aownerId\x12\x1c\n" +
 	"\tvariables\x18\x05 \x03(\tR\tvariables\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x8a\x02\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xa6\x02\n" +
 	"\x15CreateTemplateRequest\x12\x19\n" +
 	"\bowner_id\x18\x01 \x01(\tR\aownerId\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -2777,10 +2814,11 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x04type\x18\x05 \x01(\x0e2\x10.v1.TemplateTypeR\x04type\x12\x12\n" +
 	"\x04tags\x18\x06 \x03(\tR\x04tags\x12\x1a\n" +
 	"\bcategory\x18\a \x01(\tR\bcategory\x12\x18\n" +
-	"\acontent\x18\b \x01(\tR\acontent\"q\n" +
+	"\acontent\x18\b \x01(\tR\acontent\x12\x1a\n" +
+	"\blanguage\x18\t \x01(\tR\blanguage\"q\n" +
 	"\x16CreateTemplateResponse\x12(\n" +
 	"\btemplate\x18\x01 \x01(\v2\f.v1.TemplateR\btemplate\x12-\n" +
-	"\aversion\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\aversion\"\x85\x02\n" +
+	"\aversion\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\aversion\"\xa1\x02\n" +
 	"\x15UpdateTemplateRequest\x12\x1f\n" +
 	"\vtemplate_id\x18\x01 \x01(\tR\n" +
 	"templateId\x12\x19\n" +
@@ -2792,7 +2830,8 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"visibility\x12\x12\n" +
 	"\x04tags\x18\x06 \x03(\tR\x04tags\x12\x1a\n" +
 	"\bcategory\x18\a \x01(\tR\bcategory\x12\x18\n" +
-	"\acontent\x18\b \x01(\tR\acontent\"x\n" +
+	"\acontent\x18\b \x01(\tR\acontent\x12\x1a\n" +
+	"\blanguage\x18\t \x01(\tR\blanguage\"x\n" +
 	"\x16UpdateTemplateResponse\x12(\n" +
 	"\btemplate\x18\x01 \x01(\v2\f.v1.TemplateR\btemplate\x124\n" +
 	"\vnew_version\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\n" +
@@ -2801,7 +2840,7 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"{\n" +
 	"\x13GetTemplateResponse\x12(\n" +
 	"\btemplate\x18\x01 \x01(\v2\f.v1.TemplateR\btemplate\x12:\n" +
-	"\x0elatest_version\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\"\x8b\x02\n" +
+	"\x0elatest_version\x18\x02 \x01(\v2\x13.v1.TemplateVersionR\rlatestVersion\"\xa7\x02\n" +
 	"\x14ListTemplatesRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
@@ -2813,7 +2852,8 @@ const file_api_proto_v1_prompt_proto_rawDesc = "" +
 	"\bcategory\x18\x05 \x01(\tR\bcategory\x12\x12\n" +
 	"\x04tags\x18\x06 \x03(\tR\x04tags\x12\x19\n" +
 	"\bmy_likes\x18\a \x01(\bR\amyLikes\x12!\n" +
-	"\fmy_favorites\x18\b \x01(\bR\vmyFavorites\"\xdd\x01\n" +
+	"\fmy_favorites\x18\b \x01(\bR\vmyFavorites\x12\x1a\n" +
+	"\blanguage\x18\t \x01(\tR\blanguage\"\xdd\x01\n" +
 	"\x15ListTemplatesResponse\x12*\n" +
 	"\ttemplates\x18\x01 \x03(\v2\f.v1.TemplateR\ttemplates\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x129\n" +

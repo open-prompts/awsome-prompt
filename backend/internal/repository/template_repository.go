@@ -37,13 +37,13 @@ func NewTemplateRepository(db *sql.DB) TemplateRepository {
 func (r *templateRepository) Create(ctx context.Context, t *models.Template) error {
 	query := `
 		INSERT INTO templates (
-			owner_id, title, description, visibility, type, tags, category, created_at, updated_at
+			owner_id, title, description, visibility, type, tags, category, language, created_at, updated_at
 		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7, $8, $9
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 		) RETURNING id
 	`
 	err := r.db.QueryRowContext(ctx, query,
-		t.OwnerID, t.Title, t.Description, t.Visibility, t.Type, pq.Array(t.Tags), t.Category, t.CreatedAt, t.UpdatedAt,
+		t.OwnerID, t.Title, t.Description, t.Visibility, t.Type, pq.Array(t.Tags), t.Category, t.Language, t.CreatedAt, t.UpdatedAt,
 	).Scan(&t.ID)
 	if err != nil {
 		return fmt.Errorf("failed to create template: %w", err)
@@ -55,11 +55,11 @@ func (r *templateRepository) Create(ctx context.Context, t *models.Template) err
 func (r *templateRepository) Update(ctx context.Context, t *models.Template) error {
 	query := `
 		UPDATE templates
-		SET title = $1, description = $2, visibility = $3, tags = $4, category = $5, updated_at = $6
-		WHERE id = $7
+		SET title = $1, description = $2, visibility = $3, tags = $4, category = $5, language = $6, updated_at = $7
+		WHERE id = $8
 	`
 	_, err := r.db.ExecContext(ctx, query,
-		t.Title, t.Description, t.Visibility, pq.Array(t.Tags), t.Category, t.UpdatedAt, t.ID,
+		t.Title, t.Description, t.Visibility, pq.Array(t.Tags), t.Category, t.Language, t.UpdatedAt, t.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update template: %w", err)
@@ -81,7 +81,7 @@ func (r *templateRepository) Delete(ctx context.Context, id string) error {
 func (r *templateRepository) Get(ctx context.Context, id string, currentUserID string) (*models.Template, error) {
 	query := `
 		SELECT
-			t.id, t.owner_id, t.title, t.description, t.visibility, t.type, t.tags, t.category,
+			t.id, t.owner_id, t.title, t.description, t.visibility, t.type, t.tags, t.category, t.language,
 			t.like_count, t.favorite_count, t.created_at, t.updated_at,
 			CASE WHEN tl.user_id IS NOT NULL THEN true ELSE false END as is_liked,
 			CASE WHEN tf.user_id IS NOT NULL THEN true ELSE false END as is_favorited
@@ -93,7 +93,7 @@ func (r *templateRepository) Get(ctx context.Context, id string, currentUserID s
 	var t models.Template
 	err := r.db.QueryRowContext(ctx, query, id, currentUserID).Scan(
 		&t.ID, &t.OwnerID, &t.Title, &t.Description, &t.Visibility, &t.Type,
-		&t.Tags, &t.Category, &t.LikeCount, &t.FavoriteCount, &t.CreatedAt, &t.UpdatedAt,
+		&t.Tags, &t.Category, &t.Language, &t.LikeCount, &t.FavoriteCount, &t.CreatedAt, &t.UpdatedAt,
 		&t.IsLiked, &t.IsFavorited,
 	)
 	if err != nil {
@@ -114,7 +114,7 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 
 	query := `
 		SELECT
-			t.id, t.owner_id, t.title, t.description, t.visibility, t.type, t.tags, t.category,
+			t.id, t.owner_id, t.title, t.description, t.visibility, t.type, t.tags, t.category, t.language,
 			t.like_count, t.favorite_count, t.created_at, t.updated_at,
 			CASE WHEN tl.user_id IS NOT NULL THEN true ELSE false END as is_liked,
 			CASE WHEN tf.user_id IS NOT NULL THEN true ELSE false END as is_favorited
@@ -138,6 +138,11 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 	}
 	if val, ok := filters["category"]; ok && val != "" {
 		query += fmt.Sprintf(" AND t.category = $%d", argID)
+		args = append(args, val)
+		argID++
+	}
+	if val, ok := filters["language"]; ok && val != "" {
+		query += fmt.Sprintf(" AND t.language = $%d", argID)
 		args = append(args, val)
 		argID++
 	}
@@ -174,7 +179,7 @@ func (r *templateRepository) List(ctx context.Context, limit, offset int, filter
 		var t models.Template
 		if err := rows.Scan(
 			&t.ID, &t.OwnerID, &t.Title, &t.Description, &t.Visibility, &t.Type,
-			&t.Tags, &t.Category, &t.LikeCount, &t.FavoriteCount, &t.CreatedAt, &t.UpdatedAt,
+			&t.Tags, &t.Category, &t.Language, &t.LikeCount, &t.FavoriteCount, &t.CreatedAt, &t.UpdatedAt,
 			&t.IsLiked, &t.IsFavorited,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan template: %w", err)
@@ -286,7 +291,7 @@ func (r *templateRepository) ToggleLike(ctx context.Context, userID, templateID 
 	if err != nil {
 		return false, 0, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	var exists bool
 	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM template_likes WHERE user_id=$1 AND template_id=$2)", userID, templateID).Scan(&exists)
@@ -327,7 +332,7 @@ func (r *templateRepository) ToggleFavorite(ctx context.Context, userID, templat
 	if err != nil {
 		return false, 0, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	var exists bool
 	err = tx.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM template_favorites WHERE user_id=$1 AND template_id=$2)", userID, templateID).Scan(&exists)

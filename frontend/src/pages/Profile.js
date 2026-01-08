@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TextInput, PasswordInput, Button, InlineNotification } from '@carbon/react';
+import { TextInput, PasswordInput, Button } from '@carbon/react';
+import { useNotification } from '../context/NotificationContext';
 import { Edit, Save, Close } from '@carbon/icons-react';
 import { updateProfile, getProfile } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
@@ -18,14 +19,13 @@ const Profile = () => {
   const { user, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [avatar, setAvatar] = useState('');
   const [displayAvatar, setDisplayAvatar] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -51,6 +51,7 @@ const Profile = () => {
             }
         } catch (err) {
             console.error("Failed to fetch profile", err);
+            addNotification({ kind: 'error', title: t('common.error'), subtitle: t('profile.error_fetch') });
         }
     };
 
@@ -81,8 +82,6 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
 
     try {
       const updatedData = {
@@ -92,7 +91,7 @@ const Profile = () => {
 
       if (password) {
         if (!validatePassword(password)) {
-          setError(t('register.password_error'));
+          addNotification({ kind: 'error', title: t('common.error'), subtitle: t('register.password_error') });
           return;
         }
         updatedData.password = password;
@@ -107,19 +106,17 @@ const Profile = () => {
       };
 
       dispatch(loginSuccess({ user: updatedUser, token: token }));
-      setMessage('Profile updated successfully!');
+      addNotification({ kind: 'success', title: t('common.success'), subtitle: t('profile.success_update') });
       setPassword('');
       setIsEditing(false);
     } catch (err) {
       console.error(err);
-      setError('Failed to update profile.');
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('profile.error_update') });
     }
   };
 
   const toggleEdit = () => {
       setIsEditing(!isEditing);
-      setMessage('');
-      setError('');
   };
 
   return (
@@ -128,11 +125,8 @@ const Profile = () => {
       <div className="profile-page">
         <div className="profile-container">
           <div className="profile-header">
-             <h2>My Profile</h2>
+             <h2>{t('header.profile')}</h2>
           </div>
-        
-          {message && <InlineNotification kind="success" title="Success" subtitle={message} hideCloseButton />}
-          {error && <InlineNotification kind="error" title="Error" subtitle={error} hideCloseButton />}
 
           {!isEditing ? (
               <div className="profile-view">
@@ -150,23 +144,23 @@ const Profile = () => {
                   
                   <div className="info-section">
                       <div className="info-group">
-                          <label>Display Name</label>
-                          <div className="value">{displayName || 'Not set'}</div>
+                          <label>{t('register.display_name')}</label>
+                          <div className="value">{displayName || t('profile.not_set')}</div>
                       </div>
                       <div className="info-group">
-                          <label>Email</label>
+                          <label>{t('register.email')}</label>
                           <div className="value">{email}</div>
                       </div>
                   </div>
 
                   <div className="action-section">
-                      <Button renderIcon={Edit} onClick={toggleEdit}>Edit Profile</Button>
+                      <Button renderIcon={Edit} onClick={toggleEdit}>{t('profile.edit_profile')}</Button>
                   </div>
               </div>
           ) : (
               <form onSubmit={handleSubmit} className="profile-edit-form">
                   <div className="form-group avatar-upload-group">
-                      <label>Avatar</label>
+                      <label>{t('profile.avatar')}</label>
                       <div className="avatar-upload-container">
                           <div className="avatar-preview">
                               {displayAvatar ? (
@@ -186,7 +180,7 @@ const Profile = () => {
                                   className="hidden-file-input"
                               />
                               <label htmlFor="avatar-upload" className="cds--btn cds--btn--secondary">
-                                  Change Avatar
+                                  {t('profile.change_avatar')}
                               </label>
                           </div>
                       </div>
@@ -195,27 +189,27 @@ const Profile = () => {
                   <div className="form-group">
                       <TextInput
                           id="displayName"
-                          labelText="Display Name"
+                          labelText={t('register.display_name')}
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                          placeholder="Enter your display name"
+                          placeholder={t('profile.ph_display_name')}
                       />
                   </div>
 
                   <div className="form-group">
                       <PasswordInput
                           id="password"
-                          labelText="New Password"
+                          labelText={t('profile.new_password')}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Leave blank to keep current"
+                          placeholder={t('profile.ph_new_password')}
                           autoComplete="new-password"
                       />
                   </div>
 
                   <div className="form-actions">
-                      <Button type="submit" renderIcon={Save}>Save Changes</Button>
-                      <Button kind="ghost" renderIcon={Close} onClick={toggleEdit}>Cancel</Button>
+                      <Button type="submit" renderIcon={Save}>{t('common.save_changes')}</Button>
+                      <Button kind="ghost" renderIcon={Close} onClick={toggleEdit}>{t('common.cancel')}</Button>
                   </div>
               </form>
           )}

@@ -116,6 +116,8 @@ message Template {
   bool is_liked = 14;
   // Whether the current user has favorited this template.
   bool is_favorited = 15;
+  // Language of the template (e.g. "en", "zh").
+  string language = 16;
 }
 
 // TemplateVersion represents a specific version of a template's content.
@@ -172,6 +174,8 @@ message CreateTemplateRequest {
   string category = 7;
   // Initial content for the first version.
   string content = 8;
+  // Language of the template.
+  string language = 9;
 }
 
 // CreateTemplateResponse is the response message for CreateTemplate.
@@ -191,6 +195,8 @@ message UpdateTemplateRequest {
   string category = 7;
   // New content, which triggers a new version creation.
   string content = 8;
+  // Language of the template.
+  string language = 9;
 }
 
 // UpdateTemplateResponse is the response message for UpdateTemplate.
@@ -228,6 +234,8 @@ message ListTemplatesRequest {
   bool my_likes = 7;
   // Filter by user favorites.
   bool my_favorites = 8;
+  // Filter by language.
+  string language = 9;
 }
 
 // ListTemplatesResponse is the response message for ListTemplates.

@@ -1,0 +1,93 @@
+@use '@carbon/react/scss/type';
+
+.notification-container {
+  position: fixed;
+  top: 5rem; /* Moved down slightly to avoid Header collision */
+  right: 2rem;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  pointer-events: none; /* Allows clicking items behind the container area */
+
+  /* Override the individual Toast Notification */
+  .cds--toast-notification {
+    pointer-events: auto;
+    width: 22rem;
+    background-color: var(--glass-bg, rgba(15, 15, 35, 0.85)) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Deep shadow */
+    color: var(--text-main, #E0E0FF);
+    margin-bottom: 0; /* Handled by flex gap */
+    border-radius: 6px;
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0.38, 0.9);
+
+    &:hover {
+      transform: translateX(-5px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 255, 255, 0.1);
+    }
+
+    /* Text Styles */
+    .cds--toast-notification__title {
+      color: #ffffff;
+      font-family: var(--font-heading, sans-serif);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .cds--toast-notification__subtitle {
+      color: var(--text-secondary, #A0A0B0);
+      font-family: var(--font-body, sans-serif);
+    }
+
+    .cds--toast-notification__caption {
+      color: var(--text-secondary, #A0A0B0);
+      opacity: 0.7;
+    }
+
+    /* SVGs (Icons) */
+    .cds--toast-notification__icon {
+      fill: currentColor !important; /* Inherit color from the specific 'kind' styling below */
+    }
+
+    /* Close Button */
+    .cds--toast-notification__close-button {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary, #A0A0B0);
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+    }
+
+    /* --- Variant Specific Styling (Border strips & Icons) --- */
+
+    /* Info (Default) */
+    &.cds--toast-notification--info {
+      border-left: 3px solid var(--primary-color, #00FFFF);
+      .cds--toast-notification__icon { fill: var(--primary-color, #00FFFF) !important; }
+    }
+
+    /* Success */
+    &.cds--toast-notification--success {
+      border-left: 3px solid #42be65; /* Carbon Green or use a Neon Green like #39ff14 */
+      .cds--toast-notification__icon { fill: #42be65 !important; }
+    }
+
+    /* Error */
+    &.cds--toast-notification--error {
+      border-left: 3px solid #ff4d4d; /* Neon Red */
+      .cds--toast-notification__icon { fill: #ff4d4d !important; }
+    }
+
+    /* Warning */
+    &.cds--toast-notification--warning {
+      border-left: 3px solid #f1c21b; /* Carbon Yellow */
+      .cds--toast-notification__icon { fill: #f1c21b !important; }
+    }
+  }
+}

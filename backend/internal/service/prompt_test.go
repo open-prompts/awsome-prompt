@@ -50,7 +50,7 @@ type MockTemplateRepository struct {
 }
 
 func (m *MockTemplateRepository) Create(ctx context.Context, t *models.Template) error { return nil }
-func (m *MockTemplateRepository) Get(ctx context.Context, id string) (*models.Template, error) {
+func (m *MockTemplateRepository) Get(ctx context.Context, id string, currentUserID string) (*models.Template, error) {
 	return nil, nil
 }
 func (m *MockTemplateRepository) List(ctx context.Context, l, o int, f map[string]interface{}) ([]*models.Template, error) {
@@ -58,6 +58,12 @@ func (m *MockTemplateRepository) List(ctx context.Context, l, o int, f map[strin
 }
 func (m *MockTemplateRepository) Update(ctx context.Context, t *models.Template) error { return nil }
 func (m *MockTemplateRepository) Delete(ctx context.Context, id string) error          { return nil }
+func (m *MockTemplateRepository) ToggleLike(ctx context.Context, userID, templateID string) (bool, int32, error) {
+	return false, 0, nil
+}
+func (m *MockTemplateRepository) ToggleFavorite(ctx context.Context, userID, templateID string) (bool, int32, error) {
+	return false, 0, nil
+}
 func (m *MockTemplateRepository) ListCategories(ctx context.Context, filters map[string]interface{}) ([]*models.CategoryStat, error) {
 	args := m.Called(ctx, filters)
 	if args.Get(0) == nil {

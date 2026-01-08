@@ -7,6 +7,7 @@
     "password": "Password",
     "submit": "Login",
     "register_link": "Don't have an account? Register here.",
+    "back_to_home": "Back to Home",
     "error": "Login failed. Please check your credentials."
   },
   "register": {
@@ -24,7 +25,36 @@
     "saving": "Saving...",
     "create": "Create",
     "cancel": "Cancel",
-    "submit": "Submit"
+    "submit": "Submit",
+    "warning": "Warning",
+    "error": "Error",
+    "success": "Success",
+    "confirmation": "Confirmation",
+    "delete": "Delete",
+    "more": "More...",
+    "save_changes": "Save Changes",
+    "none": "None",
+    "loading": "Loading..."
+  },
+  "home": {
+      "error_fetch": "Failed to fetch templates.",
+      "my_private_prompts": "My Private Prompts",
+      "public_prompts": "Public Prompts",
+      "no_results": "No templates found."
+  },
+  "dashboard": {
+    "title": "Explore Templates",
+    "my_templates": "My Templates",
+    "favorites": "Favorites",
+    "my_likes": "My Likes"
+  },
+   "sidebar": {
+      "error_fetch": "Failed to fetch categories or tags.",
+      "no_tags": "No tags"
+  },
+  "prompt_card": {
+      "error_like": "Failed to toggle like",
+      "error_favorite": "Failed to toggle favorite"
   },
   "create_template": {
     "title": "Create New Template",
@@ -46,6 +76,95 @@
     "ph_content": "You are a helpful assistant...",
     "error_required_fields": "Please fill in all required fields",
     "error_required_category": "Please enter a category name",
-    "error_submit": "Failed to create template"
+    "error_submit": "Failed to create template",
+    "error_required_title": "Title is required",
+    "error_required_category_select": "Category is required",
+    "error_required_content": "Prompt Content is required",
+    "error_load_categories": "Failed to load categories. Using defaults."
+  },
+  "template": {
+    "language": "Language",
+    "select_language": "Select Language",
+    "zh": "Chinese",
+    "en": "English"
+  },
+  "template_details": {
+      "not_found": "Template not found.",
+      "error_load": "Failed to load template data.",
+      "success_update": "Template updated and new version created!",
+      "error_update": "Failed to update template.",
+      "error_login_like": "Please login to like templates",
+      "error_like": "Failed to toggle like",
+      "error_login_favorite": "Please login to favorite templates",
+      "error_favorite": "Failed to toggle favorite",
+      "error_login_save": "Please login to save prompts.",
+      "success_save_prompt": "Prompt saved successfully!",
+      "error_save_prompt": "Failed to create prompt.",
+      "success_delete_prompt": "Prompt deleted successfully",
+      "error_delete_prompt": "Failed to delete prompt",
+      "share_public": "Share (Public)",
+      "unshare_private": "Unshare (Private)",
+      "delete_template": "Delete Template",
+      "fork_template": "Fork Template",
+      "success_share": "Template is now Public",
+      "error_share": "Failed to share template",
+      "success_unshare": "Template is now Private",
+      "error_unshare": "Failed to unshare template",
+      "success_fork": "Template forked successfully!",
+      "error_fork": "Failed to fork template",
+      "success_delete": "Template deleted successfully",
+      "error_delete": "Failed to delete template",
+      "content_title": "Template Content",
+      "version_label": "Version:",
+      "save_new_version": "Save New Version",
+      "edit_template": "Edit Template",
+      "generate_prompt": "Generate Prompt",
+      "variable": "Variable",
+      "enter_value": "Enter value...",
+      "no_vars": "No variables (79844) found in this template.",
+      "result_preview": "Result Preview:",
+      "save_prompt": "Save Prompt",
+      "how_to_use": "How to use",
+      "instruction_1": "Use <code>79844</code> as a placeholder in your template.",
+      "instruction_2": "Example: <code>Translate 79844 to Spanish.</code>",
+      "instruction_3": "When generating, inputs will appear for each placeholder.",
+      "saved_prompts": "Your Saved Prompts",
+      "no_saved_prompts": "No prompts saved yet.",
+      "variables_label": "Variables",
+      "load": "Load",
+      "delete_prompt_title": "Delete Prompt",
+      "delete_prompt_confirm": "Are you sure you want to delete this prompt? This action cannot be undone.",
+      "delete_template_title": "Delete Template",
+      "delete_template_confirm": "Are you sure you want to delete this entire template? All associated prompts and versions will be lost. This action cannot be undone.",
+      "fork_template_title": "Fork Template",
+      "fork_template_confirm": "Are you sure you want to fork this template to your private library? The latest version content will be copied.",
+      "fork": "Fork",
+      "like": "Like",
+      "unlike": "Unlike",
+      "favorite": "Favorite",
+      "unfavorite": "Unfavorite"
+  },
+  "profile": {
+      "error_fetch": "Failed to fetch profile",
+      "success_update": "Profile updated successfully!",
+      "error_update": "Failed to update profile.",
+      "not_set": "Not set",
+      "edit_profile": "Edit Profile",
+      "avatar": "Avatar",
+      "change_avatar": "Change Avatar",
+      "ph_display_name": "Enter your display name",
+      "new_password": "New Password",
+      "ph_new_password": "Leave blank to keep current"
+  },
+  "card": {
+    "copy": "Copy",
+    "use": "Use Template",
+    "copied": "Copied!"
+  },
+  "header": {
+    "create_template": "Create Template",
+    "login": "Login",
+    "logout": "Logout",
+    "profile": "Profile"
   }
 }

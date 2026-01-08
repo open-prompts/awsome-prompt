@@ -201,7 +201,10 @@
         word-wrap: break-word;       /* Internet Explorer 5.5+ */
         word-break: break-all;      /* Aggressive break for very long tokens */
         margin: 0;
-        font-family: 'Courier New', Courier, monospace;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Courier New', monospace;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #f0f0f0;
         max-width: 100%;
         overflow-wrap: break-word; /* modern */
       }
@@ -285,6 +288,54 @@
       .actions {
         display: flex;
         justify-content: flex-end;
+        gap: 12px;
+
+        button {
+          padding: 8px 16px;
+          border-radius: 4px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          font-family: var(--font-heading);
+          cursor: pointer;
+          transition: all 0.2s;
+          border: 1px solid transparent;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .edit-btn {
+          background-color: transparent;
+          border-color: var(--primary-color);
+          color: var(--primary-color);
+
+          &:hover {
+            background-color: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+          }
+        }
+
+        .save-btn {
+          background-color: var(--primary-color);
+          color: #000;
+
+          &:hover {
+            background-color: var(--primary-hover);
+            box-shadow: 0 0 10px var(--primary-color);
+          }
+        }
+
+        .cancel-btn {
+          background-color: transparent;
+          color: var(--text-muted);
+          border-color: var(--border-color);
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border-color: var(--text-main);
+          }
+        }
       }
     }
 
@@ -530,3 +581,49 @@
   }
 }
 
+
+.prompt-generator {
+  .result-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: var(--font-heading);
+  }
+}
+.prompt-generator {
+  .no-vars {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.05); /* Slight background */
+    border-radius: 4px;
+    border: 1px dashed var(--border-color); /* Dashed border to indicate placeholder nature */
+    margin-bottom: 24px; /* Space it out */
+  }
+}
+
+.template-details-page .header-actions .title-section .meta .visibility.visibility_private {
+    background-color: rgba(255, 255, 255, 0.05); /* Match prompt card styled private tag */
+    color: var(--text-muted);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.template-details-page .header-actions .title-section .meta .visibility.visibility_public {
+     background-color: rgba(0, 255, 255, 0.1); 
+     color: var(--primary-color);
+     border: 1px solid rgba(0, 255, 255, 0.3);
+     padding: 2px 8px;
+     border-radius: 4px;
+     font-size: 0.8rem;
+     text-transform: uppercase;
+}

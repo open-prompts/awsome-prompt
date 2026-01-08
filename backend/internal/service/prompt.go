@@ -62,6 +62,11 @@ func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTempla
 		typeStr = "system"
 	}
 
+	language := req.Language
+	if language == "" {
+		language = "en"
+	}
+
 	template := &models.Template{
 		OwnerID:     userID, // Use the authenticated user ID
 		Title:       req.Title,
@@ -70,6 +75,7 @@ func (s *PromptService) CreateTemplate(ctx context.Context, req *pb.CreateTempla
 		Type:        typeStr,
 		Tags:        pq.StringArray(req.Tags),
 		Category:    sql.NullString{String: req.Category, Valid: req.Category != ""},
+		Language:    language,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -182,14 +188,18 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 		// The DB likely expects "public" or "private".
 		// Let's check model or DB schema.
 		// Assuming DB expects lowercase based on other code.
-		if req.Visibility == pb.Visibility_VISIBILITY_PUBLIC {
+		switch req.Visibility {
+		case pb.Visibility_VISIBILITY_PUBLIC:
 			template.Visibility = "public"
-		} else if req.Visibility == pb.Visibility_VISIBILITY_PRIVATE {
+		case pb.Visibility_VISIBILITY_PRIVATE:
 			template.Visibility = "private"
 		}
 	}
 	if req.Category != "" {
 		template.Category = sql.NullString{String: req.Category, Valid: true}
+	}
+	if req.Language != "" {
+		template.Language = req.Language
 	}
 	if len(req.Tags) > 0 {
 		template.Tags = req.Tags
@@ -293,6 +303,9 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 		if req.Category != "" {
 			filters["category"] = req.Category
 		}
+		if req.Language != "" {
+			filters["language"] = req.Language
+		}
 		if len(req.Tags) > 0 {
 			filters["tags"] = req.Tags
 		}
@@ -314,6 +327,9 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 		filters["visibility"] = "public"
 		if req.Category != "" {
 			filters["category"] = req.Category
+		}
+		if req.Language != "" {
+			filters["language"] = req.Language
 		}
 		if len(req.Tags) > 0 {
 			filters["tags"] = req.Tags
@@ -353,6 +369,9 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 		}
 		if req.Category != "" {
 			filters["category"] = req.Category
+		}
+		if req.Language != "" {
+			filters["language"] = req.Language
 		}
 		if len(req.Tags) > 0 {
 			filters["tags"] = req.Tags
@@ -394,6 +413,9 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 	if req.Category != "" {
 		publicFilters["category"] = req.Category
 	}
+	if req.Language != "" {
+		publicFilters["language"] = req.Language
+	}
 	if len(req.Tags) > 0 {
 		publicFilters["tags"] = req.Tags
 	}
@@ -411,6 +433,9 @@ func (s *PromptService) ListTemplates(ctx context.Context, req *pb.ListTemplates
 	privateFilters := map[string]interface{}{"visibility": "private", "owner_id": userID}
 	if req.Category != "" {
 		privateFilters["category"] = req.Category
+	}
+	if req.Language != "" {
+		privateFilters["language"] = req.Language
 	}
 	if len(req.Tags) > 0 {
 		privateFilters["tags"] = req.Tags
@@ -717,6 +742,7 @@ func (s *PromptService) templateModelToProto(m *models.Template) *pb.Template {
 		FavoriteCount: m.FavoriteCount,
 		IsLiked:       m.IsLiked,
 		IsFavorited:   m.IsFavorited,
+		Language:      m.Language,
 	}
 }
 

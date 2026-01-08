@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { useNotification } from '../context/NotificationContext';
 import { getCategories, getTags } from '../services/api';
 import './Sidebar.scss';
 
@@ -12,6 +14,8 @@ import './Sidebar.scss';
  * @param {Array} props.availableTags - Tags to display (overrides fetching)
  */
 const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
+  const { t } = useTranslation();
+  const { addNotification } = useNotification();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
@@ -31,6 +35,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
         }
       } catch (error) {
         console.error('Failed to fetch sidebar data:', error);
+        addNotification({ kind: 'warning', title: t('common.warning'), subtitle: t('sidebar.error_fetch') });
       }
     };
     fetchData();
@@ -95,13 +100,13 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
   return (
     <aside className="app-sidebar">
       <div className="sidebar-section">
-        <h3>Prompt Square</h3>
+        <h3>{t('dashboard.title')}</h3>
         <ul>
           <li
             className={isActive('all-public') ? 'active' : ''}
             onClick={() => handleCategoryClick(null, 'VISIBILITY_PUBLIC')}
           >
-            All Public
+            {t('create_template.visibility_public')}
           </li>
           {displayedCategories.map((cat) => (
             <li
@@ -115,32 +120,32 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
         </ul>
         {categories.length > 10 && !showAllCategories && (
           <button className="btn-more" onClick={() => setShowAllCategories(true)}>
-            More...
+            {t('common.more')}
           </button>
         )}
       </div>
 
       {isAuthenticated && (
         <div className="sidebar-section">
-          <h3>My Library</h3>
+          <h3>{t('dashboard.my_templates')}</h3>
           <ul>
             <li
               className={isActive('all-private') ? 'active' : ''}
               onClick={() => handleCategoryClick(null, 'VISIBILITY_PRIVATE')}
             >
-              My Prompts
+              {t('create_template.visibility_private')}
             </li>
             <li
               className={isActive('likes') ? 'active' : ''}
               onClick={() => handleSpecialFilterClick('likes')}
             >
-              My Likes
+              {t('dashboard.my_likes')}
             </li>
             <li
               className={isActive('favorites') ? 'active' : ''}
               onClick={() => handleSpecialFilterClick('favorites')}
             >
-              My Favorites
+              {t('dashboard.favorites')}
             </li>
             {/* Private Categories could go here if we filtered them separately,
                 but typically they are just subsets of My Prompts */}
@@ -150,7 +155,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
 
 
       <div className="sidebar-section">
-        <h3>Tags</h3>
+        <h3>{t('create_template.label_tags')}</h3>
         <div className="tag-cloud">
           {displayedTags.map((tag) => (
             <span
@@ -161,7 +166,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
               {tag.name} <small>{tag.count > 0 ? `(${tag.count})` : ''}</small>
             </span>
           ))}
-          {displayedTags.length === 0 && <span className="no-tags">No tags</span>}
+          {displayedTags.length === 0 && <span className="no-tags">{t('sidebar.no_tags')}</span>}
         </div>
       </div>
     </aside>

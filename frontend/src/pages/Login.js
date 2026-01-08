@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { TextInput, PasswordInput, Button, Form, InlineNotification } from '@carbon/react';
+import { TextInput, PasswordInput, Button, Form } from '@carbon/react';
 import { login } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
+import { useNotification } from '../context/NotificationContext';
 import './Login.scss';
 
 /**
@@ -15,10 +16,10 @@ const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { addNotification } = useNotification();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   /**
@@ -27,7 +28,6 @@ const Login = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setFormErrors({});
     
     // Manual Validation
@@ -57,7 +57,11 @@ const Login = () => {
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);
-      setError(t('login.error'));
+      addNotification({
+        kind: 'error',
+        title: t('login.title'),
+        subtitle: t('login.error'),
+      });
     } finally {
       setLoading(false);
     }
@@ -67,15 +71,6 @@ const Login = () => {
     <div className="login-page">
       <div className="login-form-container">
         <h2>{t('login.title')}</h2>
-        {error && (
-          <InlineNotification
-            kind="error"
-            title="Login Failed"
-            subtitle={error}
-            lowContrast
-            hideCloseButton
-          />
-        )}
         <Form onSubmit={handleSubmit} noValidate>
           <TextInput
             id="email"
@@ -113,7 +108,7 @@ const Login = () => {
           {t('login.register_link')}
         </Link>
         <Link to="/" className="back-home-link">
-          Back to Home
+          {t('login.back_to_home')}
         </Link>
       </div>
     </div>

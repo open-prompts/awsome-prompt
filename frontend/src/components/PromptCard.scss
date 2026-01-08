@@ -81,17 +81,19 @@
 
     pre {
       margin: 0;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #e0e0e0;
       white-space: pre-wrap;
-      word-break: break-all;
+      word-break: break-word;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-line-clamp: 6;
       -webkit-box-orient: vertical;
-      opacity: 0.8;
+      opacity: 1;
+      padding-top: 0.5rem;
     }
   }
 

@@ -256,3 +256,62 @@ button.cds--list-box__field .cds--list-box__label {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+// --- Toast Notifications ---
+.cds--toast-notification {
+  background-color: rgba(30, 30, 30, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  margin-bottom: 0.5rem;
+
+  .cds--toast-notification__title {
+    color: #fff !important;
+    font-weight: 600;
+  }
+  
+  .cds--toast-notification__subtitle,
+  .cds--toast-notification__caption {
+    color: #dedede !important;
+  }
+
+  &.cds--toast-notification--error {
+      border-left: 4px solid #ff0055;
+      .cds--toast-notification__icon { fill: #ff0055 !important; }
+  }
+
+  &.cds--toast-notification--success {
+      border-left: 4px solid #00ffaa;
+      .cds--toast-notification__icon { fill: #00ffaa !important; }
+  }
+  
+  &.cds--toast-notification--info {
+      border-left: 4px solid #00aaff;
+      .cds--toast-notification__icon { fill: #00aaff !important; }
+  }
+
+  &.cds--toast-notification--warning {
+      border-left: 4px solid #ffaa00;
+      .cds--toast-notification__icon { fill: #ffaa00 !important; }
+  }
+  
+  .cds--toast-notification__close-button {
+      .cds--toast-notification__close-icon { fill: #fff !important; }
+  }
+}
+
+// Override Modal Header Color Globally - High Specifity
+.cds--modal,
+.cds--modal-container {
+  .cds--modal-header__heading,
+  .cds--modal-header__label {
+    color: #f4f4f4 !important;
+  }
+
+  // Handle cases where label might be inside another element or shadowed
+  .cds--modal-header {
+      h2, h3, h4, p, span, div {
+          color: #f4f4f4 !important;
+      }
+  }
+}

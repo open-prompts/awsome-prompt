@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { useNotification } from '../context/NotificationContext';
 import Layout from '../components/Layout';
 import PromptCard from '../components/PromptCard';
 import { getTemplates } from '../services/api';
@@ -10,6 +12,8 @@ import './Home.scss';
  * Displays a grid of prompt templates with filtering and infinite scroll.
  */
 const Home = () => {
+  const { t } = useTranslation();
+  const { addNotification } = useNotification();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [templates, setTemplates] = useState([]);
   const [privateTemplates, setPrivateTemplates] = useState([]);
@@ -47,6 +51,7 @@ const Home = () => {
       const params = {
         page_size: pageSize,
         page_token: currentToken,
+        language: navigator.language.split('-')[0],
         ...filters,
       };
 
@@ -110,6 +115,11 @@ const Home = () => {
 
     } catch (error) {
       console.error('Failed to fetch templates:', error);
+      addNotification({
+        kind: 'error',
+        title: t('common.error'),
+        subtitle: t('home.error_fetch'),
+      });
     } finally {
       setLoading(false);
     }
@@ -173,29 +183,11 @@ const Home = () => {
     >
       <div className="home-page" onScroll={handleScroll}>
 
-        {isSpecialView && (
-             <div className="section-header">
-             <h2>{filters.my_likes ? 'My Likes' : 'My Favorites'}</h2>
-          </div>
-        )}
-
-        {isMixedView && privateTemplates.length > 0 && (
-          <div className="section-header">
-             <h2>My Private Prompts</h2>
-          </div>
-        )}
-
         {privateTemplates.length > 0 && (
            <div className="templates-grid private-grid">
             {privateTemplates.map((template) => (
               <PromptCard key={template.id} template={template} />
             ))}
-          </div>
-        )}
-
-        {isMixedView && templates.length > 0 && (
-             <div className="section-header">
-             <h2>Public Prompts</h2>
           </div>
         )}
 
@@ -205,9 +197,9 @@ const Home = () => {
           ))}
         </div>
 
-        {loading && <div className="loading">Loading...</div>}
+        {loading && <div className="loading">{t('common.loading')}</div>}
         {!loading && templates.length === 0 && privateTemplates.length === 0 && (
-          <div className="no-results">No templates found.</div>
+          <div className="no-results">{t('home.no_results')}</div>
         )}
       </div>
     </Layout>

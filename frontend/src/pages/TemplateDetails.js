@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   getTemplate,
   listTemplateVersions,
@@ -14,10 +15,12 @@ import {
   forkTemplate
 } from '../services/api';
 import { Modal } from '@carbon/react';
+import { useNotification } from '../context/NotificationContext';
 import Layout from '../components/Layout';
 import './TemplateDetails.scss';
 
 const TemplateDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -51,16 +54,7 @@ const TemplateDetails = () => {
   // Template Fork Modal State
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
 
-  // Notifications
-  const [notifications, setNotifications] = useState([]);
-
-  const showNotification = useCallback((message, type = 'info') => {
-    const id = Date.now() + Math.random();
-    setNotifications(prev => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 3000);
-  }, []);
+  const { addNotification } = useNotification();
 
   // Initial Data Fetch
   useEffect(() => {
@@ -93,7 +87,11 @@ const TemplateDetails = () => {
         }
       } catch (error) {
         console.error("Failed to load template data", error);
-        // Handle error (e.g. redirect or show message)
+        addNotification({
+          kind: 'error',
+          title: t('common.error'),
+          subtitle: t('template_details.error_load')
+        });
       } finally {
         setLoading(false);
       }
@@ -134,16 +132,16 @@ const TemplateDetails = () => {
       setVersions([newVersion, ...versions]);
       setSelectedVersionId(newVersion.id);
       setIsEditing(false);
-      showNotification('Template updated and new version created!', 'success');
+      addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_update') });
     } catch (error) {
       console.error("Failed to update template", error);
-      showNotification('Failed to update template.', 'error');
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_update') });
     }
   };
 
   const handleLike = async () => {
     if (!user) {
-        showNotification("Please login to like templates", "error");
+        addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_login_like') });
         return;
     }
     const oldState = isLiked;
@@ -156,13 +154,13 @@ const TemplateDetails = () => {
         // Revert
         setIsLiked(oldState);
         setLikesCount(prev => oldState ? prev + 1 : prev - 1);
-        showNotification("Failed to toggle like", "error");
+        addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_like') });
     }
   };
 
   const handleFavorite = async () => {
     if (!user) {
-        showNotification("Please login to favorite templates", "error");
+        addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_login_favorite') });
         return;
     }
     const oldState = isFavorited;
@@ -175,7 +173,7 @@ const TemplateDetails = () => {
         // Revert
         setIsFavorited(oldState);
         setFavoritesCount(prev => oldState ? prev + 1 : prev - 1);
-        showNotification("Failed to toggle favorite", "error");
+        addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_favorite') });
     }
   };
 
@@ -215,7 +213,7 @@ const TemplateDetails = () => {
   // Handle Create Prompt
   const handleCreatePrompt = async () => {
     if (!user) {
-        showNotification("Please login to save prompts.", "error");
+        addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_login_save') });
         return;
     }
     try {
@@ -227,10 +225,10 @@ const TemplateDetails = () => {
       };
       const res = await createPrompt(promptData);
       setPrompts([res.data.prompt, ...prompts]);
-      showNotification("Prompt saved successfully!", "success");
+      addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_save_prompt') });
     } catch (error) {
       console.error("Failed to create prompt", error);
-      showNotification("Failed to create prompt.", "error");
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_save_prompt') });
     }
   };
 
@@ -246,10 +244,10 @@ const TemplateDetails = () => {
     try {
       await deletePrompt(promptToDelete);
       setPrompts(prompts.filter(p => p.id !== promptToDelete));
-      showNotification("Prompt deleted successfully", "success");
+      addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_delete_prompt') });
     } catch (error) {
       console.error("Failed to delete prompt", error);
-      showNotification("Failed to delete prompt", "error");
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_delete_prompt') });
     } finally {
       setIsDeleteModalOpen(false);
       setPromptToDelete(null);
@@ -272,10 +270,10 @@ const TemplateDetails = () => {
       };
       const res = await updateTemplate(template.id, updateData);
       setTemplate(res.data.template); // Update local state
-      showNotification("Template is now Public", "success");
+      addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_share') });
     } catch (error) {
       console.error("Failed to share template", error);
-      showNotification("Failed to share template", "error");
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_share') });
     }
   };
 
@@ -293,10 +291,10 @@ const TemplateDetails = () => {
       };
       const res = await updateTemplate(template.id, updateData);
       setTemplate(res.data.template);
-      showNotification("Template is now Private", "success");
+      addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_unshare') });
     } catch (error) {
       console.error("Failed to unshare template", error);
-      showNotification("Failed to unshare template", "error");
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_unshare') });
     }
   };
 
@@ -308,14 +306,14 @@ const TemplateDetails = () => {
     try {
         const res = await forkTemplate(template.id);
         setIsForkModalOpen(false);
-        showNotification("Template forked successfully!", "success");
+        addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_fork') });
         // Navigate to the new template
         // Assuming API returns { template: { id: ... }, version: ... }
         const newId = res.data.template.id;
         navigate(`/templates/${newId}`);
     } catch (error) {
         console.error("Failed to fork template", error);
-        showNotification("Failed to fork template", "error");
+        addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_fork') });
         setIsForkModalOpen(false);
     }
   };
@@ -323,12 +321,12 @@ const TemplateDetails = () => {
   const confirmDeleteTemplate = async () => {
       try {
           await deleteTemplate(template.id);
-          showNotification("Template deleted successfully", "success");
+          addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_delete') });
           // Navigate home after a short delay so user sees notification
           setTimeout(() => navigate('/'), 1000);
       } catch (error) {
           console.error("Failed to delete template", error);
-          showNotification("Failed to delete template", "error");
+          addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_delete') });
           setIsTemplateDeleteModalOpen(false);
       }
   };
@@ -336,7 +334,7 @@ const TemplateDetails = () => {
   // Copy to Clipboard
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedContent).then(() => {
-        showNotification("Copied to clipboard!", "success");
+        addNotification({ kind: 'success', title: t('common.success'), subtitle: t('card.copied') });
     });
   };
 
@@ -350,18 +348,11 @@ const TemplateDetails = () => {
       }
   };
 
-  if (loading) return <Layout showCreateButton={false}><div className="loading">Loading...</div></Layout>;
-  if (!template) return <Layout showCreateButton={false}><div className="not-found">Template not found.</div></Layout>;
+  if (loading) return <Layout showCreateButton={false}><div className="loading">{t('common.loading')}</div></Layout>;
+  if (!template) return <Layout showCreateButton={false}><div className="not-found">{t('template_details.not_found')}</div></Layout>;
 
   return (
     <Layout showSidebar={false} showCreateButton={false}>
-      <div className="notification-container">
-        {notifications.map(n => (
-          <div key={n.id} className={`notification-toast ${n.type}`}>
-            {n.message}
-          </div>
-        ))}
-      </div>
       <div className="template-details-page">
         <div className="header-actions">
           <div className="title-section">
@@ -371,7 +362,7 @@ const TemplateDetails = () => {
                 <button
                   className={`social-btn like ${isLiked ? 'active' : ''}`}
                   onClick={handleLike}
-                  title={isLiked ? "Unlike" : "Like"}
+                  title={isLiked ? t('template_details.unlike') : t('template_details.like')}
                 >
                   <span className="icon">{isLiked ? '❤️' : '🤍'}</span>
                   <span className="count">{likesCount}</span>
@@ -379,7 +370,7 @@ const TemplateDetails = () => {
                 <button
                   className={`social-btn favorite ${isFavorited ? 'active' : ''}`}
                   onClick={handleFavorite}
-                  title={isFavorited ? "Unfavorite" : "Favorite"}
+                  title={isFavorited ? t('template_details.unfavorite') : t('template_details.favorite')}
                 >
                   <span className="icon">{isFavorited ? '⭐' : '☆'}</span>
                   <span className="count">{favoritesCount}</span>
@@ -389,7 +380,11 @@ const TemplateDetails = () => {
             <div className="meta">
                 <span>By {template.owner_id}</span>
                 <span>•</span>
-                <span className={`visibility ${template.visibility.toLowerCase()}`}>{template.visibility}</span>
+                <span className={`visibility ${template.visibility.toLowerCase()}`}>
+                  {template.visibility === 'VISIBILITY_PUBLIC' 
+                    ? t('create_template.visibility_public') 
+                    : t('create_template.visibility_private')}
+                </span>
                 {template.tags && template.tags.map(tag => (
                     <span key={tag} className="tag">#{tag}</span>
                 ))}
@@ -402,14 +397,14 @@ const TemplateDetails = () => {
                   {user.id === template.owner_id ? (
                       <>
                         {template.visibility === 'VISIBILITY_PRIVATE' ? (
-                            <button className="action-btn share" onClick={handleShare}>Share (Public)</button>
+                            <button className="action-btn share" onClick={handleShare}>{t('template_details.share_public')}</button>
                         ) : (
-                            <button className="action-btn unshare" onClick={handleUnshare}>Unshare (Private)</button>
+                            <button className="action-btn unshare" onClick={handleUnshare}>{t('template_details.unshare_private')}</button>
                         )}
-                        <button className="action-btn delete" onClick={() => setIsTemplateDeleteModalOpen(true)}>Delete Template</button>
+                        <button className="action-btn delete" onClick={() => setIsTemplateDeleteModalOpen(true)}>{t('template_details.delete_template')}</button>
                       </>
                   ) : (
-                      <button className="action-btn fork" onClick={handleFork}>Fork Template</button>
+                      <button className="action-btn fork" onClick={handleFork}>{t('template_details.fork_template')}</button>
                   )}
               </div>
           )}
@@ -419,10 +414,10 @@ const TemplateDetails = () => {
           <div className="main-column">
             {/* Version Selection & Editor */}
             <div className="section template-content">
-              <h3>Template Content</h3>
+              <h3>{t('template_details.content_title')}</h3>
 
               <div className="version-selector">
-                <label>Version:</label>
+                <label>{t('template_details.version_label')}</label>
                 <select
                     value={selectedVersionId || ''}
                     onChange={handleVersionChange}
@@ -450,12 +445,12 @@ const TemplateDetails = () => {
               <div className="actions">
                 {isEditing ? (
                     <>
-                        <button className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
-                        <button className="save-btn" onClick={handleSaveContent}>Save New Version</button>
+                        <button className="cancel-btn" onClick={() => setIsEditing(false)}>{t('common.cancel')}</button>
+                        <button className="save-btn" onClick={handleSaveContent}>{t('template_details.save_new_version')}</button>
                     </>
                 ) : (
                     user && user.id === template.owner_id && (
-                        <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit Template</button>
+                        <button className="edit-btn" onClick={() => setIsEditing(true)}>{t('template_details.edit_template')}</button>
                     )
                 )}
               </div>
@@ -463,51 +458,51 @@ const TemplateDetails = () => {
 
             {/* Prompt Generator */}
             <div className="section prompt-generator">
-                <h3>Generate Prompt</h3>
+                <h3>{t('template_details.generate_prompt')}</h3>
 
                 {variableCount > 0 ? (
                     <div className="variables-form">
                         {Array.from({ length: variableCount }).map((_, idx) => (
                             <div key={idx} className="form-group">
-                                <label>Variable {idx + 1}</label>
+                                <label>{t('template_details.variable')} {idx + 1}</label>
                                 <input
                                     type="text"
                                     value={variableValues[idx] || ''}
                                     onChange={(e) => handleVariableChange(idx, e.target.value)}
-                                    placeholder="Enter value..."
+                                    placeholder={t('template_details.enter_value')}
                                 />
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="no-vars">No variables ($$) found in this template.</p>
+                    <p className="no-vars">{t('template_details.no_vars')}</p>
                 )}
 
+                <label className="result-label">{t('template_details.result_preview')}</label>
                 <div className="preview-area">
-                    <label>Result Preview:</label>
                     <pre>{generatedContent}</pre>
                 </div>
 
                 <div className="generator-actions">
-                    <button className="secondary" onClick={handleCopy}>Copy to Clipboard</button>
-                    <button className="primary" onClick={handleCreatePrompt}>Save Prompt</button>
+                    <button className="secondary" onClick={handleCopy}>{t('card.copy')}</button>
+                    <button className="primary" onClick={handleCreatePrompt}>{t('template_details.save_prompt')}</button>
                 </div>
             </div>
           </div>
 
           <div className="sidebar-column">
             <div className="instruction-card">
-                <h4>How to use</h4>
-                <p>Use <code>$$</code> as a placeholder in your template.</p>
-                <p>Example: <code>Translate $$ to Spanish.</code></p>
-                <p>When generating, inputs will appear for each placeholder.</p>
+                <h4>{t('template_details.how_to_use')}</h4>
+                <p dangerouslySetInnerHTML={{ __html: t('template_details.instruction_1') }}></p>
+                <p dangerouslySetInnerHTML={{ __html: t('template_details.instruction_2') }}></p>
+                <p>{t('template_details.instruction_3')}</p>
             </div>
 
             <div className="prompt-history">
-                <h3>Your Saved Prompts</h3>
+                <h3>{t('template_details.saved_prompts')}</h3>
                 <div className="prompt-list">
                     {prompts.length === 0 ? (
-                        <div className="no-prompts">No prompts saved yet.</div>
+                        <div className="no-prompts">{t('template_details.no_saved_prompts')}</div>
                     ) : (
                         prompts.map(p => {
                             // Reconstruct content for display
@@ -520,20 +515,20 @@ const TemplateDetails = () => {
                                         {new Date(p.created_at).toLocaleDateString()}
                                     </div>
                                     <div className="prompt-content">
-                                        Variables: {p.variables ? p.variables.join(', ') : 'None'}
+                                        {t('template_details.variables_label')}: {p.variables ? p.variables.join(', ') : t('common.none')}
                                     </div>
                                     <div className="prompt-actions">
                                         <button
                                             className="load-btn"
                                             onClick={() => handleLoadPrompt(p)}
                                         >
-                                            Load
+                                            {t('template_details.load')}
                                         </button>
                                         <button
                                             className="delete-btn"
                                             onClick={() => handleDeletePrompt(p.id)}
                                         >
-                                            Delete
+                                            {t('common.delete')}
                                         </button>
                                     </div>
                                 </div>
@@ -548,40 +543,40 @@ const TemplateDetails = () => {
 
       <Modal
         open={isDeleteModalOpen}
-        modalHeading="Delete Prompt"
-        modalLabel="Confirmation"
-        primaryButtonText="Delete"
-        secondaryButtonText="Cancel"
+        modalHeading={t('template_details.delete_prompt_title')}
+        modalLabel={t('common.confirmation')}
+        primaryButtonText={t('common.delete')}
+        secondaryButtonText={t('common.cancel')}
         danger
         onRequestClose={() => setIsDeleteModalOpen(false)}
         onRequestSubmit={confirmDeletePrompt}
       >
-        <p>Are you sure you want to delete this prompt? This action cannot be undone.</p>
+        <p>{t('template_details.delete_prompt_confirm')}</p>
       </Modal>
 
       <Modal
         open={isTemplateDeleteModalOpen}
-        modalHeading="Delete Template"
-        modalLabel="Confirmation"
-        primaryButtonText="Delete"
-        secondaryButtonText="Cancel"
+        modalHeading={t('template_details.delete_template_title')}
+        modalLabel={t('common.confirmation')}
+        primaryButtonText={t('common.delete')}
+        secondaryButtonText={t('common.cancel')}
         danger
         onRequestClose={() => setIsTemplateDeleteModalOpen(false)}
         onRequestSubmit={confirmDeleteTemplate}
       >
-        <p>Are you sure you want to delete this entire template? All associated prompts and versions will be lost. This action cannot be undone.</p>
+        <p>{t('template_details.delete_template_confirm')}</p>
       </Modal>
 
       <Modal
         open={isForkModalOpen}
-        modalHeading="Fork Template"
-        modalLabel="Confirmation"
-        primaryButtonText="Fork"
-        secondaryButtonText="Cancel"
+        modalHeading={t('template_details.fork_template_title')}
+        modalLabel={t('common.confirmation')}
+        primaryButtonText={t('template_details.fork')}
+        secondaryButtonText={t('common.cancel')}
         onRequestClose={() => setIsForkModalOpen(false)}
         onRequestSubmit={confirmFork}
       >
-        <p>Are you sure you want to fork this template to your private library? The latest version content will be copied.</p>
+        <p>{t('template_details.fork_template_confirm')}</p>
       </Modal>
     </Layout>
   );

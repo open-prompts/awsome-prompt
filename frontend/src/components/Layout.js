@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { Add } from '@carbon/icons-react'; // Using Carbon icon
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -26,6 +27,7 @@ const Layout = ({
   onCreateSuccess,
   availableTags
 }) => {
+  const { t } = useTranslation();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -59,8 +61,8 @@ const Layout = ({
           <button
             className="floating-create-btn"
             onClick={handleCreateClick}
-            aria-label="Create Template"
-            title="Create Template"
+            aria-label={t('header.create_template')}
+            title={t('header.create_template')}
           >
             <Add size={32} />
           </button>

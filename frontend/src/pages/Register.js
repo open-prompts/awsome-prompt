@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { TextInput, PasswordInput, Button, Form, InlineNotification } from '@carbon/react';
+import { TextInput, PasswordInput, Button, Form } from '@carbon/react';
 import { register } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
+import { useNotification } from '../context/NotificationContext';
 import './Register.scss';
 
 /**
@@ -15,6 +16,7 @@ const Register = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { addNotification } = useNotification();
   const [formData, setFormData] = useState({
     id: '',
     email: '',
@@ -22,7 +24,6 @@ const Register = () => {
     displayName: '',
   });
   const [formErrors, setFormErrors] = useState({});
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Validate password complexity
@@ -57,7 +58,6 @@ const Register = () => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setFormErrors({});
     
     const errors = {};
@@ -93,7 +93,11 @@ const Register = () => {
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err);
-      setError(t('register.error'));
+      addNotification({
+        kind: 'error',
+        title: t('register.title'),
+        subtitle: t('register.error'),
+      });
     } finally {
       setLoading(false);
     }
@@ -103,15 +107,6 @@ const Register = () => {
     <div className="register-page">
       <div className="register-form-container">
         <h2>{t('register.title')}</h2>
-        {error && (
-          <InlineNotification
-            kind="error"
-            title="Error"
-            subtitle={error}
-            lowContrast
-            hideCloseButton
-          />
-        )}
         <Form onSubmit={handleSubmit} noValidate>
           <TextInput
             id="id"

@@ -3,9 +3,9 @@ import {
   Modal,
   TextInput,
   TextArea,
-  Dropdown,
-  InlineNotification
+  Dropdown
 } from '@carbon/react';
+import { useNotification } from '../context/NotificationContext';
 import { useTranslation } from 'react-i18next';
 import { createTemplate, getCategories } from '../services/api';
 import './CreateTemplateModal.scss';
@@ -31,8 +31,8 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
   const [categories, setCategories] = useState([]);
   const [customCategory, setCustomCategory] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
+  const { addNotification } = useNotification();
 
   // Fetch categories when the modal opens
   useEffect(() => {
@@ -48,7 +48,6 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
         tags: '',
       });
       setCustomCategory('');
-      setError('');
       setFormErrors({});
     }
   }, [open]);
@@ -67,6 +66,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       }
     } catch (err) {
       console.error('Failed to load categories', err);
+      addNotification({ kind: 'warning', title: t('common.warning'), subtitle: t('create_template.error_load_categories') });
       // Fallback categories if API fails
       setCategories(['General', 'Writing', 'Coding', 'Business']);
     }
@@ -85,13 +85,12 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     setFormErrors({});
-    setError('');
     const errors = {};
 
     // Basic validation
-    if (!formData.title) errors.title = t('create_template.label_title') + ' is required';
-    if (!formData.category) errors.category = t('create_template.label_category') + ' is required';
-    if (!formData.content) errors.content = t('create_template.label_content') + ' is required';
+    if (!formData.title) errors.title = t('create_template.error_required_title');
+    if (!formData.category) errors.category = t('create_template.error_required_category_select');
+    if (!formData.content) errors.content = t('create_template.error_required_content');
 
     // Validate custom category if selected
     if (formData.category === 'create_new' && !customCategory.trim()) {
@@ -112,6 +111,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
         category: formData.category === 'create_new' ? customCategory.trim() : formData.category,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
         type: 'user', // Default to user type
+        language: navigator.language.split('-')[0],
       };
 
       await createTemplate(payload);
@@ -121,7 +121,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
     } catch (err) {
       console.error('Create template error:', err);
       setLoading(false);
-      setError(t('create_template.error_submit'));
+      addNotification({ kind: 'error', title: t('common.error'), subtitle: t('create_template.error_submit') });
     }
   };
 
@@ -138,6 +138,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
   return (
     <Modal
       open={open}
+      className="create-template-modal"
       modalHeading={t('create_template.title')}
       primaryButtonText={loading ? t('common.saving') : t('common.create')}
       secondaryButtonText={t('common.cancel')}
@@ -146,15 +147,6 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       danger={false}
       selectorPrimaryFocus="#title"
     >
-      {error && (
-        <InlineNotification
-          kind="error"
-          title="Error"
-          subtitle={error}
-          lowContrast
-          hideCloseButton
-        />
-      )}
       <div className="create-template-form">
         <TextInput
           id="title"
