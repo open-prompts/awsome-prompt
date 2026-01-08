@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { TextInput, PasswordInput, Button, InlineNotification } from '@carbon/react';
+import { Edit, Save, Close } from '@carbon/icons-react';
 import { updateProfile, getProfile } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
 import Header from '../components/Header';
@@ -108,64 +110,102 @@ const Profile = () => {
   return (
     <div className="layout">
       <Header />
-      <div className="profile-container">
-        <h2>Profile</h2>
-        {message && <div className="success-message">{message}</div>}
-        {error && <div className="error-message">{error}</div>}
+      <div className="profile-page">
+        <div className="profile-container">
+          <div className="profile-header">
+             <h2>My Profile</h2>
+          </div>
+        
+          {message && <InlineNotification kind="success" title="Success" subtitle={message} hideCloseButton />}
+          {error && <InlineNotification kind="error" title="Error" subtitle={error} hideCloseButton />}
 
-        {!isEditing ? (
-            <div className="profile-view">
-                <div className="form-group">
-                    <label>Avatar</label>
-                    <div className="avatar-preview">
-                        {displayAvatar ? (
-                             <img src={displayAvatar} alt="Avatar" />
-                        ) : (
-                            <div className="avatar-placeholder">No Avatar</div>
-                        )}
-                    </div>
-                </div>
-                <div className="form-group">
-                    <label>Display Name</label>
-                    <div className="value">{displayName}</div>
-                </div>
-                 <div className="form-group">
-                    <label>Email</label>
-                    <div className="value">{email}</div>
-                </div>
-                <button onClick={toggleEdit}>Edit Profile</button>
-            </div>
-        ) : (
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                <label>Display Name</label>
-                <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                />
-                </div>
-                <div className="form-group">
-                <label>Avatar</label>
-                <div className="avatar-preview">
-                    {displayAvatar && <img src={displayAvatar} alt="Avatar Preview" />}
-                </div>
-                <input type="file" accept="image/*" onChange={handleAvatarChange} />
-                </div>
-                <div className="form-group">
-                <label>New Password (leave blank to keep current)</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
-                />
-                </div>
-                <button type="submit">Save Changes</button>
-                <button type="button" className="cancel-btn" onClick={toggleEdit} style={{marginTop: '10px', backgroundColor: '#666'}}>Cancel</button>
-            </form>
-        )}
-    </div>
+          {!isEditing ? (
+              <div className="profile-view">
+                  <div className="avatar-section">
+                      <div className="avatar-display">
+                          {displayAvatar ? (
+                              <img src={displayAvatar} alt="Avatar" />
+                          ) : (
+                              <div className="avatar-placeholder">
+                                  <span>{displayName ? displayName.charAt(0).toUpperCase() : 'U'}</span>
+                              </div>
+                          )}
+                      </div>
+                  </div>
+                  
+                  <div className="info-section">
+                      <div className="info-group">
+                          <label>Display Name</label>
+                          <div className="value">{displayName || 'Not set'}</div>
+                      </div>
+                      <div className="info-group">
+                          <label>Email</label>
+                          <div className="value">{email}</div>
+                      </div>
+                  </div>
+
+                  <div className="action-section">
+                      <Button renderIcon={Edit} onClick={toggleEdit}>Edit Profile</Button>
+                  </div>
+              </div>
+          ) : (
+              <form onSubmit={handleSubmit} className="profile-edit-form">
+                  <div className="form-group avatar-upload-group">
+                      <label>Profile Picture</label>
+                      <div className="avatar-upload-container">
+                          <div className="avatar-preview">
+                              {displayAvatar ? (
+                                  <img src={displayAvatar} alt="Avatar Preview" />
+                              ) : (
+                                  <div className="avatar-placeholder">
+                                      <span>{displayName ? displayName.charAt(0).toUpperCase() : 'U'}</span>
+                                  </div>
+                              )}
+                          </div>
+                          <div className="file-input-wrapper">
+                              <input 
+                                  type="file" 
+                                  id="avatar-upload" 
+                                  accept="image/*" 
+                                  onChange={handleAvatarChange} 
+                                  className="hidden-file-input"
+                              />
+                              <label htmlFor="avatar-upload" className="cds--btn cds--btn--secondary">
+                                  Change Authorization
+                              </label>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div className="form-group">
+                      <TextInput
+                          id="displayName"
+                          labelText="Display Name"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          placeholder="Enter your display name"
+                      />
+                  </div>
+
+                  <div className="form-group">
+                      <PasswordInput
+                          id="password"
+                          labelText="New Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Leave blank to keep current"
+                          autoComplete="new-password"
+                      />
+                  </div>
+
+                  <div className="form-actions">
+                      <Button type="submit" renderIcon={Save}>Save Changes</Button>
+                      <Button kind="ghost" renderIcon={Close} onClick={toggleEdit}>Cancel</Button>
+                  </div>
+              </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 @use '@carbon/react';
+@use 'styles/carbon-overrides';
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -43,6 +44,7 @@ body {
 
 // Override Carbon Design System defaults for Dark Mode Tech Feel
 // Note: This is a brute force override since we are using pre-compiled CSS/SCSS structure
+
 .cds--header {
   background-color: transparent !important;
   backdrop-filter: blur(10px);

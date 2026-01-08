@@ -1,87 +1,194 @@
-.profile-container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.profile-page {
+  padding: 40px 20px;
+  min-height: calc(100vh - 60px); // Full height minus header
+  background-color: transparent; // Background handled by body/layout
+}
 
-  h2 {
-    margin-bottom: 20px;
-    text-align: center;
+.profile-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.5s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .form-group {
-    margin-bottom: 20px;
+  .profile-header {
+    margin-bottom: 30px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 20px;
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
+    h2 {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(123, 97, 255, 0.5);
     }
+  }
 
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+  // --- View Mode ---
+  .profile-view {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
 
-    .avatar-preview {
-        margin-bottom: 10px;
-        img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #ddd;
-        }
-    }
+    .avatar-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
 
-    .avatar-placeholder {
-        width: 100px;
-        height: 100px;
+      .avatar-display {
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
-        background-color: #eee;
+        border: 2px solid var(--primary-color);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        overflow: hidden;
+        background-color: rgba(0,0,0,0.3);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #888;
-        border: 1px solid #ddd;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .avatar-placeholder {
+          font-size: 3rem;
+          color: var(--primary-color);
+          font-family: var(--font-heading);
+          font-weight: 700;
+        }
+      }
     }
 
-    .value {
-        padding: 10px 0;
-        font-size: 16px;
-        border-bottom: 1px solid #eee;
+    .info-section {
+      display: grid;
+      gap: 20px;
+
+      .info-group {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 15px 20px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+
+        label {
+          display: block;
+          color: var(--text-secondary);
+          font-size: 0.85rem;
+          margin-bottom: 5px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        .value {
+          font-size: 1.1rem;
+          color: var(--text-main);
+          font-weight: 500;
+        }
+      }
+    }
+
+    .action-section {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
     }
   }
 
-  button {
-    width: 100%;
-    padding: 10px;
-    background-color: #0f62fe;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+  // --- Edit Mode ---
+  .profile-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 
-    &:hover {
-      background-color: #0353e9;
+    .form-group {
+      &.avatar-upload-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+
+        label {
+          color: var(--text-secondary);
+          font-size: 0.9rem;
+        }
+
+        .avatar-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            
+            .avatar-preview {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                border: 2px solid var(--primary-color);
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba(0,0,0,0.3);
+                
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                 .avatar-placeholder {
+                    font-size: 2.5rem;
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+            }
+
+            .file-input-wrapper {
+                .hidden-file-input {
+                    display: none;
+                }
+                
+                label.cds--btn {
+                    cursor: pointer;
+                    min-height: 3rem; // Match Carbon button height
+                    padding: 0 40px; // Match Carbon button padding approximately
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+        }
+      }
     }
-  }
 
-  .success-message {
-    color: green;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-
-  .error-message {
-    color: red;
-    margin-bottom: 15px;
-    text-align: center;
+    .form-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 20px;
+      
+      .cds--btn--ghost {
+          color: var(--text-secondary) !important;
+          &:hover {
+              color: var(--text-main) !important;
+              background-color: rgba(255,255,255,0.1) !important; 
+          }
+      }
+    }
   }
 }

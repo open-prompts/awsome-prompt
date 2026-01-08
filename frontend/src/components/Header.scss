@@ -86,5 +86,48 @@
         }
       }
     }
+
+    .user-profile {
+      /* Dropdown styles for the user profile menu */
+      .profile-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: var(--surface-solid); 
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: var(--glass-border);
+        box-shadow: var(--shadow-card);
+        border-radius: 8px;
+        padding: 8px 0;
+        min-width: 180px;
+        z-index: 1000;
+        margin-top: 10px;
+        
+        .dropdown-item {
+          padding: 10px 16px;
+          cursor: pointer;
+          color: var(--text-secondary);
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          font-size: 0.9rem;
+          font-family: var(--font-body);
+          
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--primary-color);
+          }
+          
+          &.logout {
+             color: #ff4d4f;
+             &:hover {
+                 background-color: rgba(255, 77, 79, 0.1);
+                 color: #ff7875;
+             }
+          }
+        }
+      }
+    }
   }
 }

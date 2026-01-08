@@ -37,22 +37,9 @@
 
     .cds--form-item {
       margin-bottom: 24px;
-      
-      label {
-        color: var(--text-muted);
-      }
-      
-      input {
-        background-color: rgba(0,0,0,0.3) !important;
-        color: var(--text-main) !important;
-        border-bottom: 1px solid var(--border-color) !important;
-        
-        &:focus {
-            border-bottom: 2px solid var(--primary-color) !important;
-            box-shadow: 0 2px 8px rgba(0, 255, 255, 0.2);
-        }
-      }
+      // Input styles handled by global overrides in styles/_carbon-overrides.scss
     }
+
 
     .register-button {
       width: 100%;

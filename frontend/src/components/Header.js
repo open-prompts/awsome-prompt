@@ -51,22 +51,11 @@ const Header = () => {
             </button>
 
             {isDropdownOpen && (
-              <div className="profile-dropdown" style={{
-                position: 'absolute',
-                top: '100%',
-                right: 0,
-                backgroundColor: 'white',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                borderRadius: '4px',
-                padding: '8px 0',
-                minWidth: '150px',
-                zIndex: 1000,
-                color: 'black'
-              }}>
-                <div style={{ padding: '8px 16px', borderBottom: '1px solid #eee', cursor: 'pointer' }} onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}>
+              <div className="profile-dropdown">
+                <div className="dropdown-item" onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}>
                   Profile
                 </div>
-                 <div style={{ padding: '8px 16px', cursor: 'pointer', color: 'red' }} onClick={handleLogout}>
+                 <div className="dropdown-item logout" onClick={handleLogout}>
                   Logout
                 </div>
               </div>

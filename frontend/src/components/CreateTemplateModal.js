@@ -3,8 +3,7 @@ import {
   Modal,
   TextInput,
   TextArea,
-  Select,
-  SelectItem,
+  Dropdown,
   InlineNotification
 } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -114,6 +113,16 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
     }
   };
 
+  const categoryItems = [
+    ...categories.map(c => ({ id: c, text: c })),
+    { id: 'create_new', text: t('create_template.create_new_category') }
+  ];
+
+  const visibilityItems = [
+    { id: 'public', text: t('create_template.visibility_public') },
+    { id: 'private', text: t('create_template.visibility_private') }
+  ];
+
   return (
     <Modal
       open={open}
@@ -145,19 +154,16 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
           className="form-field"
         />
 
-        <Select
+        <Dropdown
           id="category"
-          labelText={t('create_template.label_category')}
-          value={formData.category}
-          onChange={handleChange}
+          titleText={t('create_template.label_category')}
+          label={t('create_template.choose_category')}
+          items={categoryItems}
+          itemToString={(item) => (item ? item.text : '')}
+          selectedItem={categoryItems.find(c => c.id === formData.category) || null}
+          onChange={({ selectedItem }) => setFormData(prev => ({ ...prev, category: selectedItem.id }))}
           className="form-field"
-        >
-          <SelectItem value="" text={t('create_template.choose_category')} />
-          {categories.map((cat, idx) => (
-            <SelectItem key={idx} value={cat} text={cat} />
-          ))}
-          <SelectItem value="create_new" text={t('create_template.create_new_category')} />
-        </Select>
+        />
 
         {formData.category === 'create_new' && (
           <TextInput
@@ -180,16 +186,15 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
           className="form-field"
         />
 
-        <Select
+        <Dropdown
           id="visibility"
-          labelText={t('create_template.label_visibility')}
-          value={formData.visibility}
-          onChange={handleChange}
+          titleText={t('create_template.label_visibility')}
+          items={visibilityItems}
+          itemToString={(item) => (item ? item.text : '')}
+          selectedItem={visibilityItems.find(v => v.id === formData.visibility)}
+          onChange={({ selectedItem }) => setFormData(prev => ({ ...prev, visibility: selectedItem.id }))}
           className="form-field"
-        >
-          <SelectItem value="public" text={t('create_template.visibility_public')} />
-          <SelectItem value="private" text={t('create_template.visibility_private')} />
-        </Select>
+        />
 
         <TextArea
           id="description"
