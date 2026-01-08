@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { UserAvatar } from '@carbon/icons-react';
@@ -15,6 +15,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -26,6 +27,20 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <header className="app-header">
       <div className="header-left">
@@ -36,7 +51,7 @@ const Header = () => {
       </div>
       <div className="header-right">
         {user ? (
-          <div className="user-profile" style={{ position: 'relative' }}>
+          <div className="user-profile" style={{ position: 'relative' }} ref={dropdownRef}>
              <button
               className="user-name-btn"
               onClick={toggleDropdown}

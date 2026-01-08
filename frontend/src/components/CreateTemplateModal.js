@@ -8,6 +8,7 @@ import {
 } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { createTemplate, getCategories } from '../services/api';
+import './CreateTemplateModal.scss';
 
 /**
  * CreateTemplateModal Component

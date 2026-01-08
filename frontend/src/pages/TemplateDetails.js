@@ -364,9 +364,6 @@ const TemplateDetails = () => {
       </div>
       <div className="template-details-page">
         <div className="header-actions">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            &larr; Back to Home
-          </button>
           <div className="title-section">
             <div className="title-row">
               <h2>{template.title}</h2>

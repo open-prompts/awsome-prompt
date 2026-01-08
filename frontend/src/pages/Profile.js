@@ -151,7 +151,7 @@ const Profile = () => {
           ) : (
               <form onSubmit={handleSubmit} className="profile-edit-form">
                   <div className="form-group avatar-upload-group">
-                      <label>Profile Picture</label>
+                      <label>Avatar</label>
                       <div className="avatar-upload-container">
                           <div className="avatar-preview">
                               {displayAvatar ? (
@@ -171,7 +171,7 @@ const Profile = () => {
                                   className="hidden-file-input"
                               />
                               <label htmlFor="avatar-upload" className="cds--btn cds--btn--secondary">
-                                  Change Authorization
+                                  Change Avatar
                               </label>
                           </div>
                       </div>
