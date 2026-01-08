@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/open-prompts/awsome-prompt/compare/v1.4.0...v1.5.0) (2026-01-08)
+
+
+### Features
+
+* support i18n ([81306bd](https://github.com/open-prompts/awsome-prompt/commit/81306bd73658a3b107e6513ee34b6fc8734ffe7a))
+
 # [1.4.0](https://github.com/open-prompts/awsome-prompt/compare/v1.3.0...v1.4.0) (2026-01-07)
 
 
