@@ -21,8 +21,19 @@ const Register = () => {
     password: '',
     displayName: '',
   });
+  const [formErrors, setFormErrors] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Validate password complexity
+  const validatePassword = (pwd) => {
+    if (pwd.length <= 8) return false;
+    let complexity = 0;
+    if (/[a-z]/.test(pwd)) complexity++;
+    if (/[A-Z]/.test(pwd)) complexity++;
+    if (/[0-9]/.test(pwd)) complexity++;
+    return complexity >= 2;
+  };
 
   /**
    * Handles input changes.
@@ -34,6 +45,10 @@ const Register = () => {
       ...prev,
       [id]: value,
     }));
+    // Clear error when user types
+    if (formErrors[id]) {
+        setFormErrors(prev => ({ ...prev, [id]: '' }));
+    }
   };
 
   /**
@@ -43,6 +58,23 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFormErrors({});
+    
+    const errors = {};
+    if (!formData.id) errors.id = t('register.id') + ' is required';
+    if (!formData.email) errors.email = t('register.email') + ' is required';
+    if (!formData.password) errors.password = t('register.password') + ' is required';
+    
+    // Check password validity only if it exists
+    if (formData.password && !validatePassword(formData.password)) {
+      errors.password = t('register.password_error');
+    }
+
+    if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
+    }
+
     setLoading(true);
 
     try {
@@ -80,14 +112,15 @@ const Register = () => {
             hideCloseButton
           />
         )}
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} noValidate>
           <TextInput
             id="id"
             labelText={t('register.id')}
             value={formData.id}
             onChange={handleChange}
             placeholder="unique_username"
-            required
+            invalid={!!formErrors.id}
+            invalidText={formErrors.id}
           />
           <TextInput
             id="email"
@@ -95,7 +128,8 @@ const Register = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="user@example.com"
-            required
+            invalid={!!formErrors.email}
+            invalidText={formErrors.email}
           />
           <TextInput
             id="displayName"
@@ -110,7 +144,8 @@ const Register = () => {
             labelText={t('register.password')}
             value={formData.password}
             onChange={handleChange}
-            required
+            invalid={!!formErrors.password}
+            invalidText={formErrors.password}
           />
           <Button
             type="submit"

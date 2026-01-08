@@ -32,6 +32,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
   const [customCategory, setCustomCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   // Fetch categories when the modal opens
   useEffect(() => {
@@ -48,6 +49,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       });
       setCustomCategory('');
       setError('');
+      setFormErrors({});
     }
   }, [open]);
 
@@ -76,23 +78,32 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       ...prev,
       [id]: value,
     }));
+    if (formErrors[id]) {
+        setFormErrors(prev => ({...prev, [id]: ''}));
+    }
   };
 
   const handleSubmit = async () => {
+    setFormErrors({});
+    setError('');
+    const errors = {};
+
     // Basic validation
-    if (!formData.title || !formData.content) {
-      setError(t('create_template.error_required_fields')); // Ensure translation key exists or fallback
-      return;
-    }
+    if (!formData.title) errors.title = t('create_template.label_title') + ' is required';
+    if (!formData.category) errors.category = t('create_template.label_category') + ' is required';
+    if (!formData.content) errors.content = t('create_template.label_content') + ' is required';
 
     // Validate custom category if selected
     if (formData.category === 'create_new' && !customCategory.trim()) {
-      setError(t('create_template.error_required_category'));
-      return;
+      errors.customCategory = t('create_template.error_required_category');
+    }
+    
+    if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
     }
 
     setLoading(true);
-    setError('');
 
     try {
       // Prepare payload
@@ -151,8 +162,10 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
           placeholder={t('create_template.ph_title')}
           value={formData.title}
           onChange={handleChange}
-          required
+          required // Carbon styling for required
           className="form-field"
+          invalid={!!formErrors.title}
+          invalidText={formErrors.title}
         />
 
         <Dropdown
@@ -164,6 +177,8 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
           selectedItem={categoryItems.find(c => c.id === formData.category) || null}
           onChange={({ selectedItem }) => setFormData(prev => ({ ...prev, category: selectedItem.id }))}
           className="form-field"
+          invalid={!!formErrors.category}
+          invalidText={formErrors.category}
         />
 
         {formData.category === 'create_new' && (
@@ -175,17 +190,10 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
             onChange={(e) => setCustomCategory(e.target.value)}
             className="form-field"
             style={{ marginTop: '0.5rem' }}
+            invalid={!!formErrors.customCategory}
+            invalidText={formErrors.customCategory}
           />
         )}
-
-        <TextInput
-          id="tags"
-          labelText={t('create_template.label_tags')}
-          placeholder={t('create_template.ph_tags')}
-          value={formData.tags}
-          onChange={handleChange}
-          className="form-field"
-        />
 
         <Dropdown
           id="visibility"
@@ -212,9 +220,10 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
           placeholder={t('create_template.ph_content')}
           value={formData.content}
           onChange={handleChange}
-          required
           rows={10}
           className="form-field"
+          invalid={!!formErrors.content}
+          invalidText={formErrors.content}
         />
       </div>
     </Modal>

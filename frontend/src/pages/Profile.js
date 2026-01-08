@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { TextInput, PasswordInput, Button, InlineNotification } from '@carbon/react';
 import { Edit, Save, Close } from '@carbon/icons-react';
 import { updateProfile, getProfile } from '../services/api';
@@ -13,6 +14,7 @@ import './Profile.scss';
  * Allows users to view and update their profile.
  */
 const Profile = () => {
+  const { t } = useTranslation();
   const { user, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -68,6 +70,15 @@ const Profile = () => {
     }
   };
 
+  const validatePassword = (pwd) => {
+    if (pwd.length <= 8) return false;
+    let complexity = 0;
+    if (/[a-z]/.test(pwd)) complexity++;
+    if (/[A-Z]/.test(pwd)) complexity++;
+    if (/[0-9]/.test(pwd)) complexity++;
+    return complexity >= 2;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -80,6 +91,10 @@ const Profile = () => {
       };
 
       if (password) {
+        if (!validatePassword(password)) {
+          setError(t('register.password_error'));
+          return;
+        }
         updatedData.password = password;
       }
 

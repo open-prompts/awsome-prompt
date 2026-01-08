@@ -2,26 +2,36 @@
 
 // --- General Form Items ---
 .cds--label {
-  color: var(--text-secondary) !important;
+  color: #f4f4f4 !important; // High contrast for dark mode
   font-family: var(--font-body);
   font-size: 0.85rem;
 }
 
 // --- Text Inputs, Text Areas, Select Triggers ---
 .cds--text-input,
+.cds--text-input-field,
 .cds--text-area,
 .cds--select-input,
 .cds--dropdown, 
-.cds--dropdown-text {
-  background-color: rgba(0, 0, 0, 0.3) !important;
-  color: var(--text-main) !important;
+.cds--dropdown-text,
+input.cds--text-input {
+  background-color: rgba(255, 255, 255, 0.1) !important; // Light glass background
+  color: #ffffff !important; // Pure white text
   border: none !important;
   border-bottom: 1px solid var(--border-color) !important;
   transition: all var(--transition-speed);
   font-family: var(--font-body);
 
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover, 
+  &:-webkit-autofill:focus, 
+  &:-webkit-autofill:active{
+      -webkit-box-shadow: 0 0 0 30px #262626 inset !important;
+      -webkit-text-fill-color: white !important;
+  }
+
   &::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.4); // Brighter placeholder
   }
 
   &:focus,
@@ -81,13 +91,17 @@
     }
     
     .cds--modal-close {
-      border: none;
-      
+      border: 1px solid rgba(255,255,255,0.1);
+      background-color: #000000 !important; // Solid Black
+      border-radius: 4px;
+      transition: all 0.2s;
+
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: #333333 !important; // Dark Grey on hover
+        border-color: var(--primary-color);
       }
       .cds--modal-close__icon {
-        fill: var(--text-main) !important;
+        fill: #ffffff !important; 
       }
     }
   }
@@ -119,6 +133,9 @@
     background: transparent !important;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     .cds--btn {
       border-radius: 4px; 
     }
@@ -126,27 +143,51 @@
 }
 
 // --- Dropdowns / Select Menus ---
+.cds--dropdown, 
+.cds--list-box,
+.cds--list-box__field,
+.cds--list-box__menu-item,
+button.cds--list-box__field {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: #ffffff !important;
+}
+
+.cds--list-box__label,
+.cds--list-box__field:focus .cds--list-box__label,
+button.cds--list-box__field .cds--list-box__label {
+    color: #ffffff !important; 
+}
+
 .cds--list-box__menu {
-  background-color: var(--surface-solid) !important;
+  background-color: #161616 !important; // Dark background
   border: 1px solid var(--border-color);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   
   .cds--list-box__menu-item {
-    color: var(--text-secondary);
+    color: #f4f4f4 !important; // Light text
     
+    .cds--list-box__menu-item__option {
+       color: inherit !important;
+    }
+
     &:hover,
     &.cds--list-box__menu-item--highlighted {
       background-color: rgba(123, 97, 255, 0.2) !important; // Purple tint
-      color: var(--text-main) !important;
+      color: #ffffff !important;
       
       .cds--list-box__menu-item__option {
-        color: var(--text-main) !important;
+        color: #ffffff !important;
       }
     }
     
     &.cds--list-box__menu-item--active {
       color: var(--primary-color) !important;
       background-color: rgba(0, 255, 255, 0.1) !important;
+      .cds--list-box__menu-item__option {
+        color: var(--primary-color) !important;
+      }
     }
   }
 }
@@ -180,4 +221,38 @@
       &:hover { background: rgba(255,255,255,0.1); }
       .cds--inline-notification__close-icon { fill: var(--text-main); }
   }
+}
+
+// --- Input Validation Errors (Neon Style) ---
+.cds--text-input--invalid, 
+.cds--text-area--invalid,
+.cds--select-input--invalid,
+.cds--text-input[data-invalid] {
+    border-bottom: 2px solid #ff0055 !important; // Neon Pink
+    box-shadow: 0 4px 12px rgba(255, 0, 85, 0.15) !important;
+}
+
+// The error text below the input
+.cds--form-requirement {
+    color: #ff3377 !important; // Bright Neon Pink/Red
+    font-size: 0.8rem;
+    margin-top: 6px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    display: flex;
+    align-items: center;
+    
+    // Add a small subtle glow/animation
+    animation: slideDownFade 0.3s ease-out forwards;
+}
+
+// Error Icon inside the input
+.cds--text-input__invalid-icon,
+.cds--select__invalid-icon {
+    fill: #ff0055 !important;
+}
+
+@keyframes slideDownFade {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }

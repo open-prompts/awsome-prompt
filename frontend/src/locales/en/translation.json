@@ -17,7 +17,8 @@
     "display_name": "Display Name",
     "submit": "Register",
     "login_link": "Already have an account? Login here.",
-    "error": "Registration failed. Please try again."
+    "error": "Registration failed. Please try again.",
+    "password_error": "Password must be longer than 8 characters and contain at least two types: uppercase, lowercase, or numbers."
   },
   "common": {
     "saving": "Saving...",

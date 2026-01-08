@@ -17,7 +17,8 @@
     "display_name": "显示名称",
     "submit": "注册",
     "login_link": "已有账号？点击登录",
-    "error": "注册失败，请重试。"
+    "error": "注册失败，请重试。",
+    "password_error": "密码长度必须大于8位，且至少包含大小写字母和数字中的两种。"
   },
   "common": {
     "saving": "保存中...",

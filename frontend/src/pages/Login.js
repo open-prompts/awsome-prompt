@@ -17,6 +17,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [formErrors, setFormErrors] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -27,6 +28,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFormErrors({});
+    
+    // Manual Validation
+    const errors = {};
+    if (!email) errors.email = t('login.email') + ' is required'; // Or specific translation key
+    if (!password) errors.password = t('login.password') + ' is required';
+    
+    if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
+    }
+
     setLoading(true);
 
     try {
@@ -57,27 +70,35 @@ const Login = () => {
         {error && (
           <InlineNotification
             kind="error"
-            title="Error"
+            title="Login Failed"
             subtitle={error}
             lowContrast
             hideCloseButton
           />
         )}
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} noValidate>
           <TextInput
             id="email"
             labelText={t('login.email')}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+                setEmail(e.target.value);
+                if (formErrors.email) setFormErrors({...formErrors, email: ''});
+            }}
             placeholder="user@example.com"
-            required
+            invalid={!!formErrors.email}
+            invalidText={formErrors.email}
           />
           <PasswordInput
             id="password"
             labelText={t('login.password')}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            onChange={(e) => {
+                setPassword(e.target.value);
+                if (formErrors.password) setFormErrors({...formErrors, password: ''});
+            }}
+            invalid={!!formErrors.password}
+            invalidText={formErrors.password}
           />
           <Button
             type="submit"
