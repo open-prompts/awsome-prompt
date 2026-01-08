@@ -91,11 +91,9 @@ const Login = () => {
         <Link to="/register" className="register-link">
           {t('login.register_link')}
         </Link>
-        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-          <Link to="/" className="back-home-link">
-            Back to Home
-          </Link>
-        </div>
+        <Link to="/" className="back-home-link">
+          Back to Home
+        </Link>
       </div>
     </div>
   );

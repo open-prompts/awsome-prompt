@@ -42,13 +42,23 @@
 
 
     .register-button {
-      width: 100%;
+      width: 50% !important;
       margin-top: 20px;
+      // Center the button in its container
+      margin-left: auto !important;
+      margin-right: auto !important;
+      
       background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
       border: none;
       font-weight: 700;
       letter-spacing: 1px;
       font-family: var(--font-heading);
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      text-align: center;
+      padding-right: 15px !important; // Override Carbon's default padding (often 64px)
+      padding-left: 15px !important;
       
       &:hover {
           box-shadow: 0 0 15px rgba(123, 97, 255, 0.6);
