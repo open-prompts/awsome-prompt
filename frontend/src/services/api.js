@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create an axios instance with default configuration
 const api = axios.create({
   baseURL: '/api/v1', // Base URL for the API
-  timeout: 10000, // Request timeout
+  timeout: 60000, // Request timeout
 });
 
 // Add a request interceptor to include auth token if available
