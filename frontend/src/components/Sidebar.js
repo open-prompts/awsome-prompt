@@ -13,13 +13,20 @@ import './Sidebar.scss';
  * @param {Object} props.currentFilters - Current active filters
  * @param {Array} props.availableTags - Tags to display (overrides fetching)
  */
-const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
+const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, onClose }) => {
   const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [showAllCategories, setShowAllCategories] = useState(false);
+
+  const handleSelection = (callback) => {
+    if (callback) callback();
+    if (onClose && window.innerWidth <= 768) {
+        onClose();
+    }
+  };
 
   useEffect(() => {
     // Fetch categories and tags on mount
@@ -50,24 +57,29 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
   // const displayedPrivateCategories = privateCategories.slice(0, 10); // Assume limit for private too
 
   const handleCategoryClick = (category, visibility) => {
-    onFilterChange({
-        category,
-        visibility,
-        tags: [],
-        my_likes: false,
-        my_favorites: false
+    handleSelection(() => {
+        onFilterChange({
+            category,
+            visibility,
+            tags: [],
+            my_likes: false,
+            my_favorites: false
+        });
     });
   };
 
   const handleTagClick = (tag) => {
-    onFilterChange({
-        tags: [tag],
-        my_likes: false,
-        my_favorites: false
+    handleSelection(() => {
+        onFilterChange({
+            tags: [tag],
+            my_likes: false,
+            my_favorites: false
+        });
     });
   };
 
   const handleSpecialFilterClick = (type) => {
+    handleSelection(() => {
       if (type === 'likes') {
           onFilterChange({
             category: '',
@@ -85,6 +97,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
             my_favorites: true
           });
       }
+    });
   };
 
   const isActive = (type, value, visibility) => {
@@ -99,7 +112,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
   };
 
   return (
-    <aside className="app-sidebar">
+    <aside className={`app-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-section">
         <h3>{t('dashboard.title')}</h3>
         <ul>

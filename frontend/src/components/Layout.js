@@ -30,6 +30,7 @@ const Layout = ({
   const { t } = useTranslation();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleCreateClick = () => {
     setIsModalOpen(true);
@@ -46,11 +47,29 @@ const Layout = ({
     }
   };
 
+  const toggleMobileSidebar = () => {
+    setMobileSidebarOpen(!mobileSidebarOpen);
+  };
+
   return (
     <div className="app-layout">
-      <Header />
+      <Header onMenuClick={toggleMobileSidebar} />
       <div className="app-body">
-        {showSidebar && <Sidebar onFilterChange={onFilterChange} currentFilters={currentFilters} availableTags={availableTags} />}
+        {showSidebar && (
+          <>
+            <div 
+              className={`sidebar-backdrop ${mobileSidebarOpen ? 'visible' : ''}`} 
+              onClick={() => setMobileSidebarOpen(false)}
+            />
+            <Sidebar 
+              onFilterChange={onFilterChange} 
+              currentFilters={currentFilters}
+              availableTags={availableTags} 
+              mobileOpen={mobileSidebarOpen}
+              onClose={() => setMobileSidebarOpen(false)}
+            />
+          </>
+        )}
         <main className="app-content">
           {children}
         </main>

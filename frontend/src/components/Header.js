@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { UserAvatar, Translate } from '@carbon/icons-react';
+import { UserAvatar, Translate, Menu } from '@carbon/icons-react';
 import { logout } from '../store/authSlice';
 import './Header.scss';
 
@@ -11,7 +11,7 @@ import './Header.scss';
  * Header component for the application.
  * Displays the logo, navigation links, and user authentication status.
  */
-const Header = () => {
+const Header = ({ onMenuClick }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -53,6 +53,13 @@ const Header = () => {
   return (
     <header className="app-header">
       <div className="header-left">
+        <button 
+          className="menu-toggle-btn" 
+          onClick={onMenuClick}
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
         <Link to="/" className="logo">
           <img src="/images/logo.jpg" alt="Logo" style={{ height: '32px', marginRight: '10px', borderRadius: '50%' }} />
           Awsome Prompt

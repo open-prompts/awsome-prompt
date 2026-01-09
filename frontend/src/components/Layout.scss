@@ -47,4 +47,39 @@
       transform: scale(0.95);
     }
   }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(2px);
+
+    &.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .app-body {
+      .app-content {
+        padding: 15px;
+      }
+    }
+
+    .floating-create-btn {
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      font-size: 24px;
+    }
+  }
 }

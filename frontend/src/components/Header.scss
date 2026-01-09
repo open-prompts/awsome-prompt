@@ -18,6 +18,21 @@
     align-items: center;
     gap: 20px;
 
+    .menu-toggle-btn {
+      display: none; // Hidden on desktop
+      background: none;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+      
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+
     .logo {
       display: flex;
       align-items: center;
@@ -47,6 +62,24 @@
       }
     }
   }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    padding: 0 15px;
+
+    .header-left {
+      gap: 15px;
+      
+      .menu-toggle-btn {
+        display: flex;
+      }
+
+      .main-nav {
+         display: none; // Hide desktop links on mobile
+      }
+    }
+  }
+
 
   .header-right {
     display: flex; /* Ensure items are aligned horizontally */

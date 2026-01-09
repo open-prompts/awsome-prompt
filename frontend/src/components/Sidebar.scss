@@ -6,6 +6,21 @@
   height: calc(100vh - 60px); // Full height minus header
   overflow-y: auto;
   border-right: var(--glass-border);
+  transition: transform 0.3s ease, left 0.3s ease;
+  z-index: 1001; // Above content but below modals
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 60px; // Below header
+    left: -260px; // Hide off-screen
+    height: calc(100vh - 60px);
+    width: 260px;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+
+    &.mobile-open {
+      left: 0;
+    }
+  }
 
   .sidebar-section {
     margin-bottom: 30px;

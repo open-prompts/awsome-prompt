@@ -4,10 +4,15 @@
 
   .templates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly wider cards */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Slightly wider cards */
     gap: 30px;
     padding-bottom: 40px;
     padding-top: 0.5rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); /* Full width on mobile */
+      gap: 20px;
+    }
   }
 
   .loading, .no-results {
