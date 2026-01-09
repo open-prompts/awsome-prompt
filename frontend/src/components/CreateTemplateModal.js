@@ -198,6 +198,15 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
           className="form-field"
         />
 
+        <TextInput
+          id="tags"
+          labelText={t('create_template.label_tags')}
+          placeholder={t('create_template.ph_tags')}
+          value={formData.tags}
+          onChange={handleChange}
+          className="form-field"
+        />
+
         <TextArea
           id="description"
           labelText={t('create_template.label_description')}
