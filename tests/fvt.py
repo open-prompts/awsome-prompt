@@ -84,12 +84,18 @@ def get_auth_token(user_id):
     if resp.status_code == 200:
         return resp.json().get("token")
 
+    # Send Verification Code
+    requests.post("http://localhost:8080/api/v1/verification-code", json={
+        "email": email
+    })
+
     # Register if login failed
     resp = requests.post("http://localhost:8080/api/v1/register", json={
         "id": user_id,
         "email": email,
         "password": password,
-        "display_name": "Test User"
+        "display_name": "Test User",
+        "verification_code": "123456"
     })
     return resp.json().get("token")
 
@@ -124,7 +130,7 @@ def test_profile_update():
 def test_lifecycle():
     print("--- Starting Lifecycle Test ---")
 
-    owner_id = f"user_{int(time.time())}"
+    owner_id = f"test_user_{int(time.time())}"
     token = get_auth_token(owner_id)
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -232,11 +238,15 @@ def test_auth():
 
     # 1. Register
     print("1. Registering User...")
+    # Send verification code
+    requests.post("http://localhost:8080/api/v1/verification-code", json={"email": email})
+
     register_payload = {
         "id": user_id,
         "email": email,
         "password": password,
-        "display_name": "FVT User"
+        "display_name": "FVT User",
+        "verification_code": "123456"
     }
     resp = requests.post(REGISTER_URL, json=register_payload)
     if resp.status_code != 200:
@@ -276,6 +286,9 @@ def test_auth():
 
     # 3. Duplicate Register
     print("3. Testing Duplicate Register...")
+    # Send verification code again because the previous one was consumed
+    requests.post("http://localhost:8080/api/v1/verification-code", json={"email": email})
+    
     resp = requests.post(REGISTER_URL, json=register_payload)
     if resp.status_code != 409:
         print(f"Duplicate register should fail with 409, but got {resp.status_code}")
@@ -301,15 +314,19 @@ def test_prompt_lifecycle():
     print("--- Starting Prompt Lifecycle Test ---")
 
     # 1. Register & Login User 1
-    user1_id = f"user1_{int(time.time())}"
-    email = f"user1_{int(time.time())}@example.com"
+    user1_id = f"test_user1_{int(time.time())}"
+    email = f"test_user1_{int(time.time())}@example.com"
     password = "password"
+
+    # Send code
+    requests.post("http://localhost:8080/api/v1/verification-code", json={"email": email})
 
     register_payload = {
         "id": user1_id,
         "email": email,
         "password": password,
-        "display_name": "User 1"
+        "display_name": "User 1",
+        "verification_code": "123456"
     }
     resp = requests.post("http://localhost:8080/api/v1/register", json=register_payload)
     if resp.status_code != 200:

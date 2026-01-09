@@ -79,3 +79,24 @@
     }
   }
 }
+
+    .verification-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-bottom: 2rem; /* carbon form item margin */
+
+      .cds--text-input-wrapper {
+        flex: 1;
+        margin-bottom: 0 !important; /* Reset carbon margin to align with button */
+      }
+
+      .send-code-btn {
+        flex-shrink: 0;
+        min-width: 140px;
+        height: 2.5rem; /* Match Carbon input height (approx 40px) */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }

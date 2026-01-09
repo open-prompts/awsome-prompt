@@ -14,6 +14,11 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/01_init.sql
       - ./data.sql:/docker-entrypoint-initdb.d/02_data.sql
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
   backend:
     build: ../backend
     restart: on-failure
@@ -21,9 +26,17 @@ services:
       - "50051:50051"
       - "8080:8080"
     environment:
-      DATABASE_URL: postgres://user:password@postgres:5432/awsome_prompt?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL:-postgres://user:password@postgres:5432/awsome_prompt?sslmode=disable}
+      REDIS_ADDR: ${REDIS_ADDR:-redis:6379}
+      # SMTP Configuration
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
     depends_on:
       - postgres
+      - redis
 
   frontend:
     build: ../frontend

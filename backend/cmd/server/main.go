@@ -78,13 +78,35 @@ func main() {
 
 	svc := service.NewPromptService(promptRepo, templateRepo, templateVersionRepo)
 
+	// Redis
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+	redisClient, err := data.NewRedisClient(redisAddr, "", 0)
+	if err != nil {
+		zap.S().Fatalf("failed to connect to redis: %v", err)
+	}
+
 	// User Service
 	userRepo := repository.NewUserRepository(pgConn.DB)
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		jwtSecret = "default-secret-key-change-me"
 	}
-	userSvc := service.NewUserService(userRepo, jwtSecret)
+
+	// Email Service
+	smtpHost := os.Getenv("SMTP_HOST")
+	smtpPort := os.Getenv("SMTP_PORT")
+	smtpUser := os.Getenv("SMTP_USER")
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	smtpFrom := os.Getenv("SMTP_FROM")
+	if smtpFrom == "" {
+		smtpFrom = "noreply@awsome-prompt.com"
+	}
+	emailSvc := service.NewEmailService(smtpHost, smtpPort, smtpUser, smtpPassword, smtpFrom)
+
+	userSvc := service.NewUserService(userRepo, redisClient, emailSvc, jwtSecret)
 
 	// Auth Interceptor
 	authInterceptor := service.NewAuthInterceptor(jwtSecret)
@@ -503,6 +525,40 @@ func main() {
 	})
 
 	// User Handlers
+	http.HandleFunc("/api/v1/verification-code", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			return
+		}
+
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read body", http.StatusBadRequest)
+			return
+		}
+		var req pb.SendVerificationCodeRequest
+		if err := unmarshaler.Unmarshal(body, &req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		resp, err := userSvc.SendVerificationCode(context.Background(), &req)
+		if err != nil {
+			writeError(w, err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		b, _ := marshaler.Marshal(resp)
+		_, _ = w.Write(b)
+	})
+
 	http.HandleFunc("/api/v1/register", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")

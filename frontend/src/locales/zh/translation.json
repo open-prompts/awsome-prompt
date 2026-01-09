@@ -16,6 +16,11 @@
     "password": "密码",
     "display_name": "显示名称",
     "submit": "注册",
+    "verification_code": "验证码",
+    "send_code": "发送验证码",
+    "code_sent": "验证码已发送",
+    "send_failed": "发送验证码失败",
+    "resend_in": "{{seconds}}秒后重发",
     "login_link": "已有账号？点击登录。",
     "error": "注册失败，请重试。",
     "password_error": "密码长度必须大于 8 位，且包含大写字母、小写字母或数字中的至少两种。"

@@ -1,15 +1,49 @@
 package data
 
-import "go.uber.org/zap"
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
+)
 
 // RedisClient holds the redis client
 type RedisClient struct {
-	// Add redis client field here
+	Client *redis.Client
 }
 
 // NewRedisClient initializes a new Redis client
-func NewRedisClient(addr string) (*RedisClient, error) {
+func NewRedisClient(addr string, password string, db int) (*RedisClient, error) {
 	zap.S().Infof("Initializing Redis client to %s", addr)
-	// Initialize Redis client
-	return &RedisClient{}, nil
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: password, // no password set
+		DB:       db,       // use default DB
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("failed to connect to redis: %w", err)
+	}
+
+	return &RedisClient{Client: rdb}, nil
+}
+
+// Set stores a key-value pair with expiration
+func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
+	return r.Client.Set(ctx, key, value, expiration).Err()
+}
+
+// Get retrieves a value by key
+func (r *RedisClient) Get(ctx context.Context, key string) (string, error) {
+	return r.Client.Get(ctx, key).Result()
+}
+
+// Del deletes a key
+func (r *RedisClient) Del(ctx context.Context, key string) error {
+	return r.Client.Del(ctx, key).Err()
 }

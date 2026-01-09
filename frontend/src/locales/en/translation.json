@@ -17,6 +17,11 @@
     "password": "Password",
     "display_name": "Display Name",
     "submit": "Register",
+    "verification_code": "Verification Code",
+    "send_code": "Send Code",
+    "code_sent": "Code sent",
+    "send_failed": "Failed to send code",
+    "resend_in": "Resend in {{seconds}}s",
     "login_link": "Already have an account? Login here.",
     "error": "Registration failed. Please try again.",
     "password_error": "Password must be longer than 8 characters and contain at least two types: uppercase, lowercase, or numbers."

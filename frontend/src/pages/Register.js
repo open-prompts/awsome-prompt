@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { TextInput, PasswordInput, Button, Form } from '@carbon/react';
-import { register } from '../services/api';
+import { register, sendVerificationCode } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
 import { useNotification } from '../context/NotificationContext';
 import './Register.scss';
@@ -13,7 +13,7 @@ import './Register.scss';
  * Allows new users to create an account.
  */
 const Register = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { addNotification } = useNotification();
@@ -22,9 +22,27 @@ const Register = () => {
     email: '',
     password: '',
     displayName: '',
+    verificationCode: '',
   });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+
+  // Handle countdown timer
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  // Validate email format
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
   // Validate password complexity
   const validatePassword = (pwd) => {
@@ -53,6 +71,40 @@ const Register = () => {
   };
 
   /**
+   * Handles sending verification code.
+   */
+  const handleSendCode = async () => {
+    if (!formData.email) {
+      setFormErrors((prev) => ({ ...prev, email: t('register.email') + ' is required' }));
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      setFormErrors((prev) => ({ ...prev, email: t('register.email_invalid') }));
+      return;
+    }
+    
+    setIsSending(true);
+    try {
+      await sendVerificationCode(formData.email, i18n.language);
+      setCountdown(60);
+      addNotification({
+        kind: 'success',
+        title: t('register.send_code'),
+        subtitle: t('register.code_sent'),
+      });
+    } catch (err) {
+      console.error('Send code error:', err);
+      addNotification({
+        kind: 'error',
+        title: t('register.send_code'),
+        subtitle: t('register.send_failed'),
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  /**
    * Handles the form submission.
    * @param {Event} e - The form submission event.
    */
@@ -64,6 +116,7 @@ const Register = () => {
     if (!formData.id) errors.id = t('register.id') + ' is required';
     if (!formData.email) errors.email = t('register.email') + ' is required';
     if (!formData.password) errors.password = t('register.password') + ' is required';
+    if (!formData.verificationCode) errors.verificationCode = t('register.verification_code') + ' is required';
     
     // Check password validity only if it exists
     if (formData.password && !validatePassword(formData.password)) {
@@ -78,7 +131,13 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await register(formData);
+      const response = await register({
+        id: formData.id,
+        email: formData.email,
+        password: formData.password,
+        displayName: formData.displayName,
+        verification_code: formData.verificationCode
+      });
       // Assuming the response contains the token and user info
       const { token, id } = response.data;
 
@@ -126,6 +185,25 @@ const Register = () => {
             invalid={!!formErrors.email}
             invalidText={formErrors.email}
           />
+          <div className="verification-row">
+            <TextInput
+              id="verificationCode"
+              labelText={t('register.verification_code')}
+              value={formData.verificationCode}
+              onChange={handleChange}
+              placeholder="123456"
+              invalid={!!formErrors.verificationCode}
+              invalidText={formErrors.verificationCode}
+            />
+            <Button
+                kind="tertiary"
+                onClick={handleSendCode}
+                disabled={countdown > 0 || !formData.email || !validateEmail(formData.email) || isSending}
+                className="send-code-btn"
+            >
+              {isSending ? '...' : (countdown > 0 ? t('register.resend_in', { seconds: countdown }) : t('register.send_code'))}
+            </Button>
+          </div>
           <TextInput
             id="displayName"
             labelText={t('register.display_name')}

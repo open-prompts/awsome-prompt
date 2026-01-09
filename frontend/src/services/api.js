@@ -108,6 +108,10 @@ export const register = (userData) => {
   return api.post('/register', userData);
 };
 
+export const sendVerificationCode = (email, language = 'en') => {
+  return api.post('/verification-code', { email, language });
+};
+
 export const updateProfile = (userData) => {
   return api.put('/profile', userData);
 };

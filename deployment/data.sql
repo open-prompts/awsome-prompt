@@ -1,6 +1,6 @@
--- Seed Service User
+-- Seed Service User (password: mima4geqiu@)
 INSERT INTO users (id, email, password_hash, display_name)
-VALUES ('service', 'service@awsome-prompt.com', 'seeded_service_account_hash', 'Service Account')
+VALUES ('service', 'service@awsome-prompt.com', '$2b$12$19MuPOXGoEhu9vDQhcOFueJpfT3iKCVJH/BdslOkeGXgzQ2N4QDkS', 'Service Account')
 ON CONFLICT (id) DO NOTHING;
 
 -- Template 1: Technical Codebase Discovery

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v5.29.3
-// source: backend/api/proto/v1/prompt.proto
+// source: prompt.proto
 
 package v1
 
@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_Register_FullMethodName       = "/v1.UserService/Register"
-	UserService_Login_FullMethodName          = "/v1.UserService/Login"
-	UserService_LoginWithOAuth_FullMethodName = "/v1.UserService/LoginWithOAuth"
-	UserService_UpdateProfile_FullMethodName  = "/v1.UserService/UpdateProfile"
-	UserService_GetProfile_FullMethodName     = "/v1.UserService/GetProfile"
+	UserService_Register_FullMethodName             = "/v1.UserService/Register"
+	UserService_Login_FullMethodName                = "/v1.UserService/Login"
+	UserService_LoginWithOAuth_FullMethodName       = "/v1.UserService/LoginWithOAuth"
+	UserService_SendVerificationCode_FullMethodName = "/v1.UserService/SendVerificationCode"
+	UserService_UpdateProfile_FullMethodName        = "/v1.UserService/UpdateProfile"
+	UserService_GetProfile_FullMethodName           = "/v1.UserService/GetProfile"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -38,6 +39,8 @@ type UserServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// LoginWithOAuth authenticates a user via an OAuth provider.
 	LoginWithOAuth(ctx context.Context, in *LoginWithOAuthRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	// SendVerificationCode sends a verification code to the email.
+	SendVerificationCode(ctx context.Context, in *SendVerificationCodeRequest, opts ...grpc.CallOption) (*SendVerificationCodeResponse, error)
 	// UpdateProfile updates information for the logged-in user.
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
 	// GetProfile retrieves the profile of the logged-in user.
@@ -82,6 +85,16 @@ func (c *userServiceClient) LoginWithOAuth(ctx context.Context, in *LoginWithOAu
 	return out, nil
 }
 
+func (c *userServiceClient) SendVerificationCode(ctx context.Context, in *SendVerificationCodeRequest, opts ...grpc.CallOption) (*SendVerificationCodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendVerificationCodeResponse)
+	err := c.cc.Invoke(ctx, UserService_SendVerificationCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateProfileResponse)
@@ -114,6 +127,8 @@ type UserServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// LoginWithOAuth authenticates a user via an OAuth provider.
 	LoginWithOAuth(context.Context, *LoginWithOAuthRequest) (*LoginResponse, error)
+	// SendVerificationCode sends a verification code to the email.
+	SendVerificationCode(context.Context, *SendVerificationCodeRequest) (*SendVerificationCodeResponse, error)
 	// UpdateProfile updates information for the logged-in user.
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
 	// GetProfile retrieves the profile of the logged-in user.
@@ -136,6 +151,9 @@ func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*Lo
 }
 func (UnimplementedUserServiceServer) LoginWithOAuth(context.Context, *LoginWithOAuthRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method LoginWithOAuth not implemented")
+}
+func (UnimplementedUserServiceServer) SendVerificationCode(context.Context, *SendVerificationCodeRequest) (*SendVerificationCodeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendVerificationCode not implemented")
 }
 func (UnimplementedUserServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
@@ -218,6 +236,24 @@ func _UserService_LoginWithOAuth_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SendVerificationCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendVerificationCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SendVerificationCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_SendVerificationCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SendVerificationCode(ctx, req.(*SendVerificationCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateProfileRequest)
 	if err := dec(in); err != nil {
@@ -274,6 +310,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_LoginWithOAuth_Handler,
 		},
 		{
+			MethodName: "SendVerificationCode",
+			Handler:    _UserService_SendVerificationCode_Handler,
+		},
+		{
 			MethodName: "UpdateProfile",
 			Handler:    _UserService_UpdateProfile_Handler,
 		},
@@ -283,7 +323,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "backend/api/proto/v1/prompt.proto",
+	Metadata: "prompt.proto",
 }
 
 const (
@@ -871,5 +911,5 @@ var PromptService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "backend/api/proto/v1/prompt.proto",
+	Metadata: "prompt.proto",
 }

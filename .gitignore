@@ -39,3 +39,4 @@ deployment/.env
 # Copilot
 .github/prompts/
 .shared/
+.env

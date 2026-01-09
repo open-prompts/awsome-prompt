@@ -17,6 +17,9 @@ service UserService {
   // LoginWithOAuth authenticates a user via an OAuth provider.
   rpc LoginWithOAuth(LoginWithOAuthRequest) returns (LoginResponse);
 
+  // SendVerificationCode sends a verification code to the email.
+  rpc SendVerificationCode(SendVerificationCodeRequest) returns (SendVerificationCodeResponse);
+
   // UpdateProfile updates information for the logged-in user.
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
 
@@ -335,6 +338,7 @@ message RegisterRequest {
   string mobile = 3;
   string password = 4;
   string display_name = 5;
+  string verification_code = 6;
 }
 
 // RegisterResponse is the response message for Register.
@@ -361,6 +365,15 @@ message LoginResponse {
 message LoginWithOAuthRequest {
   string provider = 1;
   string code = 2;
+}
+
+message SendVerificationCodeRequest {
+  string email = 1;
+  string language = 2; // "en" or "zh"
+}
+
+message SendVerificationCodeResponse {
+  bool success = 1;
 }
 
 // ListCategoriesRequest is the request message for ListCategories.
