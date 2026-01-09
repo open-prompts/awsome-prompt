@@ -135,10 +135,12 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=open-prompts/awsome-prompt&type=date&legend=top-left)](https://www.star-history.com/#open-prompts/awsome-prompt&type=date&legend=top-left)
+
 ---
 
 <div align="center">
 Made with ❤️ by the Awesome Prompt Community
 </div>
-
-[![Star History Chart](https://api.star-history.com/svg?repos=open-prompts/awsome-prompt&type=Date)](https://star-history.com/#open-prompts/awsome-prompt&Date)

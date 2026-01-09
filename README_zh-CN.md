@@ -135,10 +135,13 @@
 
 本项目基于 MIT 许可证分发。详见 `LICENSE` 文件。
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=open-prompts/awsome-prompt&type=date&legend=top-left)](https://www.star-history.com/#open-prompts/awsome-prompt&type=date&legend=top-left)
+
 ---
 
 <div align="center">
 由 Awesome Prompt 社区用心制作 ❤️
 </div>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=open-prompts/awsome-prompt&type=Date)](https://star-history.com/#open-prompts/awsome-prompt&Date)
