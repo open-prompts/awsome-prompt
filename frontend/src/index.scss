@@ -1,4 +1,15 @@
-@use '@carbon/react';
+@use '@carbon/react/scss/reset';
+@use '@carbon/react/scss/fonts';
+@use '@carbon/react/scss/components/button';
+@use '@carbon/react/scss/components/modal';
+@use '@carbon/react/scss/components/text-input';
+@use '@carbon/react/scss/components/text-area';
+@use '@carbon/react/scss/components/form';
+@use '@carbon/react/scss/components/dropdown';
+@use '@carbon/react/scss/components/select';
+@use '@carbon/react/scss/components/list-box';
+@use '@carbon/react/scss/components/notification';
+@use '@carbon/react/scss/components/loading';
 @use 'styles/carbon-overrides';
 
 :root {
