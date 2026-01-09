@@ -547,6 +547,9 @@ func (s *PromptService) ListCategories(ctx context.Context, req *pb.ListCategori
 	if req.OwnerId == "" {
 		filters["visibility"] = "public"
 	}
+	if req.Language != "" {
+		filters["language"] = req.Language
+	}
 
 	stats, err := s.TemplateRepo.ListCategories(ctx, filters)
 	if err != nil {
@@ -569,6 +572,9 @@ func (s *PromptService) ListTags(ctx context.Context, req *pb.ListTagsRequest) (
 	// Tags currently global in sidebar, so public only?
 	filters := map[string]interface{}{
 		"visibility": "public",
+	}
+	if req.Language != "" {
+		filters["language"] = req.Language
 	}
 	stats, err := s.TemplateRepo.ListTags(ctx, filters)
 	if err != nil {

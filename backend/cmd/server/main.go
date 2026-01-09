@@ -137,6 +137,9 @@ func main() {
 		if v := r.URL.Query().Get("owner_id"); v != "" {
 			req.OwnerId = v
 		}
+		if v := r.URL.Query().Get("language"); v != "" {
+			req.Language = v
+		}
 
 		resp, err := svc.ListCategories(context.Background(), req)
 		if err != nil {
@@ -162,7 +165,12 @@ func main() {
 			return
 		}
 
-		resp, err := svc.ListTags(context.Background(), &pb.ListTagsRequest{})
+		req := &pb.ListTagsRequest{}
+		if v := r.URL.Query().Get("language"); v != "" {
+			req.Language = v
+		}
+
+		resp, err := svc.ListTags(context.Background(), req)
 		if err != nil {
 			writeError(w, err)
 			return
@@ -209,6 +217,7 @@ func main() {
 			req.PageToken = q.Get("page_token")
 			req.OwnerId = q.Get("owner_id")
 			req.Category = q.Get("category")
+			req.Language = q.Get("language")
 			if v := q.Get("visibility"); v != "" {
 				switch v {
 				case "VISIBILITY_PUBLIC":

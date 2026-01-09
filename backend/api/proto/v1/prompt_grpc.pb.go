@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.0
 // - protoc             v5.29.3
-// source: api/proto/v1/prompt.proto
+// source: backend/api/proto/v1/prompt.proto
 
 package v1
 
@@ -283,7 +283,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/v1/prompt.proto",
+	Metadata: "backend/api/proto/v1/prompt.proto",
 }
 
 const (
@@ -871,5 +871,5 @@ var PromptService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/proto/v1/prompt.proto",
+	Metadata: "backend/api/proto/v1/prompt.proto",
 }

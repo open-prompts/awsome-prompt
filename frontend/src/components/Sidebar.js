@@ -14,7 +14,7 @@ import './Sidebar.scss';
  * @param {Array} props.availableTags - Tags to display (overrides fetching)
  */
 const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [categories, setCategories] = useState([]);
@@ -24,10 +24,11 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
   useEffect(() => {
     // Fetch categories and tags on mount
     const fetchData = async () => {
+      const language = (i18n.language || 'en').startsWith('zh') ? 'zh' : 'en';
       try {
         const [catRes, tagRes] = await Promise.all([
-             getCategories(),
-             availableTags ? Promise.resolve({ data: { tags: [] } }) : getTags() // skip fetch if props provided
+             getCategories({ language }),
+             availableTags ? Promise.resolve({ data: { tags: [] } }) : getTags({ language })
         ]);
         setCategories(catRes.data.categories || []);
         if (!availableTags) {
@@ -39,7 +40,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags }) => {
       }
     };
     fetchData();
-  }, [availableTags]); // Re-run if availableTags changes? No, infinite loop risk if object ref changes.
+  }, [availableTags, i18n.language]); // Re-run if availableTags or language changes
 
   // Use availableTags if present, otherwise fetched tags.
   const displayedTags = availableTags || tags;

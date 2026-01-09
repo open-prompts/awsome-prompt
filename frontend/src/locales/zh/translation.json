@@ -164,6 +164,7 @@
     "create_template": "创建模板",
     "login": "登录",
     "logout": "注销",
-    "profile": "个人资料"
+    "profile": "个人资料",
+    "switchLanguage": "切换语言"
   }
 }

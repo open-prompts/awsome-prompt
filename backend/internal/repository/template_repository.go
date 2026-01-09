@@ -212,6 +212,12 @@ func (r *templateRepository) ListCategories(ctx context.Context, filters map[str
 	if val, ok := filters["owner_id"]; ok && val != "" {
 		query += fmt.Sprintf(" AND owner_id = $%d", argID)
 		args = append(args, val)
+		argID++
+	}
+	if val, ok := filters["language"]; ok && val != "" {
+		query += fmt.Sprintf(" AND language = $%d", argID)
+		args = append(args, val)
+		argID++ // Increment argID
 	}
 
 	query += `
@@ -255,6 +261,12 @@ func (r *templateRepository) ListTags(ctx context.Context, filters map[string]in
 	if val, ok := filters["owner_id"]; ok && val != "" {
 		whereClause += fmt.Sprintf(" AND owner_id = $%d", argID)
 		args = append(args, val)
+		argID++ // Ensure argID is incremented
+	}
+	if val, ok := filters["language"]; ok && val != "" {
+		whereClause += fmt.Sprintf(" AND language = $%d", argID)
+		args = append(args, val)
+		argID++
 	}
 
 	query := fmt.Sprintf(`

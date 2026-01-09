@@ -366,6 +366,7 @@ message LoginWithOAuthRequest {
 // ListCategoriesRequest is the request message for ListCategories.
 message ListCategoriesRequest {
   string owner_id = 1;
+  string language = 2;
 }
 
 // CategoryStats represents a category and its usage count.
@@ -380,7 +381,9 @@ message ListCategoriesResponse {
 }
 
 // ListTagsRequest is the request message for ListTags.
-message ListTagsRequest {}
+message ListTagsRequest {
+  string language = 1;
+}
 
 // TagStats represents a tag and its usage count.
 message TagStats {

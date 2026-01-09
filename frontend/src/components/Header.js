@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { UserAvatar } from '@carbon/icons-react';
+import { UserAvatar, Translate } from '@carbon/icons-react';
 import { logout } from '../store/authSlice';
 import './Header.scss';
 
@@ -12,7 +12,7 @@ import './Header.scss';
  * Displays the logo, navigation links, and user authentication status.
  */
 const Header = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
@@ -27,6 +27,13 @@ const Header = () => {
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const toggleLanguage = () => {
+    const currentLang = i18n.language;
+    // Check if current language is Chinese (zh or starts with zh)
+    const isChinese = currentLang === 'zh' || currentLang.startsWith('zh');
+    i18n.changeLanguage(isChinese ? 'en' : 'zh');
   };
 
   // Close dropdown when clicking outside
@@ -52,6 +59,15 @@ const Header = () => {
         </Link>
       </div>
       <div className="header-right">
+        <button
+          className="lang-switch-btn"
+          onClick={toggleLanguage}
+          aria-label={t('header.switchLanguage') || 'Switch Language'} 
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', marginRight: '20px', display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}
+        >
+          <Translate size={20} />
+          <span style={{ marginLeft: '6px' }}>{(i18n.language === 'zh' || i18n.language.startsWith('zh')) ? 'English' : '中文'}</span>
+        </button>
         {user ? (
           <div className="user-profile" style={{ position: 'relative' }} ref={dropdownRef}>
              <button

@@ -12,7 +12,7 @@ import './Home.scss';
  * Displays a grid of prompt templates with filtering and infinite scroll.
  */
 const Home = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [templates, setTemplates] = useState([]);
@@ -51,7 +51,7 @@ const Home = () => {
       const params = {
         page_size: pageSize,
         page_token: currentToken,
-        language: navigator.language.split('-')[0],
+        language: (i18n.language || 'en').startsWith('zh') ? 'zh' : 'en',
         ...filters,
       };
 
@@ -123,17 +123,13 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters, nextPageToken, loading, pageSize]); // Add nextPageToken to deps?
-  // No, nextPageToken is state, if I include it, it might trigger loops if not careful.
-  // But strictly `fetchTemplates` depends on current `nextPageToken` state if `!isNewFilter`.
-  // Actually, usually we pass token as arg or use ref. State is fine if we are careful.
-  // `handleScroll` calls `fetchTemplates(false)`.
+  }, [filters, nextPageToken, loading, pageSize, i18n.language]); 
 
   // Initial load and filter changes
   useEffect(() => {
     fetchTemplates(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, i18n.language]);
   // removed page dep. added filters.
 
   // Handle filter changes from Sidebar

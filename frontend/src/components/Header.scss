@@ -49,6 +49,20 @@
   }
 
   .header-right {
+    display: flex; /* Ensure items are aligned horizontally */
+    align-items: center;
+
+    .lang-switch-btn {
+      transition: all var(--transition-speed);
+      color: var(--text-muted);
+      
+      &:hover {
+        color: var(--primary-color) !important;
+        text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        transform: scale(1.05);
+      }
+    }
+
     .auth-buttons {
       display: flex;
       gap: 10px;
