@@ -48,7 +48,7 @@ services:
   envoy:
     image: envoyproxy/envoy:v1.25-latest
     ports:
-      - "80:10000"
+      - "8080:10000"
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml
     depends_on:
