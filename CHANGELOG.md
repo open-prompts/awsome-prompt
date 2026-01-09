@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/open-prompts/awsome-prompt/compare/v1.5.0...v1.6.0) (2026-01-09)
+
+
+### Features
+
+* implemented email verification code ([86569ae](https://github.com/open-prompts/awsome-prompt/commit/86569ae199b3217adc1f22b657e79917903ccfbd))
+
 # [1.5.0](https://github.com/open-prompts/awsome-prompt/compare/v1.4.0...v1.5.0) (2026-01-08)
 
 
