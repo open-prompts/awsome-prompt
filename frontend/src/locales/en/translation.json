@@ -27,6 +27,7 @@
     "password_error": "Password must be longer than 8 characters and contain at least two types: uppercase, lowercase, or numbers."
   },
   "common": {
+    "deleting": "Deleting...",
     "saving": "Saving...",
     "create": "Create",
     "cancel": "Cancel",

@@ -26,6 +26,7 @@
     "password_error": "密码长度必须大于 8 位，且包含大写字母、小写字母或数字中的至少两种。"
   },
   "common": {
+    "deleting": "删除中...",
     "saving": "保存中...",
     "create": "创建",
     "cancel": "取消",

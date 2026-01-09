@@ -37,6 +37,14 @@ const TemplateDetails = () => {
   const [likesCount, setLikesCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
 
+  // Loading States
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
+  const [isDeletingPrompt, setIsDeletingPrompt] = useState(false);
+  const [isForking, setIsForking] = useState(false);
+  
   // Editor state
   const [editContent, setEditContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -112,6 +120,7 @@ const TemplateDetails = () => {
 
   // Handle Edit Save
   const handleSaveContent = async () => {
+    setIsSaving(true);
     try {
       // Assuming updateTemplate creates a new version if content changes
       const updateData = {
@@ -136,6 +145,8 @@ const TemplateDetails = () => {
     } catch (error) {
       console.error("Failed to update template", error);
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_update') });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -216,6 +227,7 @@ const TemplateDetails = () => {
         addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_login_save') });
         return;
     }
+    setIsGenerating(true);
     try {
       const promptData = {
         template_id: template.id,
@@ -229,6 +241,8 @@ const TemplateDetails = () => {
     } catch (error) {
       console.error("Failed to create prompt", error);
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_save_prompt') });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -241,21 +255,24 @@ const TemplateDetails = () => {
   // Confirm Delete
   const confirmDeletePrompt = async () => {
     if (!promptToDelete) return;
+    setIsDeletingPrompt(true);
     try {
       await deletePrompt(promptToDelete);
       setPrompts(prompts.filter(p => p.id !== promptToDelete));
       addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_delete_prompt') });
+      setIsDeleteModalOpen(false); // Close ONLY on success or handle error carefully
     } catch (error) {
       console.error("Failed to delete prompt", error);
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_delete_prompt') });
     } finally {
-      setIsDeleteModalOpen(false);
-      setPromptToDelete(null);
+      setIsDeletingPrompt(false);
+      if (!isDeleteModalOpen) setPromptToDelete(null); // Clean up if closed
     }
   };
 
   // Handle Template Actions
   const handleShare = async () => {
+    setIsSharing(true);
     try {
       // Create update payload with ALL required fields + new visibility
       const updateData = {
@@ -274,10 +291,13 @@ const TemplateDetails = () => {
     } catch (error) {
       console.error("Failed to share template", error);
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_share') });
+    } finally {
+      setIsSharing(false);
     }
   };
 
   const handleUnshare = async () => {
+    setIsSharing(true);
     try {
       const updateData = {
          template_id: template.id,
@@ -295,6 +315,8 @@ const TemplateDetails = () => {
     } catch (error) {
       console.error("Failed to unshare template", error);
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_unshare') });
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -303,6 +325,7 @@ const TemplateDetails = () => {
   };
 
   const confirmFork = async () => {
+    setIsForking(true);
     try {
         const res = await forkTemplate(template.id);
         setIsForkModalOpen(false);
@@ -314,11 +337,14 @@ const TemplateDetails = () => {
     } catch (error) {
         console.error("Failed to fork template", error);
         addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_fork') });
-        setIsForkModalOpen(false);
+        setIsForkModalOpen(false); // Close on error too? Or let user retry? Carbon Modal usually closes.
+    } finally {
+        setIsForking(false);
     }
   };
 
   const confirmDeleteTemplate = async () => {
+      setIsDeletingTemplate(true);
       try {
           await deleteTemplate(template.id);
           addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_delete') });
@@ -327,7 +353,9 @@ const TemplateDetails = () => {
       } catch (error) {
           console.error("Failed to delete template", error);
           addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_delete') });
-          setIsTemplateDeleteModalOpen(false);
+          setIsTemplateDeleteModalOpen(false); // Close on error
+      } finally {
+          setIsDeletingTemplate(false);
       }
   };
 
@@ -397,9 +425,13 @@ const TemplateDetails = () => {
                   {user.id === template.owner_id ? (
                       <>
                         {template.visibility === 'VISIBILITY_PRIVATE' ? (
-                            <button className="action-btn share" onClick={handleShare}>{t('template_details.share_public')}</button>
+                            <button className="action-btn share" onClick={handleShare} disabled={isSharing}>
+                                {isSharing ? 'Processing...' : t('template_details.share_public')}
+                            </button>
                         ) : (
-                            <button className="action-btn unshare" onClick={handleUnshare}>{t('template_details.unshare_private')}</button>
+                            <button className="action-btn unshare" onClick={handleUnshare} disabled={isSharing}>
+                                {isSharing ? 'Processing...' : t('template_details.unshare_private')}
+                            </button>
                         )}
                         <button className="action-btn delete" onClick={() => setIsTemplateDeleteModalOpen(true)}>{t('template_details.delete_template')}</button>
                       </>
@@ -445,8 +477,10 @@ const TemplateDetails = () => {
               <div className="actions">
                 {isEditing ? (
                     <>
-                        <button className="cancel-btn" onClick={() => setIsEditing(false)}>{t('common.cancel')}</button>
-                        <button className="save-btn" onClick={handleSaveContent}>{t('template_details.save_new_version')}</button>
+                        <button className="cancel-btn" onClick={() => setIsEditing(false)} disabled={isSaving}>{t('common.cancel')}</button>
+                        <button className="save-btn" onClick={handleSaveContent} disabled={isSaving}>
+                            {isSaving ? t('common.saving') : t('template_details.save_new_version')}
+                        </button>
                     </>
                 ) : (
                     user && user.id === template.owner_id && (
@@ -485,7 +519,9 @@ const TemplateDetails = () => {
 
                 <div className="generator-actions">
                     <button className="secondary" onClick={handleCopy}>{t('card.copy')}</button>
-                    <button className="primary" onClick={handleCreatePrompt}>{t('template_details.save_prompt')}</button>
+                    <button className="primary" onClick={handleCreatePrompt} disabled={isGenerating}>
+                        {isGenerating ? t('common.saving') : t('template_details.save_prompt')}
+                    </button>
                 </div>
             </div>
           </div>
@@ -545,7 +581,8 @@ const TemplateDetails = () => {
         open={isDeleteModalOpen}
         modalHeading={t('template_details.delete_prompt_title')}
         modalLabel={t('common.confirmation')}
-        primaryButtonText={t('common.delete')}
+        primaryButtonText={isDeletingPrompt ? t('common.deleting') : t('common.delete')}
+        primaryButtonDisabled={isDeletingPrompt}
         secondaryButtonText={t('common.cancel')}
         danger
         onRequestClose={() => setIsDeleteModalOpen(false)}
@@ -558,7 +595,8 @@ const TemplateDetails = () => {
         open={isTemplateDeleteModalOpen}
         modalHeading={t('template_details.delete_template_title')}
         modalLabel={t('common.confirmation')}
-        primaryButtonText={t('common.delete')}
+        primaryButtonText={isDeletingTemplate ? t('common.deleting') : t('common.delete')}
+        primaryButtonDisabled={isDeletingTemplate}
         secondaryButtonText={t('common.cancel')}
         danger
         onRequestClose={() => setIsTemplateDeleteModalOpen(false)}
@@ -571,7 +609,8 @@ const TemplateDetails = () => {
         open={isForkModalOpen}
         modalHeading={t('template_details.fork_template_title')}
         modalLabel={t('common.confirmation')}
-        primaryButtonText={t('template_details.fork')}
+        primaryButtonText={isForking ? t('common.saving') : t('template_details.fork')}
+        primaryButtonDisabled={isForking}
         secondaryButtonText={t('common.cancel')}
         onRequestClose={() => setIsForkModalOpen(false)}
         onRequestSubmit={confirmFork}

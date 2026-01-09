@@ -141,6 +141,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       className="create-template-modal"
       modalHeading={t('create_template.title')}
       primaryButtonText={loading ? t('common.saving') : t('common.create')}
+      primaryButtonDisabled={loading}
       secondaryButtonText={t('common.cancel')}
       onRequestClose={onRequestClose}
       onRequestSubmit={handleSubmit}

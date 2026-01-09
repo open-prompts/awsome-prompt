@@ -4,12 +4,31 @@
   margin: 0 auto;
   color: var(--text-main);
 
+  @media (max-width: 768px) {
+      padding: 15px;
+  }
+
   .header-actions {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
     margin-bottom: 24px;
     gap: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      
+      .title-section {
+        width: 100%;
+      }
+
+      .template-actions {
+          width: 100%;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+          margin-top: 10px;
+      }
+    }
 
     .back-btn {
         background: none;
@@ -37,12 +56,23 @@
           gap: 16px;
           margin-bottom: 8px;
 
+          @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+          }
+
           h2 {
             margin: 0;
             font-size: 2.5rem;
             color: var(--text-main);
             font-family: var(--font-heading);
             font-weight: 700;
+            
+            @media (max-width: 768px) {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
           }
 
           .social-actions {
@@ -93,6 +123,7 @@
         display: flex;
         gap: 12px;
         align-items: center;
+        flex-wrap: wrap; // Allow wrapping on mobile
 
         .tag {
           color: var(--primary-color);

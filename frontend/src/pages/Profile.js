@@ -27,6 +27,7 @@ const Profile = () => {
   const [avatar, setAvatar] = useState('');
   const [displayAvatar, setDisplayAvatar] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -82,7 +83,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsSaving(true);
     try {
       const updatedData = {
         display_name: displayName,
@@ -92,6 +93,7 @@ const Profile = () => {
       if (password) {
         if (!validatePassword(password)) {
           addNotification({ kind: 'error', title: t('common.error'), subtitle: t('register.password_error') });
+          setIsSaving(false);
           return;
         }
         updatedData.password = password;
@@ -112,6 +114,8 @@ const Profile = () => {
     } catch (err) {
       console.error(err);
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('profile.error_update') });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -208,7 +212,9 @@ const Profile = () => {
                   </div>
 
                   <div className="form-actions">
-                      <Button type="submit" renderIcon={Save}>{t('common.save_changes')}</Button>
+                      <Button type="submit" renderIcon={Save} disabled={isSaving}>
+                        {isSaving ? t('common.saving') : t('common.save_changes')}
+                      </Button>
                       <Button kind="ghost" renderIcon={Close} onClick={toggleEdit}>{t('common.cancel')}</Button>
                   </div>
               </form>
