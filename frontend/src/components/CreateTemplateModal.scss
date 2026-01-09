@@ -1,9 +1,9 @@
 .create-template-form {
   padding-right: 1rem; // Add spacing for scrollbar
-  
+
   .form-field {
     margin-bottom: 1rem !important; // Increased spacing
-    
+
     // Ensure consistent spacing for expanded dropdowns/textareas
     &:last-child {
         margin-bottom: 0 !important;

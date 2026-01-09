@@ -8,7 +8,7 @@
   align-items: center;
   min-height: 100vh;
   background-color: var(--bg-color);
-  background-image: 
+  background-image:
     linear-gradient(135deg, rgba(0, 255, 255, 0.05) 0%, transparent 60%),
     linear-gradient(-135deg, rgba(123, 97, 255, 0.05) 0%, transparent 60%);
   padding: 40px 20px;
@@ -47,7 +47,7 @@
       // Center the button in its container
       margin-left: auto !important;
       margin-right: auto !important;
-      
+
       background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
       border: none;
       font-weight: 700;
@@ -59,7 +59,7 @@
       text-align: center;
       padding-right: 15px !important; // Override Carbon's default padding (often 64px)
       padding-left: 15px !important;
-      
+
       &:hover {
           box-shadow: 0 0 15px rgba(123, 97, 255, 0.6);
       }
@@ -71,7 +71,7 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 0.9rem;
-      
+
       &:hover {
           color: var(--primary-color);
           text-decoration: underline;

@@ -145,7 +145,7 @@ const Profile = () => {
                           )}
                       </div>
                   </div>
-                  
+
                   <div className="info-section">
                       <div className="info-group">
                           <label>{t('register.display_name')}</label>
@@ -176,11 +176,11 @@ const Profile = () => {
                               )}
                           </div>
                           <div className="file-input-wrapper">
-                              <input 
-                                  type="file" 
-                                  id="avatar-upload" 
-                                  accept="image/*" 
-                                  onChange={handleAvatarChange} 
+                              <input
+                                  type="file"
+                                  id="avatar-upload"
+                                  accept="image/*"
+                                  onChange={handleAvatarChange}
                                   className="hidden-file-input"
                               />
                               <label htmlFor="avatar-upload" className="cds--btn cds--btn--secondary">

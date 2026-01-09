@@ -82,7 +82,7 @@ const Register = () => {
       setFormErrors((prev) => ({ ...prev, email: t('register.email_invalid') }));
       return;
     }
-    
+
     setIsSending(true);
     try {
       await sendVerificationCode(formData.email, i18n.language);
@@ -111,13 +111,13 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormErrors({});
-    
+
     const errors = {};
     if (!formData.id) errors.id = t('register.id') + ' is required';
     if (!formData.email) errors.email = t('register.email') + ' is required';
     if (!formData.password) errors.password = t('register.password') + ' is required';
     if (!formData.verificationCode) errors.verificationCode = t('register.verification_code') + ' is required';
-    
+
     // Check password validity only if it exists
     if (formData.password && !validatePassword(formData.password)) {
       errors.password = t('register.password_error');

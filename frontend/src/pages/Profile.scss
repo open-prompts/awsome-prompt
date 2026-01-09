@@ -132,7 +132,7 @@
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            
+
             .avatar-preview {
                 width: 100px;
                 height: 100px;
@@ -143,7 +143,7 @@
                 align-items: center;
                 justify-content: center;
                 background-color: rgba(0,0,0,0.3);
-                
+
                 img {
                     width: 100%;
                     height: 100%;
@@ -160,7 +160,7 @@
                 .hidden-file-input {
                     display: none;
                 }
-                
+
                 label.cds--btn {
                     cursor: pointer;
                     min-height: 3rem; // Match Carbon button height
@@ -181,12 +181,12 @@
       margin-top: 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       padding-top: 20px;
-      
+
       .cds--btn--ghost {
           color: var(--text-secondary) !important;
           &:hover {
               color: var(--text-main) !important;
-              background-color: rgba(255,255,255,0.1) !important; 
+              background-color: rgba(255,255,255,0.1) !important;
           }
       }
     }

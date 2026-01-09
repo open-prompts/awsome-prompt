@@ -53,8 +53,8 @@ const Header = ({ onMenuClick }) => {
   return (
     <header className="app-header">
       <div className="header-left">
-        <button 
-          className="menu-toggle-btn" 
+        <button
+          className="menu-toggle-btn"
           onClick={onMenuClick}
           aria-label="Toggle menu"
         >
@@ -69,7 +69,7 @@ const Header = ({ onMenuClick }) => {
         <button
           className="lang-switch-btn"
           onClick={toggleLanguage}
-          aria-label={t('header.switchLanguage') || 'Switch Language'} 
+          aria-label={t('header.switchLanguage') || 'Switch Language'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', marginRight: '20px', display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}
         >
           <Translate size={20} />

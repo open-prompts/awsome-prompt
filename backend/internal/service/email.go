@@ -71,45 +71,45 @@ func (s *emailService) SendVerificationCode(toEmail, code, lang string) error {
 
 		c, err := smtp.NewClient(conn, s.smtpHost)
 		if err != nil {
-			conn.Close()
+			_ = conn.Close()
 			zap.S().Errorf("Failed to create SMTP client: %v", err)
 			return err
 		}
 
 		if err = c.Auth(auth); err != nil {
-			c.Close()
+			_ = c.Close()
 			zap.S().Errorf("SMTP Auth failed: %v", err)
 			return err
 		}
 		if err = c.Mail(s.fromEmail); err != nil {
-			c.Close()
+			_ = c.Close()
 			zap.S().Errorf("SMTP MAIL failed: %v", err)
 			return err
 		}
 		if err = c.Rcpt(toEmail); err != nil {
-			c.Close()
+			_ = c.Close()
 			zap.S().Errorf("SMTP RCPT failed: %v", err)
 			return err
 		}
 		w, err := c.Data()
 		if err != nil {
-			c.Close()
+			_ = c.Close()
 			zap.S().Errorf("SMTP DATA failed: %v", err)
 			return err
 		}
 		_, err = w.Write(msg)
 		if err != nil {
-			c.Close()
+			_ = c.Close()
 			zap.S().Errorf("SMTP Write failed: %v", err)
 			return err
 		}
 		err = w.Close()
 		if err != nil {
-			c.Close()
+			_ = c.Close()
 			zap.S().Errorf("SMTP Close data failed: %v", err)
 			return err
 		}
-		c.Quit()
+		_ = c.Quit()
 	} else {
 		err = smtp.SendMail(addr, auth, s.fromEmail, []string{toEmail}, msg)
 		if err != nil {

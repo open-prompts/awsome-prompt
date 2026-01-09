@@ -96,7 +96,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
     if (formData.category === 'create_new' && !customCategory.trim()) {
       errors.customCategory = t('create_template.error_required_category');
     }
-    
+
     if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         return;

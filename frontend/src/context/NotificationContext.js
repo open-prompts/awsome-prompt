@@ -22,7 +22,7 @@ export const NotificationProvider = ({ children }) => {
     const addNotification = useCallback((notification) => {
         const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
         const newNotification = { ...notification, id };
-        
+
         setNotifications((prev) => [...prev, newNotification]);
 
         // Auto-hide

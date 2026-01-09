@@ -1,12 +1,12 @@
 .prompt-card {
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
-  border-radius: 12px; 
+  border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   transition: all var(--transition-speed);
-  min-height: 280px; 
+  min-height: 280px;
   position: relative;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -46,7 +46,7 @@
       letter-spacing: 1px;
 
       &.visibility_public {
-        background-color: rgba(0, 255, 255, 0.1); 
+        background-color: rgba(0, 255, 255, 0.1);
         color: var(--primary-color);
         border: 1px solid rgba(0, 255, 255, 0.3);
       }
@@ -137,7 +137,7 @@
         cursor: pointer;
         transition: all 0.2s;
         user-select: none;
-        
+
         &:hover {
           transform: scale(1.1);
           color: var(--primary-color);

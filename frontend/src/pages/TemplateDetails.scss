@@ -17,7 +17,7 @@
 
     @media (max-width: 768px) {
       flex-direction: column;
-      
+
       .title-section {
         width: 100%;
       }
@@ -68,7 +68,7 @@
             color: var(--text-main);
             font-family: var(--font-heading);
             font-weight: 700;
-            
+
             @media (max-width: 768px) {
                 font-size: 2rem;
                 line-height: 1.2;
@@ -160,7 +160,7 @@
             color: #000;
             box-shadow: 0 0 15px var(--primary-color);
         }
-        
+
         &.primary {
            background: var(--primary-color);
            color: #000;
@@ -169,7 +169,7 @@
                box-shadow: 0 0 20px var(--primary-hover);
            }
         }
-        
+
         &.delete {
             border-color: #ff4d4d;
             color: #ff4d4d;
@@ -286,7 +286,7 @@
         border: 1px solid var(--border-color);
         background-color: rgba(0,0,0,0.5);
         color: var(--text-main);
-        
+
         &:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -308,7 +308,7 @@
         margin-bottom: 12px;
         background-color: rgba(0,0,0,0.3);
         color: var(--text-main);
-        
+
         &:focus {
              outline: none;
              border-color: var(--primary-color);
@@ -393,7 +393,7 @@
                 border-radius: 4px;
                 background-color: rgba(0,0,0,0.5);
                 color: var(--text-main);
-                
+
                 &:focus {
                     outline: none;
                     border-color: var(--primary-color);
@@ -503,7 +503,7 @@
                     border: none;
                     cursor: pointer;
                     padding: 0;
-                    
+
                     &:hover {
                         text-decoration: none;
                     }
@@ -650,7 +650,7 @@
 }
 
 .template-details-page .header-actions .title-section .meta .visibility.visibility_public {
-     background-color: rgba(0, 255, 255, 0.1); 
+     background-color: rgba(0, 255, 255, 0.1);
      color: var(--primary-color);
      border: 1px solid rgba(0, 255, 255, 0.3);
      padding: 2px 8px;

@@ -72,7 +72,7 @@ Follow these steps to set up the project locally.
    docker-compose up -d
    ```
    The database will be automatically initialized with the schema and seed data on the first run.
-   
+
    - **Frontend**: `http://localhost:3000`
    - **Backend API**: `http://localhost:3000/api` (Proxied) or `http://localhost:8080` (Direct)
 

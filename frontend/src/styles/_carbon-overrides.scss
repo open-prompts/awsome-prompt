@@ -12,7 +12,7 @@
 .cds--text-input-field,
 .cds--text-area,
 .cds--select-input,
-.cds--dropdown, 
+.cds--dropdown,
 .cds--dropdown-text,
 input.cds--text-input {
   background-color: rgba(255, 255, 255, 0.1) !important; // Light glass background
@@ -23,8 +23,8 @@ input.cds--text-input {
   font-family: var(--font-body);
 
   &:-webkit-autofill,
-  &:-webkit-autofill:hover, 
-  &:-webkit-autofill:focus, 
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
   &:-webkit-autofill:active{
       -webkit-box-shadow: 0 0 0 30px #262626 inset !important;
       -webkit-text-fill-color: white !important;
@@ -35,7 +35,7 @@ input.cds--text-input {
   }
 
   &:focus,
-  &:active, 
+  &:active,
   &.cds--dropdown--open {
     outline: none !important;
     border-bottom: 2px solid var(--primary-color) !important;
@@ -49,7 +49,7 @@ input.cds--text-input {
   color: #000 !important; // Black text on neon cyan
   font-weight: 600;
   border: none;
-  
+
   &:hover {
     background-color: var(--primary-hover) !important;
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
@@ -59,9 +59,9 @@ input.cds--text-input {
 .cds--btn--secondary, .cds--btn--tertiary, .cds--btn--ghost {
   color: var(--primary-color) !important;
   border-color: var(--primary-color) !important;
-  
+
   &:hover {
-    background-color: rgba(0, 255, 255, 0.1) !important; 
+    background-color: rgba(0, 255, 255, 0.1) !important;
     color: var(--text-main) !important;
   }
 }
@@ -81,7 +81,7 @@ input.cds--text-input {
     background: transparent !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding-bottom: 1rem;
-    
+
     .cds--modal-heading {
       color: var(--primary-color);
       font-family: var(--font-heading);
@@ -89,7 +89,7 @@ input.cds--text-input {
       letter-spacing: 0.5px;
       text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
     }
-    
+
     .cds--modal-close {
       border: 1px solid rgba(255,255,255,0.1);
       background-color: #000000 !important; // Solid Black
@@ -101,7 +101,7 @@ input.cds--text-input {
         border-color: var(--primary-color);
       }
       .cds--modal-close__icon {
-        fill: #ffffff !important; 
+        fill: #ffffff !important;
       }
     }
   }
@@ -111,20 +111,20 @@ input.cds--text-input {
     background: transparent !important;
     padding-top: 20px;
     color: var(--text-main);
-    
+
     // Scrollbar styling for modal content
     &::-webkit-scrollbar {
       width: 8px;
     }
     &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2); 
+      background: rgba(0, 0, 0, 0.2);
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(123, 97, 255, 0.4); 
+      background: rgba(123, 97, 255, 0.4);
       border-radius: 4px;
     }
     &::-webkit-scrollbar-thumb:hover {
-      background: rgba(123, 97, 255, 0.7); 
+      background: rgba(123, 97, 255, 0.7);
     }
   }
 
@@ -132,18 +132,18 @@ input.cds--text-input {
   .cds--modal-footer {
     background: transparent !important;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-    
+
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
     .cds--btn {
-      border-radius: 4px; 
+      border-radius: 4px;
     }
   }
 }
 
 // --- Dropdowns / Select Menus ---
-.cds--dropdown, 
+.cds--dropdown,
 .cds--list-box,
 .cds--list-box__field,
 .cds--list-box__menu-item,
@@ -157,17 +157,17 @@ button.cds--list-box__field {
 .cds--list-box__label,
 .cds--list-box__field:focus .cds--list-box__label,
 button.cds--list-box__field .cds--list-box__label {
-    color: #ffffff !important; 
+    color: #ffffff !important;
 }
 
 .cds--list-box__menu {
   background-color: #161616 !important; // Dark background
   border: 1px solid var(--border-color);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  
+
   .cds--list-box__menu-item {
     color: #f4f4f4 !important; // Light text
-    
+
     .cds--list-box__menu-item__option {
        color: inherit !important;
     }
@@ -176,12 +176,12 @@ button.cds--list-box__field .cds--list-box__label {
     &.cds--list-box__menu-item--highlighted {
       background-color: rgba(123, 97, 255, 0.2) !important; // Purple tint
       color: #ffffff !important;
-      
+
       .cds--list-box__menu-item__option {
         color: #ffffff !important;
       }
     }
-    
+
     &.cds--list-box__menu-item--active {
       color: var(--primary-color) !important;
       background-color: rgba(0, 255, 255, 0.1) !important;
@@ -193,7 +193,7 @@ button.cds--list-box__field .cds--list-box__label {
 }
 
 // Fix chevron icons
-.cds--dropdown__arrow, 
+.cds--dropdown__arrow,
 .cds--list-box__menu-icon {
   fill: var(--text-secondary) !important;
 }
@@ -203,7 +203,7 @@ button.cds--list-box__field .cds--list-box__label {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
-  
+
   &.cds--inline-notification--error {
      border-left: 4px solid #ff0055 !important;
      .cds--inline-notification__title { color: #ff0055; }
@@ -212,7 +212,7 @@ button.cds--list-box__field .cds--list-box__label {
      border-left: 4px solid #00ffaa !important;
      .cds--inline-notification__title { color: #00ffaa; }
   }
-  
+
   .cds--inline-notification__title,
   .cds--inline-notification__subtitle {
     color: var(--text-main);
@@ -224,7 +224,7 @@ button.cds--list-box__field .cds--list-box__label {
 }
 
 // --- Input Validation Errors (Neon Style) ---
-.cds--text-input--invalid, 
+.cds--text-input--invalid,
 .cds--text-area--invalid,
 .cds--select-input--invalid,
 .cds--text-input[data-invalid] {
@@ -241,7 +241,7 @@ button.cds--list-box__field .cds--list-box__label {
     font-family: var(--font-body);
     display: flex;
     align-items: center;
-    
+
     // Add a small subtle glow/animation
     animation: slideDownFade 0.3s ease-out forwards;
 }
@@ -269,7 +269,7 @@ button.cds--list-box__field .cds--list-box__label {
     color: #fff !important;
     font-weight: 600;
   }
-  
+
   .cds--toast-notification__subtitle,
   .cds--toast-notification__caption {
     color: #dedede !important;
@@ -284,7 +284,7 @@ button.cds--list-box__field .cds--list-box__label {
       border-left: 4px solid #00ffaa;
       .cds--toast-notification__icon { fill: #00ffaa !important; }
   }
-  
+
   &.cds--toast-notification--info {
       border-left: 4px solid #00aaff;
       .cds--toast-notification__icon { fill: #00aaff !important; }
@@ -294,7 +294,7 @@ button.cds--list-box__field .cds--list-box__label {
       border-left: 4px solid #ffaa00;
       .cds--toast-notification__icon { fill: #ffaa00 !important; }
   }
-  
+
   .cds--toast-notification__close-button {
       .cds--toast-notification__close-icon { fill: #fff !important; }
   }

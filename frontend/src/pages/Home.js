@@ -123,7 +123,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters, nextPageToken, loading, pageSize, i18n.language]); 
+  }, [filters, nextPageToken, loading, pageSize, i18n.language]);
 
   // Initial load and filter changes
   useEffect(() => {

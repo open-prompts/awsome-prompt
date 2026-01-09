@@ -72,7 +72,7 @@
    docker-compose up -d
    ```
    首次运行时，数据库将自动使用 Schema 和种子数据进行初始化。
-   
+
    - **前端访问地址**: `http://localhost:3000`
    - **后端 API 地址**: `http://localhost:3000/api` (代理) 或 `http://localhost:8080` (直连)
 

@@ -44,7 +44,7 @@ const TemplateDetails = () => {
   const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
   const [isDeletingPrompt, setIsDeletingPrompt] = useState(false);
   const [isForking, setIsForking] = useState(false);
-  
+
   // Editor state
   const [editContent, setEditContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -409,8 +409,8 @@ const TemplateDetails = () => {
                 <span>By {template.owner_id}</span>
                 <span>•</span>
                 <span className={`visibility ${template.visibility.toLowerCase()}`}>
-                  {template.visibility === 'VISIBILITY_PUBLIC' 
-                    ? t('create_template.visibility_public') 
+                  {template.visibility === 'VISIBILITY_PUBLIC'
+                    ? t('create_template.visibility_public')
                     : t('create_template.visibility_private')}
                 </span>
                 {template.tags && template.tags.map(tag => (

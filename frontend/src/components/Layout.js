@@ -57,14 +57,14 @@ const Layout = ({
       <div className="app-body">
         {showSidebar && (
           <>
-            <div 
-              className={`sidebar-backdrop ${mobileSidebarOpen ? 'visible' : ''}`} 
+            <div
+              className={`sidebar-backdrop ${mobileSidebarOpen ? 'visible' : ''}`}
               onClick={() => setMobileSidebarOpen(false)}
             />
-            <Sidebar 
-              onFilterChange={onFilterChange} 
+            <Sidebar
+              onFilterChange={onFilterChange}
               currentFilters={currentFilters}
-              availableTags={availableTags} 
+              availableTags={availableTags}
               mobileOpen={mobileSidebarOpen}
               onClose={() => setMobileSidebarOpen(false)}
             />

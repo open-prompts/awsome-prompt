@@ -27,7 +27,7 @@
       padding: 0;
       align-items: center;
       justify-content: center;
-      
+
       &:hover {
         color: var(--primary-color);
       }
@@ -42,7 +42,7 @@
       text-decoration: none;
       font-family: var(--font-heading);
       letter-spacing: 1px;
-      
+
       img {
           box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
       }
@@ -54,7 +54,7 @@
         text-decoration: none;
         transition: color var(--transition-speed);
         font-weight: 500;
-        
+
         &:hover {
           color: var(--primary-color);
           text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
@@ -69,7 +69,7 @@
 
     .header-left {
       gap: 15px;
-      
+
       .menu-toggle-btn {
         display: flex;
       }
@@ -88,7 +88,7 @@
     .lang-switch-btn {
       transition: all var(--transition-speed);
       color: var(--text-muted);
-      
+
       &:hover {
         color: var(--primary-color) !important;
         text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
@@ -114,7 +114,7 @@
         background-color: transparent;
         color: var(--text-main);
         border: 1px solid var(--border-color);
-        
+
         &:hover {
           border-color: var(--primary-color);
           color: var(--primary-color);
@@ -126,7 +126,7 @@
         background-color: var(--primary-color);
         color: #000;
         border: 1px solid var(--primary-color);
-        
+
         &:hover {
           background-color: var(--primary-hover);
           box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
@@ -140,7 +140,7 @@
         position: absolute;
         top: 100%;
         right: 0;
-        background-color: var(--surface-solid); 
+        background-color: var(--surface-solid);
         background: var(--glass-bg);
         backdrop-filter: blur(20px);
         border: var(--glass-border);
@@ -150,7 +150,7 @@
         min-width: 180px;
         z-index: 1000;
         margin-top: 10px;
-        
+
         .dropdown-item {
           padding: 10px 16px;
           cursor: pointer;
@@ -160,12 +160,12 @@
           align-items: center;
           font-size: 0.9rem;
           font-family: var(--font-body);
-          
+
           &:hover {
             background-color: rgba(255, 255, 255, 0.05);
             color: var(--primary-color);
           }
-          
+
           &.logout {
              color: #ff4d4f;
              &:hover {

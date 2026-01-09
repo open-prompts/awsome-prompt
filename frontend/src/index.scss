@@ -25,17 +25,17 @@
   --text-secondary: #A0A0B0;
   --border-color: #333344;
   --border-neon: #00FFFF;
-  
+
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Work Sans', sans-serif;
-  
+
   --glass-bg: rgba(15, 15, 35, 0.6);
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
   --glass-blur: blur(12px);
-  
+
   --shadow-neon: 0 0 10px rgba(0, 255, 255, 0.3);
   --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  
+
   --transition-speed: 0.3s;
 }
 
@@ -45,7 +45,7 @@ body {
   font-family: var(--font-body);
   background-color: var(--bg-color);
   color: var(--text-main);
-  background-image: 
+  background-image:
     radial-gradient(circle at 10% 20%, rgba(123, 97, 255, 0.15) 0%, transparent 20%),
     radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 20%);
   background-attachment: fixed;
@@ -81,14 +81,14 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-color); 
+  background: var(--bg-color);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color); 
+  background: var(--border-color);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color); 
+  background: var(--secondary-color);
 }
 
 /* --- Global Component Overrides (Carbon DS) --- */
@@ -127,15 +127,15 @@ body {
 }
 
 /* Form Inputs Overrides */
-.cds--text-input, 
-.cds--text-area, 
+.cds--text-input,
+.cds--text-area,
 .cds--select-input,
 .cds--search-input {
   background-color: rgba(0, 0, 0, 0.4) !important;
   border-bottom: 1px solid var(--border-color) !important;
   color: var(--text-main) !important;
   transition: all 0.3s ease;
-  
+
   &::placeholder {
       color: var(--text-secondary) !important;
   }
@@ -155,12 +155,12 @@ body {
 
 /* Button Overrides */
 .cds--btn--primary {
-  background-color: var(--primary-color) !important; 
+  background-color: var(--primary-color) !important;
   color: #000 !important;
   font-weight: 700;
   font-family: var(--font-heading);
   border: none;
-  
+
   &:hover {
       background-color: var(--primary-hover) !important;
       box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
@@ -171,7 +171,7 @@ body {
   background-color: transparent !important;
   border: 1px solid var(--border-color) !important;
   color: var(--text-main) !important;
-  
+
   &:hover {
       border-color: var(--text-main) !important;
       background-color: rgba(255,255,255,0.05) !important;

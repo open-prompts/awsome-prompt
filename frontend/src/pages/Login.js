@@ -29,12 +29,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormErrors({});
-    
+
     // Manual Validation
     const errors = {};
     if (!email) errors.email = t('login.email') + ' is required'; // Or specific translation key
     if (!password) errors.password = t('login.password') + ' is required';
-    
+
     if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         return;
