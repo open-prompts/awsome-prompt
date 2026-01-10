@@ -73,3 +73,22 @@ jobs:
         run: pip install requests
       - name: Run FVT
         run: python3 tests/fvt.py
+
+  deploy:
+    name: Deploy to Production
+    needs: [frontend-lint, backend-lint, commitlint, backend-ut, fvt]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy using SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd awsome-prompt
+            git pull
+            docker compose -f deployment/docker-compose.yml down
+            docker compose -f deployment/docker-compose.yml up -d --build
+
