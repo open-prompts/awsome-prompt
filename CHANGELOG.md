@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/open-prompts/awsome-prompt/compare/v1.6.0...v1.7.0) (2026-01-13)
+
+
+### Features
+
+* allow owner to update template metadata ([fb031fd](https://github.com/open-prompts/awsome-prompt/commit/fb031fddb5a6e648f62b1b20da73d9c6f62ec91e))
+
 # [1.6.0](https://github.com/open-prompts/awsome-prompt/compare/v1.5.0...v1.6.0) (2026-01-09)
 
 
