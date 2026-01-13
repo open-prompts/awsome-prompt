@@ -50,6 +50,7 @@
   "dashboard": {
     "title": "探索模板",
     "my_templates": "我的模板",
+    "all_mine": "我的",
     "favorites": "我收藏的",
     "my_likes": "我点赞的"
   },

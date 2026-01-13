@@ -51,6 +51,7 @@
   "dashboard": {
     "title": "Explore Templates",
     "my_templates": "My Templates",
+    "all_mine": "My",
     "favorites": "Favorites",
     "my_likes": "My Likes"
   },

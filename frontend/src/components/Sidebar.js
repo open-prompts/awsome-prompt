@@ -16,7 +16,7 @@ import './Sidebar.scss';
 const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, onClose }) => {
   const { t, i18n } = useTranslation();
   const { addNotification } = useNotification();
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [showAllCategories, setShowAllCategories] = useState(false);
@@ -62,6 +62,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, on
             category,
             visibility,
             tags: [],
+            owner_id: '',
             my_likes: false,
             my_favorites: false
         });
@@ -85,6 +86,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, on
             category: '',
             tags: [],
             visibility: '', // Search all visibilities
+            owner_id: '',
             my_likes: true,
             my_favorites: false
           });
@@ -93,6 +95,7 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, on
             category: '',
             tags: [],
             visibility: '',
+            owner_id: '',
             my_likes: false,
             my_favorites: true
           });
@@ -100,10 +103,23 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, on
     });
   };
 
+  const handleMyAllClick = () => {
+    handleSelection(() => {
+      onFilterChange({
+        category: '',
+        tags: [],
+        visibility: '',
+        owner_id: user?.id,
+        my_likes: false,
+        my_favorites: false
+      });
+    });
+  };
+
   const isActive = (type, value, visibility) => {
     if (!currentFilters) return false;
     if (type === 'all-public') return currentFilters.visibility === 'VISIBILITY_PUBLIC' && !currentFilters.category && !currentFilters.my_likes && !currentFilters.my_favorites;
-    if (type === 'all-private') return currentFilters.visibility === 'VISIBILITY_PRIVATE' && !currentFilters.category && !currentFilters.my_likes && !currentFilters.my_favorites;
+    if (type === 'all-mine') return !currentFilters.visibility && currentFilters.owner_id === user?.id && !currentFilters.my_likes && !currentFilters.my_favorites;
     if (type === 'category') return currentFilters.category === value && currentFilters.visibility === visibility;
     if (type === 'tag') return currentFilters.tags && currentFilters.tags.includes(value);
     if (type === 'likes') return !!currentFilters.my_likes;
@@ -144,10 +160,10 @@ const Sidebar = ({ onFilterChange, currentFilters, availableTags, mobileOpen, on
           <h3>{t('dashboard.my_templates')}</h3>
           <ul>
             <li
-              className={isActive('all-private') ? 'active' : ''}
-              onClick={() => handleCategoryClick(null, 'VISIBILITY_PRIVATE')}
+              className={isActive('all-mine') ? 'active' : ''}
+              onClick={handleMyAllClick}
             >
-              {t('create_template.visibility_private')}
+              {t('dashboard.all_mine')}
             </li>
             <li
               className={isActive('likes') ? 'active' : ''}
