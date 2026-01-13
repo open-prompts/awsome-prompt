@@ -26,6 +26,7 @@
     "password_error": "密码长度必须大于 8 位，且包含大写字母、小写字母或数字中的至少两种。"
   },
   "common": {
+    "save": "保存",
     "deleting": "删除中...",
     "saving": "保存中...",
     "create": "创建",
@@ -56,7 +57,9 @@
   },
    "sidebar": {
       "error_fetch": "获取分类或标签失败。",
-      "no_tags": "无标签"
+      "no_tags": "无标签",
+      "category_tooltip": "分类",
+      "tag_tooltip": "标签"
   },
   "prompt_card": {
       "error_like": "点赞失败",
@@ -68,11 +71,13 @@
     "ph_title": "例如：代码审查助手",
     "label_category": "分类",
     "choose_category": "选择分类",
+    "category_placeholder": "请选择分类",
     "create_new_category": "创建新分类...",
     "label_new_category": "新分类名称",
     "ph_new_category": "输入新分类名称",
     "label_tags": "标签",
     "ph_tags": "例如：python, coding, review (逗号分隔)",
+    "tags_placeholder": "添加标签...",
     "label_visibility": "可见性",
     "visibility_public": "公开",
     "visibility_private": "私有",
@@ -97,7 +102,7 @@
   "template_details": {
       "not_found": "未找到模板",
       "error_load": "加载模板数据失败。",
-      "success_update": "模板已更新并创建了新版本！",
+      "success_update": "模板更新成功！",
       "error_update": "更新模板失败。",
       "error_login_like": "请登录后点赞模板",
       "error_like": "点赞失败",
@@ -123,7 +128,7 @@
       "content_title": "模板内容",
       "version_label": "版本：",
       "save_new_version": "保存新版本",
-      "edit_template": "编辑模板",
+      "edit_template": "编辑内容",
       "generate_prompt": "生成提示词",
       "variable": "变量",
       "enter_value": "输入值...",
@@ -148,7 +153,11 @@
       "like": "点赞",
       "unlike": "取消点赞",
       "favorite": "收藏",
-      "unfavorite": "取消收藏"
+      "unfavorite": "取消收藏",
+      "edit_metadata": "编辑信息",
+      "edit_title_desc": "编辑标题和描述",
+      "success_meta_update": "模板信息已更新！",
+      "error_meta_update": "更新信息失败。"
   },
   "profile": {
       "error_fetch": "获取个人资料失败",

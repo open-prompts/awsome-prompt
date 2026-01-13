@@ -6,7 +6,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 # Pre-compress static assets
-RUN apk add --no-cache gzip && \
+RUN apk add gzip && \
     find build -type f -regex ".*\.\(html\|js\|css\|json\)$" -exec gzip -9 -k {} \;
 
 

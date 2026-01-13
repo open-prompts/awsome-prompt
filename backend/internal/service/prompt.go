@@ -177,9 +177,9 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 	if req.Title != "" {
 		template.Title = req.Title
 	}
-	if req.Description != "" {
-		template.Description = sql.NullString{String: req.Description, Valid: true}
-	}
+	// Allow clearing Description by sending empty string
+	template.Description = sql.NullString{String: req.Description, Valid: true}
+
 	// Missing field updates added:
 	if req.Visibility != pb.Visibility_VISIBILITY_UNSPECIFIED {
 		template.Visibility = req.Visibility.String()
@@ -195,15 +195,17 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 			template.Visibility = "private"
 		}
 	}
-	if req.Category != "" {
-		template.Category = sql.NullString{String: req.Category, Valid: true}
-	}
+
+	// Allow clearing Category by sending empty string
+	template.Category = sql.NullString{String: req.Category, Valid: true}
+
 	if req.Language != "" {
 		template.Language = req.Language
 	}
-	if len(req.Tags) > 0 {
-		template.Tags = req.Tags
-	}
+
+	// Allow clearing Tags by sending empty list
+	// Note: this assumes UpdateTemplate is always called with full tag list
+	template.Tags = req.Tags
 
 	template.UpdatedAt = time.Now()
 
@@ -213,6 +215,16 @@ func (s *PromptService) UpdateTemplate(ctx context.Context, req *pb.UpdateTempla
 
 	// Create new version
 	latest, err := s.TemplateVersionRepo.GetLatest(ctx, template.ID)
+
+	// Check if content has changed
+	if err == nil && latest != nil && latest.Content == req.Content {
+		// Content hasn't changed, so don't create a new version
+		return &pb.UpdateTemplateResponse{
+			Template:   s.templateModelToProto(template),
+			NewVersion: s.versionModelToProto(latest), // Return latest
+		}, nil
+	}
+
 	newVersionNum := 1
 	if err == nil && latest != nil {
 		newVersionNum = int(latest.Version) + 1

@@ -133,6 +133,22 @@
           border: 1px solid rgba(0, 255, 255, 0.2);
         }
       }
+
+      .template-description {
+          margin-top: 20px;
+          font-size: 1rem;
+          line-height: 1.7;
+          color: var(--text-secondary); /* Use secondary text for description to distinguish from headings */
+          max-width: 65ch; /* Optimal reading width */
+          white-space: pre-wrap; /* Preserve formatting */
+          font-weight: 400;
+          letter-spacing: 0.01em; 
+
+          @media (max-width: 768px) {
+              font-size: 0.95rem;
+              margin-top: 16px;
+          }
+      }
     }
 
     .template-actions {
@@ -657,4 +673,189 @@
      border-radius: 4px;
      font-size: 0.8rem;
      text-transform: uppercase;
+}
+
+.template-details-page .header-actions .title-section {
+  .meta-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+
+    .editor-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .editor-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        width: 100%;
+        margin-bottom: -5px;
+    }
+
+    .meta-input, .meta-textarea {
+       background: rgba(0, 0, 0, 0.2);
+       border: 1px solid var(--border-color);
+       color: var(--text-main);
+       padding: 8px 10px;
+       border-radius: 4px;
+       outline: none;
+       width: 100%;
+       transition: border-color 0.2s;
+       
+       &:focus {
+           border-color: var(--primary-color);
+       }
+    }
+
+    .title-input {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .desc-input {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .meta-select {
+       background: rgba(0, 0, 0, 0.2);
+       border: 1px solid var(--border-color);
+       color: var(--text-main);
+       padding: 5px 10px;
+       border-radius: 4px;
+       min-width: 150px;
+       outline: none;
+
+       option {
+           background: #1e1e1e; /* Fallback dark bg */
+       }
+    }
+
+    .tags-editor {
+       align-items: center;
+       
+       .tags-list {
+         display: flex;
+         gap: 5px;
+         flex-wrap: wrap;
+       }
+
+       .tag-edit-chip {
+         background: rgba(0, 255, 255, 0.1); 
+         color: var(--primary-color, #0ff);
+         border: 1px solid var(--primary-color, #0ff);
+         padding: 2px 8px;
+         border-radius: 12px;
+         font-size: 0.85rem;
+         display: flex;
+         align-items: center;
+         gap: 5px;
+
+         button {
+           background: none;
+           border: none;
+           color: inherit;
+           cursor: pointer;
+           font-size: 1rem;
+           line-height: 1;
+           padding: 0;
+           &:hover {
+             opacity: 0.7;
+           }
+         }
+       }
+
+       .tag-input {
+         background: rgba(0, 0, 0, 0.2);
+         border: 1px solid var(--border-color);
+         color: var(--text-main);
+         padding: 4px 8px;
+         border-radius: 4px;
+         width: 120px;
+         outline: none;
+         &:focus {
+             border-color: var(--primary-color);
+         }
+       }
+
+       .add-tag-btn {
+         background: var(--primary-color);
+         color: #000;
+         border: none;
+         border-radius: 4px;
+         width: 24px;
+         height: 24px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         cursor: pointer;
+         font-weight: bold;
+       }
+    }
+
+    .editor-actions {
+       margin-top: 5px;
+       
+       button {
+         padding: 5px 15px;
+         border-radius: 4px;
+         font-size: 0.9rem;
+         cursor: pointer;
+         border: none;
+         margin-right: 10px;
+       }
+
+       .save-meta-btn {
+         background: var(--primary-color);
+         color: #000;
+         &:hover {
+            opacity: 0.9;
+         }
+       }
+
+       .cancel-meta-btn {
+         background: transparent;
+         border: 1px solid var(--border-color);
+         color: var(--text-muted);
+         &:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+         }
+       }
+    }
+  }
+
+  .meta {
+    .category {
+        margin-left: 8px;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    .edit-meta-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0 5px;
+        color: var(--text-muted);
+        transition: color 0.2s;
+        margin-left: 10px;
+        
+        &:hover {
+            color: var(--primary-color);
+        }
+
+        .icon {
+            font-size: 1.1rem;
+        }
+    }
+  }
 }

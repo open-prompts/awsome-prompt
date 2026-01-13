@@ -12,7 +12,8 @@ import {
   deleteTemplate,
   toggleTemplateLike,
   toggleTemplateFavorite,
-  forkTemplate
+  forkTemplate,
+  getCategories
 } from '../services/api';
 import { Modal } from '@carbon/react';
 import { useNotification } from '../context/NotificationContext';
@@ -20,7 +21,7 @@ import Layout from '../components/Layout';
 import './TemplateDetails.scss';
 
 const TemplateDetails = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -61,6 +62,16 @@ const TemplateDetails = () => {
 
   // Template Fork Modal State
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
+
+  // Metadata Edit State
+  const [isEditingMetadata, setIsEditingMetadata] = useState(false);
+  const [editCategory, setEditCategory] = useState('');
+  const [editTags, setEditTags] = useState([]);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [customCategory, setCustomCategory] = useState('');
 
   const { addNotification } = useNotification();
 
@@ -108,6 +119,38 @@ const TemplateDetails = () => {
     fetchData();
   }, [id, user]);
 
+  // Fetch categories when editing metadata
+  useEffect(() => {
+    if (isEditingMetadata) {
+        const fetchCategories = async () => {
+             try {
+                 const currentLang = i18n.language ? i18n.language.split('-')[0] : 'en';
+                 const res = await getCategories({ language: currentLang });
+                 const data = res.data;
+                 let cats = [];
+                 if (data && Array.isArray(data.categories)) {
+                     cats = data.categories.map(c => c.name);
+                 } else if (Array.isArray(data)) {
+                     cats = data;
+                 }
+                 // Ensure current template category is in the list if it has one
+                 // But wait, user might want to switch. 
+                 // If we purely use fetched list, and current category is not in it (e.g. cross-language mismatch),
+                 // it will show empty in select if we don't have it as an option.
+                 // We should probably just render what we get. The user can choose to keep it (if we add it to options) or change it.
+                 // If we don't add it, the select value 'editCategory' might not match any option, showing blank.
+                 // Let's rely on the user changing it if they want.
+                 // Or better yet, append editCategory if not present?
+                 // But unique.
+                 setCategories(cats);
+             } catch (error) {
+                 console.error("Failed to load categories", error);
+             }
+        };
+        fetchCategories();
+    }
+  }, [isEditingMetadata, i18n.language]);
+
   // Handle Version Change
   const handleVersionChange = (e) => {
     const vId = parseInt(e.target.value);
@@ -116,6 +159,96 @@ const TemplateDetails = () => {
     if (version) {
       setEditContent(version.content);
     }
+  };
+
+  // Metadata Edit Handlers
+  const handleRemoveTag = (tagToRemove) => {
+      setEditTags(editTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleAddTag = () => {
+      if (tagInput.trim() && !editTags.includes(tagInput.trim())) {
+          setEditTags([...editTags, tagInput.trim()]);
+          setTagInput('');
+      }
+  };
+
+  const handleTagInputKeyDown = (e) => {
+      if (e.key === 'Enter') {
+          e.preventDefault();
+          handleAddTag();
+      }
+  };
+
+  const handleEditMetadata = () => {
+      setEditCategory(template.category || '');
+      setCustomCategory('');
+      setEditTags(template.tags || []);
+      setTagInput('');
+      setEditTitle(template.title || '');
+      setEditDescription(template.description || '');
+      setIsEditingMetadata(true);
+  };
+
+  const handleSaveMetadata = async () => {
+      setIsSaving(true);
+      try {
+          // When saving metadata only, always use the latest version's content to avoid creating a new version
+          // unless content actually changed on backend check.
+          const contentToSend = versions.length > 0 ? versions[0].content : '';
+          
+          let finalCategory = editCategory;
+          if (editCategory === 'create_new') {
+              finalCategory = customCategory.trim();
+              if (!finalCategory) {
+                  addNotification({ kind: 'error', title: t('common.error'), subtitle: t('create_template.error_required_category') });
+                  setIsSaving(false);
+                  return;
+              }
+          }
+
+          // Auto-add pending tag input if user forgot to press Enter
+          let finalTags = Array.isArray(editTags) ? [...editTags] : [];
+          if (tagInput && tagInput.trim()) {
+              const newTag = tagInput.trim();
+              if (!finalTags.includes(newTag)) {
+                  finalTags.push(newTag);
+              }
+          }
+
+          const updateData = {
+              template_id: template.id,
+              owner_id: template.owner_id,
+              title: editTitle,
+              description: editDescription,
+              visibility: template.visibility,
+              category: finalCategory,
+              tags: finalTags,
+              content: contentToSend
+          };
+
+          const res = await updateTemplate(template.id, updateData);
+          setTemplate(res.data.template);
+          
+          // If a new version is created (depends on backend logic when content is same), add it
+          if (res.data.new_version) {
+               const nv = res.data.new_version;
+               if (!versions.some(v => v.id === nv.id)) {
+                   setVersions([nv, ...versions]);
+                   // Optional: switch to new version? 
+                   // If content didn't change, we might not want to switch version context abruptly?
+                   // But if backend created a version, it's the latest.
+               }
+          }
+
+          setIsEditingMetadata(false);
+          addNotification({ kind: 'success', title: t('common.success'), subtitle: t('template_details.success_update') });
+      } catch (error) {
+          console.error("Failed to update template metadata", error);
+          addNotification({ kind: 'error', title: t('common.error'), subtitle: t('template_details.error_update') });
+      } finally {
+          setIsSaving(false);
+      }
   };
 
   // Handle Edit Save
@@ -405,19 +538,124 @@ const TemplateDetails = () => {
                 </button>
               </div>
             </div>
-            <div className="meta">
-                <span>By {template.owner_id}</span>
-                <span>•</span>
-                <span className={`visibility ${template.visibility.toLowerCase()}`}>
-                  {template.visibility === 'VISIBILITY_PUBLIC'
-                    ? t('create_template.visibility_public')
-                    : t('create_template.visibility_private')}
-                </span>
-                {template.tags && template.tags.map(tag => (
-                    <span key={tag} className="tag">#{tag}</span>
-                ))}
-            </div>
-            <p>{template.description}</p>
+            {isEditingMetadata ? (
+                <div className="meta-editor">
+                    <div className="editor-row">
+                        <label className="editor-label">{t('template_details.edit_title_desc') || "Title & Description"}</label>
+                        <input
+                            type="text"
+                            value={editTitle}
+                            onChange={e => setEditTitle(e.target.value)}
+                            placeholder={t('create_template.title_placeholder') || 'Template Title'}
+                            className="meta-input title-input"
+                        />
+                    </div>
+                    <div className="editor-row">
+                        <textarea
+                            value={editDescription}
+                            onChange={e => setEditDescription(e.target.value)}
+                            placeholder={t('create_template.description_placeholder') || 'Description'}
+                            className="meta-textarea desc-input"
+                            rows={3}
+                        />
+                    </div>
+                    <div className="editor-row">
+                        <label className="editor-label">{t('template_details.edit_metadata') || "Category & Tags"}</label>
+                        <select 
+                            value={editCategory} 
+                            onChange={e => setEditCategory(e.target.value)} 
+                            className="meta-select"
+                        >
+                            <option value="" disabled>{t('create_template.category_placeholder') || 'Select Category'}</option>
+                            <option value="create_new">{t('create_template.create_new_category') || 'Create New...'}</option>
+                            {/* Append current category if not in the fetched list (e.g. different language or custom) */}
+                            {editCategory && editCategory !== 'create_new' && !categories.includes(editCategory) && (
+                                <option key={editCategory} value={editCategory}>{editCategory}</option>
+                            )}
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                        {editCategory === 'create_new' && (
+                             <input 
+                                 type="text" 
+                                 value={customCategory}
+                                 onChange={e => setCustomCategory(e.target.value)}
+                                 placeholder={t('create_template.ph_new_category')}
+                                 className="meta-input mt-2"
+                                 style={{ marginTop: '0.5rem' }}
+                             />
+                        )}
+                    </div>
+                    <div className="editor-row tags-editor">
+                        <div className="tags-list">
+                            {editTags.map(tag => (
+                                <span key={tag} className="tag-edit-chip">
+                                    {tag} <button onClick={() => handleRemoveTag(tag)} type="button" aria-label="Remove tag">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            value={tagInput}
+                            onChange={e => setTagInput(e.target.value)}
+                            onKeyDown={handleTagInputKeyDown}
+                            placeholder={t('create_template.tags_placeholder') || 'Add tag...'}
+                            className="tag-input"
+                        />
+                        <button onClick={handleAddTag} className="add-tag-btn" type="button" aria-label="Add tag">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div className="editor-actions">
+                        <button className="save-meta-btn" onClick={handleSaveMetadata} disabled={isSaving}>
+                            {t('common.save') || 'Save'}
+                        </button>
+                        <button className="cancel-meta-btn" onClick={() => setIsEditingMetadata(false)} disabled={isSaving}>
+                            {t('common.cancel') || 'Cancel'}
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="meta">
+                    <span>By {template.owner_id}</span>
+                    <span>•</span>
+                    <span className={`visibility ${template.visibility.toLowerCase()}`}>
+                    {template.visibility === 'VISIBILITY_PUBLIC'
+                        ? t('create_template.visibility_public')
+                        : t('create_template.visibility_private')}
+                    </span>
+                    {template.category && (
+                        <>
+                            <span>•</span>
+                            <span className="category">{template.category}</span>
+                        </>
+                    )}
+                    {template.tags && template.tags.map(tag => (
+                        <span key={tag} className="tag">#{tag}</span>
+                    ))}
+                    
+                    {user && user.id === template.owner_id && (
+                       <button onClick={handleEditMetadata} className="icon-btn edit-meta-btn" title={t('template_details.edit_metadata') || "Edit Metadata"}>
+                           <span className="icon">
+                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                   <path d="M12 20h9"></path>
+                                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                               </svg>
+                           </span>
+                       </button>
+                    )}
+                </div>
+            )}
+            <p className="template-description">{template.description}</p>
           </div>
 
           {user && (
