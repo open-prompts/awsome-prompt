@@ -1,3 +1,11 @@
+## [1.13.3](https://github.com/open-prompts/open-prompts/compare/v1.13.2...v1.13.3) (2026-07-26)
+
+
+### Bug Fixes
+
+* handle object-format variables when loading a prompt ([6d43f12](https://github.com/open-prompts/open-prompts/commit/6d43f12a3061794a33c31ccc86fcf5abb4d20211))
+* map string visibility values to proto enum in HTTP handlers ([26eadf9](https://github.com/open-prompts/open-prompts/commit/26eadf9ee12ea8b1f17525d93a26ad0342aa85db))
+
 ## [1.13.2](https://github.com/open-prompts/open-prompts/compare/v1.13.1...v1.13.2) (2026-03-31)
 
 
