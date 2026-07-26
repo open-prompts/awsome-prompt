@@ -299,6 +299,21 @@ func main() {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			// Map string visibility values to proto enum (protojson only understands
+			// numeric or full enum names like "VISIBILITY_PUBLIC", not "public")
+			if req.Visibility == pb.Visibility_VISIBILITY_UNSPECIFIED {
+				var rawJSON map[string]interface{}
+				if err := json.Unmarshal(body, &rawJSON); err == nil {
+					if vis, ok := rawJSON["visibility"].(string); ok {
+						switch vis {
+						case "public":
+							req.Visibility = pb.Visibility_VISIBILITY_PUBLIC
+						case "private":
+							req.Visibility = pb.Visibility_VISIBILITY_PRIVATE
+						}
+					}
+				}
+			}
 			// If client did not provide language, try to derive from Accept-Language header
 			if req.Language == "" {
 				if al := r.Header.Get("Accept-Language"); al != "" {
@@ -642,6 +657,21 @@ func main() {
 			if err := unmarshaler.Unmarshal(body, &req); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
+			}
+			// Map string visibility values to proto enum (protojson only understands
+			// numeric or full enum names like "VISIBILITY_PUBLIC", not "public")
+			if req.Visibility == pb.Visibility_VISIBILITY_UNSPECIFIED {
+				var rawJSON map[string]interface{}
+				if err := json.Unmarshal(body, &rawJSON); err == nil {
+					if vis, ok := rawJSON["visibility"].(string); ok {
+						switch vis {
+						case "public":
+							req.Visibility = pb.Visibility_VISIBILITY_PUBLIC
+						case "private":
+							req.Visibility = pb.Visibility_VISIBILITY_PRIVATE
+						}
+					}
+				}
 			}
 			// If client did not provide language on update, derive from Accept-Language header
 			if req.Language == "" {
