@@ -43,7 +43,7 @@
         display: inline-block;
         box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
     }
-    
+
     .empty-state, .loading-state {
         text-align: center;
         padding: 3rem;
@@ -60,17 +60,17 @@
         background-color: transparent !important;
         padding-top: 0;
     }
-    
+
     .cds--data-table-header {
         display: none; // hide if title is already rendered outside
     }
-    
+
     .cds--data-table {
         background-color: transparent !important;
         border-collapse: separate;
         border-spacing: 0;
         width: 100%;
-        
+
         thead {
              background-color: transparent;
              th {
@@ -94,23 +94,23 @@
                  }
              }
         }
-        
+
         tbody {
             tr {
                 background-color: var(--surface-color) !important;
                 transition: all var(--transition-speed) ease;
                 box-shadow: 0 1px 0 var(--border-color);
-                
+
                 &:hover {
                     background-color: var(--surface-alt, rgba(255, 255, 255, 0.08)) !important;
                     transform: translateY(-1px);
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 3px 0 0 var(--primary-color);
-                    
+
                     td {
                        color: var(--text-main) !important;
                     }
                 }
-                
+
                 td {
                     background-color: transparent !important;
                     border-bottom: none !important;
@@ -122,13 +122,21 @@
 
                     /* Action buttons */
                     .cds--btn--ghost {
-                        color: var(--text-secondary);
+                        color: var(--text-secondary) !important;
                         transition: all 0.2s ease;
                         border-radius: 6px;
-                        
+
+                        svg {
+                            fill: var(--text-secondary) !important;
+                        }
+
                         &:hover {
                             background-color: rgba(255, 77, 79, 0.1);
-                            color: #ff4d4f;
+                            color: #ff4d4f !important;
+
+                            svg {
+                                fill: #ff4d4f !important;
+                            }
                         }
                     }
                 }
@@ -148,7 +156,7 @@
     .cds--modal-header__heading {
         color: #f4f4f4 !important;
     }
-    
+
     .generated-key-display {
         background: var(--surface-solid);
         padding: 24px;
@@ -164,21 +172,21 @@
             align-items: center;
             gap: 8px;
             font-size: 0.95rem;
-            
+
             &::before {
                 content: "⚠️";
             }
         }
-        
+
         .key-copy-row {
             display: flex;
             align-items: flex-end;
             gap: 12px;
-            
+
             .key-input-wrapper {
                 flex: 1;
             }
-            
+
             .copy-btn {
                 margin-bottom: 2px;
                 border-radius: 6px;
