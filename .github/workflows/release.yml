@@ -21,6 +21,9 @@ jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       # Checkout the repository code
       # fetch-depth: 0 is crucial for semantic-release to access the full git history
@@ -60,23 +63,22 @@ jobs:
           # This token is automatically provided by GitHub Actions
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  ghcr:
+    name: Push to GitHub Container Registry
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Set up QEMU
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
-        if: steps.semantic.outputs.new_release_published == 'true'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Log in to GitHub Container Registry
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -84,27 +86,21 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Backend Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/open-prompts-backend:${{ steps.semantic.outputs.new_release_version }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/open-prompts-backend:latest
-            ghcr.io/${{ github.repository_owner }}/open-prompts-backend:${{ steps.semantic.outputs.new_release_version }}
+            ghcr.io/${{ github.repository_owner }}/open-prompts-backend:${{ needs.release.outputs.new_release_version }}
             ghcr.io/${{ github.repository_owner }}/open-prompts-backend:latest
 
       - name: Build and push Frontend Docker image
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/open-prompts-frontend:${{ steps.semantic.outputs.new_release_version }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/open-prompts-frontend:latest
-            ghcr.io/${{ github.repository_owner }}/open-prompts-frontend:${{ steps.semantic.outputs.new_release_version }}
+            ghcr.io/${{ github.repository_owner }}/open-prompts-frontend:${{ needs.release.outputs.new_release_version }}
             ghcr.io/${{ github.repository_owner }}/open-prompts-frontend:latest
