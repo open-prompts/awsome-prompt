@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/open-prompts/open-prompts/compare/v1.13.3...v1.13.4) (2026-07-26)
+
+
+### Bug Fixes
+
+* make ghost button icon visible in dark theme on API key page ([247cccc](https://github.com/open-prompts/open-prompts/commit/247ccccc3b76878b9ba8bbab1b24c9a389273df3))
+
 ## [1.13.3](https://github.com/open-prompts/open-prompts/compare/v1.13.2...v1.13.3) (2026-07-26)
 
 
