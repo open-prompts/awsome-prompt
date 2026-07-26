@@ -393,7 +393,7 @@ const TemplateDetails = () => {
     try {
       const variablesPayload = {};
       uniqueNames.forEach(name => { variablesPayload[name] = variableValues[name] || ''; });
-      
+
       const promptData = {
         template_id: template.id,
         version_id: selectedVersionId,
@@ -541,9 +541,15 @@ const TemplateDetails = () => {
 
   // Handle Load Prompt
   const handleLoadPrompt = (prompt) => {
-      if (prompt.variables && prompt.variables.length > 0) {
-        // Note: Variables may be returned as strings like "key:value" or as objects.
-        const map = {};
+      if (!prompt.variables) return;
+      const map = {};
+      // Backend returns variables as a JSON object (map<string, string>),
+      // e.g. {"name": "John", "age": "30"}. Also handle legacy array format.
+      if (typeof prompt.variables === 'object' && !Array.isArray(prompt.variables)) {
+        Object.keys(prompt.variables).forEach(k => {
+          map[k] = prompt.variables[k];
+        });
+      } else if (Array.isArray(prompt.variables)) {
         prompt.variables.forEach(v => {
           if (typeof v === 'string') {
             const idx = v.indexOf(':');
@@ -553,13 +559,14 @@ const TemplateDetails = () => {
               map[key] = val;
             }
           } else if (v && typeof v === 'object') {
-            // assume single-key object
             const keys = Object.keys(v);
             if (keys.length > 0) {
               map[keys[0]] = v[keys[0]];
             }
           }
         });
+      }
+      if (Object.keys(map).length > 0) {
         setVariableValues(map);
       }
   };
