@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { TextInput, PasswordInput, Button } from '@carbon/react';
 import { useNotification } from '../context/NotificationContext';
-import { Edit, Save, Close } from '@carbon/icons-react';
+import { EditIcon, SaveIcon, CloseIcon } from '../components/ui/Icons';
 import { updateProfile, getProfile } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
 import Header from '../components/Header';
@@ -24,6 +23,7 @@ const Profile = () => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [avatar, setAvatar] = useState('');
   const [displayAvatar, setDisplayAvatar] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -133,7 +133,7 @@ const Profile = () => {
           </div>
 
           {!isEditing ? (
-              <div className="profile-view">
+              <div className="profile-view card">
                   <div className="avatar-section">
                       <div className="avatar-display">
                           {displayAvatar ? (
@@ -158,13 +158,16 @@ const Profile = () => {
                   </div>
 
                   <div className="action-section">
-                      <Button renderIcon={Edit} onClick={toggleEdit}>{t('profile.edit_profile')}</Button>
+                      <button className="btn btn-secondary" onClick={toggleEdit}>
+                        <EditIcon size={16} />
+                        {t('profile.edit_profile')}
+                      </button>
                   </div>
               </div>
           ) : (
-              <form onSubmit={handleSubmit} className="profile-edit-form">
+              <form onSubmit={handleSubmit} className="profile-edit-form card">
                   <div className="form-group avatar-upload-group">
-                      <label>{t('profile.avatar')}</label>
+                      <label className="field-label">{t('profile.avatar')}</label>
                       <div className="avatar-upload-container">
                           <div className="avatar-preview">
                               {displayAvatar ? (
@@ -183,7 +186,7 @@ const Profile = () => {
                                   onChange={handleAvatarChange}
                                   className="hidden-file-input"
                               />
-                              <label htmlFor="avatar-upload" className="cds--btn cds--btn--secondary">
+                              <label htmlFor="avatar-upload" className="btn btn-secondary btn-sm">
                                   {t('profile.change_avatar')}
                               </label>
                           </div>
@@ -191,9 +194,11 @@ const Profile = () => {
                   </div>
 
                   <div className="form-group">
-                      <TextInput
+                      <label className="field-label" htmlFor="displayName">{t('register.display_name')}</label>
+                      <input
                           id="displayName"
-                          labelText={t('register.display_name')}
+                          type="text"
+                          className="input"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
                           placeholder={t('profile.ph_display_name')}
@@ -201,21 +206,38 @@ const Profile = () => {
                   </div>
 
                   <div className="form-group">
-                      <PasswordInput
-                          id="password"
-                          labelText={t('profile.new_password')}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder={t('profile.ph_new_password')}
-                          autoComplete="new-password"
-                      />
+                      <label className="field-label" htmlFor="password">{t('profile.new_password')}</label>
+                      <div className="password-wrap">
+                          <input
+                              id="password"
+                              type={showPassword ? 'text' : 'password'}
+                              className="input"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder={t('profile.ph_new_password')}
+                              autoComplete="new-password"
+                          />
+                          <button
+                            type="button"
+                            className="password-toggle"
+                            onClick={() => setShowPassword(s => !s)}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            tabIndex={-1}
+                          >
+                            {showPassword ? '🙈' : '👁'}
+                          </button>
+                      </div>
                   </div>
 
                   <div className="form-actions">
-                      <Button type="submit" renderIcon={Save} disabled={isSaving}>
+                      <button type="submit" className="btn btn-primary" disabled={isSaving}>
+                        <SaveIcon size={16} />
                         {isSaving ? t('common.saving') : t('common.save_changes')}
-                      </Button>
-                      <Button kind="ghost" renderIcon={Close} onClick={toggleEdit}>{t('common.cancel')}</Button>
+                      </button>
+                      <button type="button" className="btn btn-ghost" onClick={toggleEdit}>
+                        <CloseIcon size={16} />
+                        {t('common.cancel')}
+                      </button>
                   </div>
               </form>
           )}

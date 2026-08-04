@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { TextInput, PasswordInput, Button, Form } from '@carbon/react';
 import { login } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
 import { useNotification } from '../context/NotificationContext';
-import './Login.scss';
 import AuthBackground from '../components/AuthBackground';
+import { AlertIcon } from '../components/ui/Icons';
+import './Login.scss';
 
 /**
  * Login Page Component
@@ -20,6 +20,7 @@ const Login = () => {
   const { addNotification } = useNotification();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -69,49 +70,79 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="auth-page login-page">
       <AuthBackground />
-      <div className="login-form-container">
-        <h2>{t('login.title')}</h2>
-        <Form onSubmit={handleSubmit} noValidate>
-          <TextInput
-            id="email"
-            labelText={t('login.email')}
-            value={email}
-            onChange={(e) => {
-                setEmail(e.target.value);
-                if (formErrors.email) setFormErrors({...formErrors, email: ''});
-            }}
-            placeholder="user@example.com"
-            invalid={!!formErrors.email}
-            invalidText={formErrors.email}
-          />
-          <PasswordInput
-            id="password"
-            labelText={t('login.password')}
-            value={password}
-            onChange={(e) => {
-                setPassword(e.target.value);
-                if (formErrors.password) setFormErrors({...formErrors, password: ''});
-            }}
-            invalid={!!formErrors.password}
-            invalidText={formErrors.password}
-          />
-          <Button
+      <div className="auth-card login-card">
+        <div className="auth-card-head">
+          <h2>{t('login.title')}</h2>
+          <p className="auth-card-sub">{t('login.subtitle', 'Welcome back')}</p>
+        </div>
+        <form onSubmit={handleSubmit} noValidate>
+          {Object.keys(formErrors).length > 0 && (
+            <div className="form-alert">
+              <AlertIcon size={16} />
+              <span>{t('login.fill_required', 'Please fill in all required fields')}</span>
+            </div>
+          )}
+
+          <div className={`field ${formErrors.email ? 'field-invalid' : ''}`}>
+            <label className="field-label" htmlFor="email">{t('login.email')}</label>
+            <input
+              id="email"
+              type="email"
+              className="input"
+              value={email}
+              onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (formErrors.email) setFormErrors({...formErrors, email: ''});
+              }}
+              placeholder="user@example.com"
+            />
+            {formErrors.email && <span className="field-error">{formErrors.email}</span>}
+          </div>
+
+          <div className={`field ${formErrors.password ? 'field-invalid' : ''}`}>
+            <label className="field-label" htmlFor="password">{t('login.password')}</label>
+            <div className="password-wrap">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                className="input"
+                value={password}
+                onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (formErrors.password) setFormErrors({...formErrors, password: ''});
+                }}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(s => !s)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
+            {formErrors.password && <span className="field-error">{formErrors.password}</span>}
+          </div>
+
+          <button
             type="submit"
-            className="login-button"
+            className="btn btn-primary btn-block auth-submit"
             disabled={loading}
-            isSelected={loading}
           >
             {loading ? 'Logging in...' : t('login.submit')}
-          </Button>
-        </Form>
-        <Link to="/register" className="register-link">
-          {t('login.register_link')}
-        </Link>
-        <Link to="/" className="back-home-link">
-          {t('login.back_to_home')}
-        </Link>
+          </button>
+        </form>
+        <div className="auth-links">
+          <Link to="/register" className="register-link">
+            {t('login.register_link')}
+          </Link>
+          <Link to="/" className="back-home-link">
+            {t('login.back_to_home')}
+          </Link>
+        </div>
       </div>
     </div>
   );

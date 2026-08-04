@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Modal,
-  TextInput,
-  TextArea,
-  Dropdown
-} from '@carbon/react';
+import Modal from './ui/Modal';
+import Field from './ui/Field';
 import { useNotification } from '../context/NotificationContext';
 import { useTranslation } from 'react-i18next';
 import { createTemplate, getCategories } from '../services/api';
+import { AlertIcon } from './ui/Icons';
 import './CreateTemplateModal.scss';
 
 /**
@@ -32,6 +29,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
   const [customCategory, setCustomCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [generalError, setGeneralError] = useState('');
   const { addNotification } = useNotification();
 
   // Fetch categories when the modal opens
@@ -69,8 +67,13 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       });
       setCustomCategory('');
       setFormErrors({});
+      setGeneralError('');
     }
-  }, [open, addNotification, t]);
+    // Note: `t` is intentionally excluded from deps — with react-i18next it is
+    // memoized, but test mocks recreate it each render, which would cause an
+    // infinite effect loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, addNotification]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -79,12 +82,13 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
       [id]: value,
     }));
     if (formErrors[id]) {
-        setFormErrors(prev => ({...prev, [id]: ''}));
+        setFormErrors(prev => ({ ...prev, [id]: '' }));
     }
   };
 
   const handleSubmit = async () => {
     setFormErrors({});
+    setGeneralError('');
     const errors = {};
 
     // Basic validation
@@ -99,6 +103,7 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
 
     if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
+        setGeneralError(t('create_template.error_required_fields'));
         return;
     }
 
@@ -125,122 +130,117 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
     } catch (err) {
       console.error('Create template error:', err);
       setLoading(false);
+      setGeneralError(t('create_template.error_submit'));
       addNotification({ kind: 'error', title: t('common.error'), subtitle: t('create_template.error_submit') });
     }
   };
-
-  const categoryItems = [
-    ...categories.map(c => ({ id: c, text: c })),
-    { id: 'create_new', text: t('create_template.create_new_category') }
-  ];
-
-  const visibilityItems = [
-    { id: 'public', text: t('create_template.visibility_public') },
-    { id: 'private', text: t('create_template.visibility_private') }
-  ];
 
   return (
     <Modal
       open={open}
       className="create-template-modal"
-      modalHeading={t('create_template.title')}
-      primaryButtonText={loading ? t('common.saving') : t('common.create')}
-      primaryButtonDisabled={loading}
-      secondaryButtonText={t('common.cancel')}
-      onRequestClose={onRequestClose}
-      onRequestSubmit={handleSubmit}
-      danger={false}
-      selectorPrimaryFocus="#title"
+      title={t('create_template.title')}
+      primaryLabel={loading ? t('common.saving') : t('common.create')}
+      primaryDisabled={loading}
+      secondaryLabel={t('common.cancel')}
+      onPrimary={handleSubmit}
+      onClose={onRequestClose}
+      size="lg"
     >
       <div className="create-template-form">
-        <TextInput
-          id="title"
-          labelText={t('create_template.label_title')}
-          placeholder={t('create_template.ph_title')}
-          value={formData.title}
-          onChange={handleChange}
-          required // Carbon styling for required
-          className="form-field"
-          invalid={!!formErrors.title}
-          invalidText={formErrors.title}
-        />
-
-        <Dropdown
-          id="category"
-          titleText={t('create_template.label_category')}
-          label={t('create_template.choose_category')}
-          items={categoryItems}
-          itemToString={(item) => (item ? item.text : '')}
-          selectedItem={categoryItems.find(c => c.id === formData.category) || null}
-          onChange={({ selectedItem }) => {
-            setFormData(prev => ({ ...prev, category: selectedItem.id }));
-            // Clear category-related validation errors when user selects a value
-            setFormErrors(prev => ({ ...prev, category: '', customCategory: '' }));
-          }}
-          className="form-field"
-          invalid={!!formErrors.category}
-          invalidText={formErrors.category}
-        />
-
-        {formData.category === 'create_new' && (
-          <TextInput
-            id="customCategory"
-            labelText={t('create_template.label_new_category')}
-            placeholder={t('create_template.ph_new_category')}
-            value={customCategory}
-            onChange={(e) => {
-              setCustomCategory(e.target.value);
-              if (formErrors.customCategory) setFormErrors(prev => ({ ...prev, customCategory: '' }));
-            }}
-            className="form-field"
-            style={{ marginTop: '0.5rem' }}
-            invalid={!!formErrors.customCategory}
-            invalidText={formErrors.customCategory}
-          />
+        {generalError && (
+          <div className="form-alert">
+            <AlertIcon size={16} />
+            <span>{generalError}</span>
+          </div>
         )}
 
-        <Dropdown
-          id="visibility"
-          titleText={t('create_template.label_visibility')}
-          items={visibilityItems}
-          itemToString={(item) => (item ? item.text : '')}
-          selectedItem={visibilityItems.find(v => v.id === formData.visibility)}
-          onChange={({ selectedItem }) => {
-            setFormData(prev => ({ ...prev, visibility: selectedItem.id }));
-            if (formErrors.visibility) setFormErrors(prev => ({ ...prev, visibility: '' }));
-          }}
-          className="form-field"
-        />
+        <Field id="title" label={t('create_template.label_title')} error={formErrors.title} required>
+          <input
+            type="text"
+            className="input"
+            placeholder={t('create_template.ph_title')}
+            value={formData.title}
+            onChange={handleChange}
+          />
+        </Field>
 
-        <TextInput
-          id="tags"
-          labelText={t('create_template.label_tags')}
-          placeholder={t('create_template.ph_tags')}
-          value={formData.tags}
-          onChange={handleChange}
-          className="form-field"
-        />
+        <Field id="category" label={t('create_template.label_category')} error={formErrors.category}>
+          <select
+            className="select"
+            value={formData.category}
+            onChange={(e) => {
+              setFormData(prev => ({ ...prev, category: e.target.value }));
+              // Clear category-related validation errors when user selects a value
+              setFormErrors(prev => ({ ...prev, category: '', customCategory: '' }));
+            }}
+          >
+            <option value="" disabled>{t('create_template.choose_category')}</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+            <option value="create_new">{t('create_template.create_new_category')}</option>
+          </select>
+        </Field>
 
-        <TextArea
-          id="description"
-          labelText={t('create_template.label_description')}
-          placeholder={t('create_template.ph_description')}
-          value={formData.description}
-          onChange={handleChange}
-          className="form-field"
-        />
+        {formData.category === 'create_new' && (
+          <Field id="customCategory" label={t('create_template.label_new_category')} error={formErrors.customCategory}>
+            <input
+              type="text"
+              className="input"
+              placeholder={t('create_template.ph_new_category')}
+              value={customCategory}
+              onChange={(e) => {
+                setCustomCategory(e.target.value);
+                if (formErrors.customCategory) setFormErrors(prev => ({ ...prev, customCategory: '' }));
+              }}
+            />
+          </Field>
+        )}
 
-        <TextArea
-          id="content"
-          labelText={t('create_template.label_content')}
-          placeholder={t('create_template.ph_content')}
-          value={formData.content}
-          onChange={handleChange}
-          rows={10}
-          className="form-field"
-          invalid={!!formErrors.content}
-          invalidText={formErrors.content}
-        />
+        <Field id="visibility" label={t('create_template.label_visibility')}>
+          <select
+            className="select"
+            value={formData.visibility}
+            onChange={(e) => {
+              setFormData(prev => ({ ...prev, visibility: e.target.value }));
+              if (formErrors.visibility) setFormErrors(prev => ({ ...prev, visibility: '' }));
+            }}
+          >
+            <option value="public">{t('create_template.visibility_public')}</option>
+            <option value="private">{t('create_template.visibility_private')}</option>
+          </select>
+        </Field>
+
+        <Field id="tags" label={t('create_template.label_tags')}>
+          <input
+            type="text"
+            className="input"
+            placeholder={t('create_template.ph_tags')}
+            value={formData.tags}
+            onChange={handleChange}
+          />
+        </Field>
+
+        <Field id="description" label={t('create_template.label_description')}>
+          <textarea
+            className="textarea"
+            placeholder={t('create_template.ph_description')}
+            value={formData.description}
+            onChange={handleChange}
+            rows={3}
+          />
+        </Field>
+
+        <Field id="content" label={t('create_template.label_content')} error={formErrors.content} required>
+          <textarea
+            className="textarea"
+            placeholder={t('create_template.ph_content')}
+            value={formData.content}
+            onChange={handleChange}
+            rows={10}
+          />
+        </Field>
       </div>
     </Modal>
   );

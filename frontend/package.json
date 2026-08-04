@@ -4,8 +4,6 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "dependencies": {
-    "@carbon/icons-react": "^11.76.0",
-    "@carbon/react": "^1.103.0",
     "@reduxjs/toolkit": "^1.9.0",
     "axios": "^1.13.6",
     "i18next": "^22.4.9",
@@ -22,7 +20,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios|react-router-dom)/\"",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src"
   },
@@ -42,5 +40,10 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios)/"
+    ]
   }
 }

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { TextInput, PasswordInput, Button, Form } from '@carbon/react';
 import { register, sendVerificationCode } from '../services/api';
 import { loginSuccess } from '../store/authSlice';
 import { useNotification } from '../context/NotificationContext';
+import { AlertIcon } from '../components/ui/Icons';
 import './Register.scss';
 import AuthBackground from '../components/AuthBackground';
 
@@ -25,7 +25,9 @@ const Register = () => {
     displayName: '',
     verificationCode: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [generalError, setGeneralError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -112,6 +114,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormErrors({});
+    setGeneralError('');
 
     const errors = {};
     if (!formData.id) errors.id = t('register.id') + ' is required';
@@ -126,6 +129,7 @@ const Register = () => {
 
     if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
+        setGeneralError(t('register.error_required_fields', 'Please fill in all required fields'));
         return;
     }
 
@@ -164,76 +168,119 @@ const Register = () => {
   };
 
   return (
-    <div className="register-page">
+    <div className="auth-page register-page">
       <AuthBackground />
-      <div className="register-form-container">
-        <h2>{t('register.title')}</h2>
-        <Form onSubmit={handleSubmit} noValidate>
-          <TextInput
-            id="id"
-            labelText={t('register.id')}
-            value={formData.id}
-            onChange={handleChange}
-            placeholder="unique_username"
-            invalid={!!formErrors.id}
-            invalidText={formErrors.id}
-          />
-          <TextInput
-            id="email"
-            labelText={t('register.email')}
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="user@example.com"
-            invalid={!!formErrors.email}
-            invalidText={formErrors.email}
-          />
-          <div className="verification-row">
-            <TextInput
-              id="verificationCode"
-              labelText={t('register.verification_code')}
-              value={formData.verificationCode}
+      <div className="auth-card register-card">
+        <div className="auth-card-head">
+          <h2>{t('register.title')}</h2>
+          <p className="auth-card-sub">{t('register.subtitle', 'Create your account')}</p>
+        </div>
+        <form onSubmit={handleSubmit} noValidate>
+          {generalError && (
+            <div className="form-alert">
+              <AlertIcon size={16} />
+              <span>{generalError}</span>
+            </div>
+          )}
+
+          <div className={`field ${formErrors.id ? 'field-invalid' : ''}`}>
+            <label className="field-label" htmlFor="id">{t('register.id')}</label>
+            <input
+              id="id"
+              type="text"
+              className="input"
+              value={formData.id}
               onChange={handleChange}
-              placeholder="123456"
-              invalid={!!formErrors.verificationCode}
-              invalidText={formErrors.verificationCode}
+              placeholder="unique_username"
             />
-            <Button
-                kind="tertiary"
+            {formErrors.id && <span className="field-error">{formErrors.id}</span>}
+          </div>
+
+          <div className={`field ${formErrors.email ? 'field-invalid' : ''}`}>
+            <label className="field-label" htmlFor="email">{t('register.email')}</label>
+            <input
+              id="email"
+              type="email"
+              className="input"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="user@example.com"
+            />
+            {formErrors.email && <span className="field-error">{formErrors.email}</span>}
+          </div>
+
+          <div className={`field ${formErrors.verificationCode ? 'field-invalid' : ''}`}>
+            <label className="field-label" htmlFor="verificationCode">{t('register.verification_code')}</label>
+            <div className="verification-row">
+              <input
+                id="verificationCode"
+                type="text"
+                className="input"
+                value={formData.verificationCode}
+                onChange={handleChange}
+                placeholder="123456"
+              />
+              <button
+                type="button"
+                className="btn btn-secondary send-code-btn"
                 onClick={handleSendCode}
                 disabled={countdown > 0 || !formData.email || !validateEmail(formData.email) || isSending}
-                className="send-code-btn"
-            >
-              {isSending ? '...' : (countdown > 0 ? t('register.resend_in', { seconds: countdown }) : t('register.send_code'))}
-            </Button>
+              >
+                {isSending ? '...' : (countdown > 0 ? t('register.resend_in', { seconds: countdown }) : t('register.send_code'))}
+              </button>
+            </div>
+            {formErrors.verificationCode && <span className="field-error">{formErrors.verificationCode}</span>}
           </div>
-          <TextInput
-            id="displayName"
-            labelText={t('register.display_name')}
-            value={formData.displayName}
-            onChange={handleChange}
-            placeholder="John Doe"
-            required
-          />
-          <PasswordInput
-            id="password"
-            labelText={t('register.password')}
-            value={formData.password}
-            onChange={handleChange}
-            invalid={!!formErrors.password}
-            invalidText={formErrors.password}
-          />
-          <Button
+
+          <div className="field">
+            <label className="field-label" htmlFor="displayName">{t('register.display_name')}</label>
+            <input
+              id="displayName"
+              type="text"
+              className="input"
+              value={formData.displayName}
+              onChange={handleChange}
+              placeholder="John Doe"
+              required
+            />
+          </div>
+
+          <div className={`field ${formErrors.password ? 'field-invalid' : ''}`}>
+            <label className="field-label" htmlFor="password">{t('register.password')}</label>
+            <div className="password-wrap">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                className="input"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(s => !s)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
+            {formErrors.password && <span className="field-error">{formErrors.password}</span>}
+          </div>
+
+          <button
             type="submit"
-            className="register-button"
+            className="btn btn-primary btn-block auth-submit"
             disabled={loading}
-            isSelected={loading}
           >
             {loading ? 'Registering...' : t('register.submit')}
-          </Button>
-        </Form>
-        <Link to="/login" className="login-link">
-          {t('register.login_link')}
-        </Link>
+          </button>
+        </form>
+        <div className="auth-links">
+          <Link to="/login" className="login-link">
+            {t('register.login_link')}
+          </Link>
+        </div>
       </div>
     </div>
   );

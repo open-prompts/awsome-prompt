@@ -1,18 +1,18 @@
 .create-template-form {
-  padding-right: 1rem; // Add spacing for scrollbar
-
-  .form-field {
-    margin-bottom: 1rem !important; // Increased spacing
-
-    // Ensure consistent spacing for expanded dropdowns/textareas
-    &:last-child {
-        margin-bottom: 0 !important;
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.create-template-modal {
-  .cds--modal-header__heading {
-    color: #f4f4f4 !important;
-  }
+/* Tighten spacing inside the large modal */
+.create-template-modal .modal-body {
+  padding: 18px 22px 22px;
+}
+
+.create-template-modal .field {
+  margin-bottom: 14px;
+}
+
+.create-template-modal .field:last-child {
+  margin-bottom: 0;
 }

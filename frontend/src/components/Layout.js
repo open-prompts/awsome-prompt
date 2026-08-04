@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Add } from '@carbon/icons-react'; // Using Carbon icon
+import { AddIcon } from './ui/Icons';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import CreateTemplateModal from './CreateTemplateModal';
@@ -83,7 +83,7 @@ const Layout = ({
             aria-label={t('header.create_template')}
             title={t('header.create_template')}
           >
-            <Add size={32} />
+            <AddIcon size={28} />
           </button>
 
           <CreateTemplateModal

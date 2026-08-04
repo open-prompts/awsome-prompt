@@ -1,149 +1,134 @@
 .prompt-card {
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  transition: all var(--transition-speed);
-  min-height: 280px;
+  gap: 12px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+}
+
+.prompt-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-header .title {
+  font-size: 16px;
+  font-weight: 650;
+  margin: 0;
+  color: var(--text-1);
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.visibility {
+  flex-shrink: 0;
+}
+
+.card-description {
+  font-size: 13.5px;
+  color: var(--text-2);
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.content-preview {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  max-height: 132px;
+  overflow: hidden;
   position: relative;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
 
-  &:hover {
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.15), inset 0 0 1px rgba(0,255,255,0.5);
-    border-color: var(--primary-color);
-    transform: translateY(-5px);
-  }
+.content-preview pre {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
+.content-preview::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36px;
+  background: linear-gradient(transparent, var(--bg-soft));
+  pointer-events: none;
+}
 
-    .title {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-main);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      font-family: var(--font-heading);
-      letter-spacing: 0.5px;
-    }
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 2px;
+}
 
-    .visibility {
-      font-size: 0.65rem;
-      padding: 4px 8px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 1px;
+.card-footer .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 
-      &.visibility_public {
-        background-color: rgba(0, 255, 255, 0.1);
-        color: var(--primary-color);
-        border: 1px solid rgba(0, 255, 255, 0.3);
-      }
+.card-footer .tags .tag {
+  cursor: default;
+}
 
-      &.visibility_private {
-        background-color: rgba(255, 255, 255, 0.05);
-        color: var(--text-muted);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    }
-  }
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
 
-  .description {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin-bottom: 12px;
-  }
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
 
-  .content-preview {
-    background-color: rgba(0, 0, 0, 0.4);
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    flex-grow: 1;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
+.stat-item:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+  border-color: var(--border);
+}
 
-    pre {
-      margin: 0;
-      font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Courier New', monospace;
-      font-size: 0.85rem;
-      line-height: 1.6;
-      color: #e0e0e0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 6;
-      -webkit-box-orient: vertical;
-      opacity: 1;
-      padding-top: 0.5rem;
-    }
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid var(--border-color);
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      overflow: hidden;
-      max-width: 60%;
-
-      .tag {
-        font-size: 0.75rem;
-        background-color: rgba(123, 97, 255, 0.15);
-        color: var(--secondary-color);
-        padding: 3px 8px;
-        border-radius: 8px;
-        white-space: nowrap;
-        border: 1px solid rgba(123, 97, 255, 0.3);
-      }
-    }
-
-    .stats {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        cursor: pointer;
-        transition: all 0.2s;
-        user-select: none;
-
-        &:hover {
-          transform: scale(1.1);
-          color: var(--primary-color);
-          text-shadow: 0 0 5px var(--primary-color);
-        }
-      }
-    }
-  }
+.stat-item .emoji {
+  font-size: 14px;
+  line-height: 1;
 }

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
-import { ToastNotification } from '@carbon/react';
+import { CheckIcon, AlertIcon, InfoIcon, CloseIcon } from '../components/ui/Icons';
 import './NotificationContext.scss';
 
 const NotificationContext = createContext(null);
@@ -10,6 +10,13 @@ export const useNotification = () => {
         throw new Error('useNotification must be used within a NotificationProvider');
     }
     return context;
+};
+
+const ICONS = {
+    success: CheckIcon,
+    error: AlertIcon,
+    warning: AlertIcon,
+    info: InfoIcon,
 };
 
 export const NotificationProvider = ({ children }) => {
@@ -38,19 +45,38 @@ export const NotificationProvider = ({ children }) => {
         <NotificationContext.Provider value={{ addNotification }}>
             {children}
             <div className="notification-container">
-                {notifications.map((notification) => (
-                    <ToastNotification
-                        key={notification.id}
-                        kind={notification.kind || 'info'}
-                        title={notification.title}
-                        subtitle={notification.subtitle}
-                        caption={notification.caption}
-                        onClose={() => removeNotification(notification.id)}
-                        lowContrast={true}
-                        className={`notification-toast ${notification.kind || 'info'}`}
-                        style={{ marginBottom: '0' }}
-                    />
-                ))}
+                {notifications.map((notification) => {
+                    const kind = notification.kind || 'info';
+                    const IconComponent = ICONS[kind] || InfoIcon;
+                    return (
+                        <div
+                            key={notification.id}
+                            className={`notification-toast ${kind}`}
+                            role="status"
+                        >
+                            <span className="notification-icon">
+                                <IconComponent size={18} />
+                            </span>
+                            <div className="notification-content">
+                                <div className="notification-title">{notification.title}</div>
+                                {notification.subtitle && (
+                                    <div className="notification-subtitle">{notification.subtitle}</div>
+                                )}
+                                {notification.caption && (
+                                    <div className="notification-subtitle">{notification.caption}</div>
+                                )}
+                            </div>
+                            <button
+                                type="button"
+                                className="notification-close"
+                                onClick={() => removeNotification(notification.id)}
+                                aria-label="Close notification"
+                            >
+                                <CloseIcon size={16} />
+                            </button>
+                        </div>
+                    );
+                })}
             </div>
         </NotificationContext.Provider>
     );

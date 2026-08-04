@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../store/authSlice';
 import Login from './Login';
+import { NotificationProvider } from '../context/NotificationContext';
 import * as api from '../services/api';
 
 // Mock the api service
@@ -32,7 +33,7 @@ const renderWithRedux = (component) => {
   return {
     ...render(
       <Provider store={store}>
-        {component}
+        <NotificationProvider>{component}</NotificationProvider>
       </Provider>
     ),
     store,

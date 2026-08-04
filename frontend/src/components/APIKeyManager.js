@@ -1,21 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Button,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableBody,
-  TableCell,
-  TableContainer,
-  Modal,
-  TextInput,
-} from '@carbon/react';
-import { Add, TrashCan, Copy } from '@carbon/icons-react';
+import Modal from './ui/Modal';
+import Field from './ui/Field';
+import { AddIcon, TrashIcon, CopyIcon } from './ui/Icons';
 import { useTranslation } from 'react-i18next';
 import { listAPIKeys, createAPIKey, deleteAPIKey } from '../services/api';
+import Spinner from './ui/Spinner';
 import './APIKeyManager.scss';
 
 const APIKeyManager = ({ notification }) => {
@@ -102,83 +93,85 @@ const APIKeyManager = ({ notification }) => {
       <div className="api-key-manager">
         <div className="header-section">
             <h3>{t('api_keys.list_title', 'Your API Keys')}</h3>
-          <Button renderIcon={Add} onClick={() => setIsModalOpen(true)} size="sm">
+          <button className="btn btn-primary btn-sm" onClick={() => setIsModalOpen(true)}>
+            <AddIcon size={15} />
             {t('api_keys.generate_new', 'Generate New Key')}
-          </Button>
+          </button>
       </div>
 
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr>
               {headers.map((header) => (
-                <TableHeader key={header.key}>{header.header}</TableHeader>
+                <th key={header.key}>{header.header}</th>
               ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
+            </tr>
+          </thead>
+          <tbody>
             {keys.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell><span className="key-prefix">{row.prefix}...</span></TableCell>
-                <TableCell>{row.created_at}</TableCell>
-                <TableCell>{row.last_used_at}</TableCell>
-                <TableCell>
-                  <Button
-                    hasIconOnly
-                    renderIcon={TrashCan}
-                    kind="ghost"
-                    iconDescription={t('api_keys.delete')}
+              <tr key={row.id}>
+                <td>{row.name}</td>
+                <td><span className="key-prefix">{row.prefix}...</span></td>
+                <td>{row.created_at}</td>
+                <td>{row.last_used_at}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn-icon btn-danger"
+                    title={t('api_keys.delete')}
+                    aria-label={t('api_keys.delete')}
                     onClick={() => {
                         setKeyToDelete(row.id);
                         setDeleteModalOpen(true);
                     }}
-                    size="sm"
-                  />
-                </TableCell>
-              </TableRow>
+                  >
+                    <TrashIcon size={16} />
+                  </button>
+                </td>
+              </tr>
             ))}
             {keys.length === 0 && !loading && (
-                <TableRow>
-                    <TableCell colSpan={5}>
+                <tr>
+                    <td colSpan={5}>
                         <div className="empty-state">{t('api_keys.no_keys')}</div>
-                    </TableCell>
-                </TableRow>
+                    </td>
+                </tr>
             )}
             {loading && (
-                <TableRow>
-                    <TableCell colSpan={5}>
-                        <div className="loading-state">{t('common.loading')}</div>
-                    </TableCell>
-                </TableRow>
+                <tr>
+                    <td colSpan={5}>
+                        <div className="loading-state"><Spinner label={t('common.loading')} /></div>
+                    </td>
+                </tr>
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
       </div>
 
       {/* Create Modal */}
       {createPortal(
         <Modal
           open={isModalOpen}
-          modalHeading={!generatedKey ? t('api_keys.modal_create_title') : t('api_keys.modal_created_title')}
-          primaryButtonText={!generatedKey ? t('api_keys.btn_generate') : t('api_keys.btn_done')}
-          secondaryButtonText={!generatedKey ? t('common.cancel') : ""}
-          onRequestClose={handleModalClose}
-          onRequestSubmit={!generatedKey ? handleCreate : handleModalClose}
-          danger={false}
-          className="api-key-modal fork-modal"
+          title={!generatedKey ? t('api_keys.modal_create_title') : t('api_keys.modal_created_title')}
+          primaryLabel={!generatedKey ? t('api_keys.btn_generate') : t('api_keys.btn_done')}
+          secondaryLabel={!generatedKey ? t('common.cancel') : ''}
+          onPrimary={!generatedKey ? handleCreate : handleModalClose}
+          onClose={handleModalClose}
+          className="api-key-modal"
         >
           <div className="api-key-form">
             {!generatedKey ? (
-                <TextInput
-                    id="key-name"
-                    labelText={t('api_keys.label_name')}
-                    placeholder={t('api_keys.placeholder_name')}
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                    className="form-field"
-                />
+                <Field id="key-name" label={t('api_keys.label_name')}>
+                    <input
+                        type="text"
+                        className="input"
+                        placeholder={t('api_keys.placeholder_name')}
+                        value={newKeyName}
+                        onChange={(e) => setNewKeyName(e.target.value)}
+                    />
+                </Field>
             ) : (
                 <div className="generated-key-display">
                     <p className="warning-text">
@@ -186,21 +179,24 @@ const APIKeyManager = ({ notification }) => {
                     </p>
                     <div className="key-copy-row">
                         <div className="key-input-wrapper">
-                            <TextInput
-                                id="generated-key"
-                                labelText={t('api_keys.label_key')}
-                                value={generatedKey}
-                                readOnly
-                            />
+                            <Field id="generated-key" label={t('api_keys.label_key')}>
+                                <input
+                                    type="text"
+                                    className="input"
+                                    value={generatedKey}
+                                    readOnly
+                                />
+                            </Field>
                         </div>
-                        <Button
-                            hasIconOnly
-                            renderIcon={Copy}
-                            kind="ghost"
-                            iconDescription={t('api_keys.copy_desc', 'Copy')}
+                        <button
+                            type="button"
+                            className="btn btn-secondary copy-btn"
+                            title={t('api_keys.copy_desc', 'Copy')}
                             onClick={() => copyToClipboard(generatedKey)}
-                            className="copy-btn"
-                        />
+                        >
+                            <CopyIcon size={15} />
+                            {t('api_keys.copy_desc', 'Copy')}
+                        </button>
                     </div>
                 </div>
             )}
@@ -213,22 +209,23 @@ const APIKeyManager = ({ notification }) => {
       {createPortal(
         <Modal
           open={deleteModalOpen}
-          modalHeading={t('api_keys.delete')}
-          primaryButtonText={t('common.delete')}
-          secondaryButtonText={t('common.cancel')}
-          onRequestClose={() => {
+          title={t('api_keys.delete')}
+          subtitle={t('common.confirmation')}
+          primaryLabel={t('common.delete')}
+          secondaryLabel={t('common.cancel')}
+          onClose={() => {
               setDeleteModalOpen(false);
               setKeyToDelete(null);
           }}
-          onRequestSubmit={() => {
+          onPrimary={() => {
               if (keyToDelete) {
                   handleDelete(keyToDelete);
               }
               setDeleteModalOpen(false);
               setKeyToDelete(null);
           }}
-          danger={true}
-          className="api-key-modal fork-modal"
+          danger
+          className="api-key-modal"
         >
           <div className="api-key-form">
             <p className="delete-confirmation-text">

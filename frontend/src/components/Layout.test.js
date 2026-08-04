@@ -11,6 +11,14 @@ jest.mock('./Header', () => () => <div data-testid="header">Header</div>);
 jest.mock('./Sidebar', () => () => <div data-testid="sidebar">Sidebar</div>);
 jest.mock('./CreateTemplateModal', () => ({ open }) => open ? <div data-testid="create-modal">Modal Open</div> : null);
 
+// Mock i18n so translations resolve to their keys
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key) => key,
+    i18n: { language: 'en' },
+  }),
+}));
+
 const renderWithRedux = (component, { initialState } = {}) => {
   const store = configureStore({
     reducer: { auth: authReducer },
@@ -35,14 +43,14 @@ describe('Layout Component', () => {
     renderWithRedux(<Layout>Content</Layout>, {
       initialState: { auth: { isAuthenticated: false } }
     });
-    expect(screen.queryByTitle('Create Template')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('header.create_template')).not.toBeInTheDocument();
   });
 
   test('shows floating button when authenticated', () => {
     renderWithRedux(<Layout>Content</Layout>, {
       initialState: { auth: { isAuthenticated: true, user: { id: '1' } } }
     });
-    expect(screen.getByTitle('Create Template')).toBeInTheDocument();
+    expect(screen.getByTitle('header.create_template')).toBeInTheDocument();
   });
 
   test('opens modal when clicking floating button', () => {
@@ -50,7 +58,7 @@ describe('Layout Component', () => {
       initialState: { auth: { isAuthenticated: true, user: { id: '1' } } }
     });
 
-    fireEvent.click(screen.getByTitle('Create Template'));
+    fireEvent.click(screen.getByTitle('header.create_template'));
     expect(screen.getByTestId('create-modal')).toBeInTheDocument();
   });
 });

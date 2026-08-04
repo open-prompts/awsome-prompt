@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { UserAvatar, Translate, Menu, Moon, Sun } from '@carbon/icons-react';
+import { MenuIcon, MoonIcon, SunIcon, TranslateIcon, UserIcon, ChevronDownIcon } from './ui/Icons';
 import { logout } from '../store/authSlice';
 import './Header.scss';
-
 
 /**
  * Header component for the application.
@@ -72,65 +71,83 @@ const Header = ({ onMenuClick }) => {
   }, [theme]);
 
   const toggleTheme = () => setTheme((s) => (s === 'dark' ? 'light' : 'dark'));
+  const currentLang = (i18n && i18n.language) || 'en';
+  const isChinese = currentLang === 'zh' || currentLang.startsWith('zh');
 
   return (
     <header className="app-header">
       <div className="header-left">
-        <button
-          className="menu-toggle-btn"
-          onClick={onMenuClick}
-          aria-label="Toggle menu"
-        >
-          <Menu size={24} />
-        </button>
+        {onMenuClick && (
+          <button
+            className="menu-toggle-btn"
+            onClick={onMenuClick}
+            aria-label="Toggle menu"
+          >
+            <MenuIcon size={22} />
+          </button>
+        )}
         <Link to="/" className="logo">
-          <img src="/images/logo.jpg" alt="Logo" style={{ height: '32px', marginRight: '10px', borderRadius: '50%' }} />
-          Open Prompts
+          <img src="/images/logo.jpg" alt="Logo" className="logo-img" />
+          <span className="logo-text">Open Prompts</span>
         </Link>
+        <nav className="main-nav">
+          <Link to="/" className="nav-link">{t('home.title', 'Home')}</Link>
+        </nav>
       </div>
       <div className="header-right">
         <button
-          className="theme-toggle-btn"
+          className="icon-btn header-icon-btn"
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
           title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', marginRight: '14px', display: 'flex', alignItems: 'center' }}
         >
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          {theme === 'dark' ? <SunIcon size={19} /> : <MoonIcon size={19} />}
         </button>
         <button
           className="lang-switch-btn"
           onClick={toggleLanguage}
           aria-label={t('header.switchLanguage') || 'Switch Language'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', marginRight: '20px', display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}
         >
-          <Translate size={20} />
-          <span style={{ marginLeft: '6px' }}>{(i18n.language === 'zh' || i18n.language.startsWith('zh')) ? 'English' : '中文'}</span>
+          <TranslateIcon size={19} />
+          <span>{isChinese ? 'English' : '中文'}</span>
         </button>
         {user ? (
-          <div className="user-profile" style={{ position: 'relative' }} ref={dropdownRef}>
-             <button
-              className="user-name-btn"
-              onClick={toggleDropdown}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'inherit' }}
-            >
-              <span className="user-name" style={{ marginRight: '8px' }}>{user.displayName || user.email || 'User'}</span>
+          <div className="user-profile" ref={dropdownRef}>
+            <button className="user-name-btn" onClick={toggleDropdown}>
               {user.avatar ? (
-                <img src={user.avatar} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                <img src={user.avatar} alt="Avatar" className="user-avatar" />
               ) : (
-                <UserAvatar size={32} />
+                <span className="user-avatar-placeholder">
+                  <UserIcon size={18} />
+                </span>
               )}
+              <span className="user-name">{user.displayName || user.email || 'User'}</span>
+              <ChevronDownIcon size={14} className={isDropdownOpen ? 'caret-open' : ''} />
             </button>
 
             {isDropdownOpen && (
               <div className="profile-dropdown">
+                <div className="dropdown-header">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="Avatar" className="dropdown-avatar" />
+                  ) : (
+                    <span className="dropdown-avatar-placeholder">
+                      {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                    </span>
+                  )}
+                  <div className="dropdown-user-info">
+                    <div className="dropdown-user-name">{user.displayName || 'User'}</div>
+                    <div className="dropdown-user-email">{user.email || ''}</div>
+                  </div>
+                </div>
                 <div className="dropdown-item" onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}>
                   {t('header.profile')}
                 </div>
                 <div className="dropdown-item" onClick={() => { navigate('/api-keys'); setIsDropdownOpen(false); }}>
                   {t('api_keys.title', 'API Keys')}
                 </div>
-                 <div className="dropdown-item logout" onClick={handleLogout}>
+                <div className="dropdown-divider" />
+                <div className="dropdown-item logout" onClick={handleLogout}>
                   {t('header.logout')}
                 </div>
               </div>
@@ -138,8 +155,8 @@ const Header = ({ onMenuClick }) => {
           </div>
         ) : (
           <div className="auth-buttons">
-            <button className="btn-login" onClick={() => navigate('/login')}>{t('header.login')}</button>
-            <button className="btn-register" onClick={() => navigate('/register')}>{t('register.title')}</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigate('/login')}>{t('header.login')}</button>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/register')}>{t('register.title')}</button>
           </div>
         )}
       </div>

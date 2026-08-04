@@ -1,28 +1,42 @@
 .home-page {
-  height: 100%;
-  overflow-y: auto; // Enable scrolling within the content area
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 60vh;
+  overflow-y: auto;
+}
 
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.private-grid {
+  margin-bottom: -6px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+.no-results {
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-3);
+  font-size: 14px;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
   .templates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Slightly wider cards */
-    gap: 30px;
-    padding-bottom: 40px;
-    padding-top: 0.5rem;
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); /* Full width on mobile */
-      gap: 20px;
-    }
-  }
-
-  .loading, .no-results {
-    text-align: center;
-    padding: 40px;
-    color: var(--text-muted);
-    font-style: italic;
-    font-size: 1.1rem;
-    background: var(--glass-bg);
-    border-radius: 8px;
-    backdrop-filter: blur(5px);
+    grid-template-columns: 1fr;
   }
 }

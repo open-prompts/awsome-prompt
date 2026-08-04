@@ -3,8 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CreateTemplateModal from './CreateTemplateModal';
 import * as api from '../services/api';
 
+const mockAddNotification = jest.fn();
+
 jest.mock('../context/NotificationContext', () => ({
-  useNotification: () => ({ addNotification: jest.fn() }),
+  useNotification: () => ({ addNotification: mockAddNotification }),
   NotificationProvider: ({ children }) => children,
 }));
 
@@ -129,10 +131,10 @@ describe('CreateTemplateModal Component', () => {
     fireEvent.change(screen.getByLabelText('create_template.label_content'), {
       target: { value: 'Hello World' },
     });
-
-    // Select Category (might be tricky with Carbon Select, simulating change on underlying select if possible or just assuming text input behavior for test simplicity if Carbon exposes native select)
-    // Carbon Select usually hides the native select. We might need to mock or interact with Carbon specific structure.
-    // For simplicity, let's just focus on Title and Content which are simple inputs.
+    // Select a category (required by validation)
+    fireEvent.change(screen.getByLabelText('create_template.label_category'), {
+      target: { value: 'Coding' },
+    });
 
     fireEvent.click(screen.getByText('common.create'));
 
@@ -157,11 +159,17 @@ describe('CreateTemplateModal Component', () => {
       />
     );
 
+    // Wait for categories to load
+    await waitFor(() => expect(api.getCategories).toHaveBeenCalled());
+
     fireEvent.change(screen.getByLabelText('create_template.label_title'), {
       target: { value: 'My Template' },
     });
     fireEvent.change(screen.getByLabelText('create_template.label_content'), {
       target: { value: 'Hello World' },
+    });
+    fireEvent.change(screen.getByLabelText('create_template.label_category'), {
+      target: { value: 'Coding' },
     });
 
     fireEvent.click(screen.getByText('common.create'));

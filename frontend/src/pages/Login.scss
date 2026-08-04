@@ -1,79 +1,69 @@
-@use '@carbon/react/scss/type';
-@use '@carbon/react/scss/spacing';
-@use '@carbon/react/scss/theme';
-
-.login-page {
+.auth-page {
+  position: relative;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: var(--bg-color);
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+}
 
-  .login-form-container {
-    width: 100%;
-    max-width: 420px;
-    padding: 40px;
-    background-color: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: var(--glass-border);
-    border-radius: 16px;
-    box-shadow: var(--shadow-card);
+.auth-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 34px 32px 28px;
+  animation: modal-pop var(--t-slow);
+}
 
-    h2 {
-      font-family: var(--font-heading);
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 30px;
-      text-align: center;
-      color: var(--text-main);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(123, 97, 255, 0.5);
-    }
+.auth-card-head {
+  text-align: center;
+  margin-bottom: 24px;
+}
 
-    .cds--form-item {
-      margin-bottom: 24px;
-      // Input styles handled by global overrides in styles/_carbon-overrides.scss
-    }
+.auth-card-head h2 {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
 
+.auth-card-sub {
+  color: var(--text-3);
+  font-size: 14px;
+  margin: 0;
+}
 
-    .login-button {
-      width: 50% !important;
-      margin-top: 20px;
-      // Center the button in its container
-      margin-left: auto !important;
-      margin-right: auto !important;
+.auth-submit {
+  margin-top: 4px;
+  padding: 11px 18px;
+  font-size: 15px;
+}
 
-      background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-      border: none;
-      font-weight: 700;
-      letter-spacing: 1px;
-      font-family: var(--font-heading);
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      text-align: center;
-      padding-right: 15px !important; // Override Carbon's default padding (often 64px)
-      padding-left: 15px !important;
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 13.5px;
+}
 
-      &:hover {
-          box-shadow: 0 0 15px rgba(123, 97, 255, 0.6);
-      }
-    }
+.back-home-link {
+  color: var(--text-3);
+  font-size: 13px;
+}
+.back-home-link:hover {
+  color: var(--text-2);
+}
 
-    .register-link,
-    .back-home-link {
-      display: block;
-      margin-top: 24px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      text-decoration: none; // Ensure no underline by default
-
-      &:hover {
-          color: var(--primary-color);
-          text-decoration: underline;
-      }
-    }
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 26px 20px 22px;
   }
 }

@@ -15,7 +15,8 @@ import {
   forkTemplate,
   getCategories
 } from '../services/api';
-import { Modal } from '@carbon/react';
+import Modal from '../components/ui/Modal';
+import { HeartIcon, StarIcon } from '../components/ui/Icons';
 import { useNotification } from '../context/NotificationContext';
 import Layout from '../components/Layout';
 import TemplateAliasManager from '../components/TemplateAliasManager';
@@ -587,7 +588,7 @@ const TemplateDetails = () => {
                   onClick={handleLike}
                   title={isLiked ? t('template_details.unlike') : t('template_details.like')}
                 >
-                  <span className="icon">{isLiked ? '❤️' : '🤍'}</span>
+                  <HeartIcon size={17} filled={isLiked} />
                   <span className="count">{likesCount}</span>
                 </button>
                 <button
@@ -595,7 +596,7 @@ const TemplateDetails = () => {
                   onClick={handleFavorite}
                   title={isFavorited ? t('template_details.unfavorite') : t('template_details.favorite')}
                 >
-                  <span className="icon">{isFavorited ? '⭐' : '☆'}</span>
+                  <StarIcon size={17} filled={isFavorited} />
                   <span className="count">{favoritesCount}</span>
                 </button>
               </div>
@@ -960,46 +961,43 @@ print(prompt)`}
 
       <Modal
         open={isDeleteModalOpen}
-        className="fork-modal"
-        modalHeading={t('template_details.delete_prompt_title')}
-        modalLabel={t('common.confirmation')}
-        primaryButtonText={isDeletingPrompt ? t('common.deleting') : t('common.delete')}
-        primaryButtonDisabled={isDeletingPrompt}
-        secondaryButtonText={t('common.cancel')}
+        title={t('template_details.delete_prompt_title')}
+        subtitle={t('common.confirmation')}
+        primaryLabel={isDeletingPrompt ? t('common.deleting') : t('common.delete')}
+        primaryDisabled={isDeletingPrompt}
+        secondaryLabel={t('common.cancel')}
         danger
-        onRequestClose={() => setIsDeleteModalOpen(false)}
-        onRequestSubmit={confirmDeletePrompt}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onPrimary={confirmDeletePrompt}
       >
-        <p>{t('template_details.delete_prompt_confirm')}</p>
+        <p className="modal-confirm-text">{t('template_details.delete_prompt_confirm')}</p>
       </Modal>
 
       <Modal
         open={isTemplateDeleteModalOpen}
-        className="fork-modal"
-        modalHeading={t('template_details.delete_template_title')}
-        modalLabel={t('common.confirmation')}
-        primaryButtonText={isDeletingTemplate ? t('common.deleting') : t('common.delete')}
-        primaryButtonDisabled={isDeletingTemplate}
-        secondaryButtonText={t('common.cancel')}
+        title={t('template_details.delete_template_title')}
+        subtitle={t('common.confirmation')}
+        primaryLabel={isDeletingTemplate ? t('common.deleting') : t('common.delete')}
+        primaryDisabled={isDeletingTemplate}
+        secondaryLabel={t('common.cancel')}
         danger
-        onRequestClose={() => setIsTemplateDeleteModalOpen(false)}
-        onRequestSubmit={confirmDeleteTemplate}
+        onClose={() => setIsTemplateDeleteModalOpen(false)}
+        onPrimary={confirmDeleteTemplate}
       >
-        <p>{t('template_details.delete_template_confirm')}</p>
+        <p className="modal-confirm-text">{t('template_details.delete_template_confirm')}</p>
       </Modal>
 
       <Modal
         open={isForkModalOpen}
-        className="fork-modal"
-        modalHeading={t('template_details.fork_template_title')}
-        modalLabel={t('common.confirmation')}
-        primaryButtonText={isForking ? t('common.saving') : t('template_details.fork')}
-        primaryButtonDisabled={isForking}
-        secondaryButtonText={t('common.cancel')}
-        onRequestClose={() => setIsForkModalOpen(false)}
-        onRequestSubmit={confirmFork}
+        title={t('template_details.fork_template_title')}
+        subtitle={t('common.confirmation')}
+        primaryLabel={isForking ? t('common.saving') : t('template_details.fork')}
+        primaryDisabled={isForking}
+        secondaryLabel={t('common.cancel')}
+        onClose={() => setIsForkModalOpen(false)}
+        onPrimary={confirmFork}
       >
-        <p>{t('template_details.fork_template_confirm')}</p>
+        <p className="modal-confirm-text">{t('template_details.fork_template_confirm')}</p>
       </Modal>
     </Layout>
   );

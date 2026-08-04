@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../store/authSlice';
 import Register from './Register';
+import { NotificationProvider } from '../context/NotificationContext';
 import * as api from '../services/api';
 
 // Mock the api service
@@ -32,7 +33,7 @@ const renderWithRedux = (component) => {
   return {
     ...render(
       <Provider store={store}>
-        {component}
+        <NotificationProvider>{component}</NotificationProvider>
       </Provider>
     ),
     store,
@@ -80,6 +81,9 @@ describe('Register Component', () => {
     fireEvent.change(screen.getByLabelText('register.email'), {
       target: { value: 'test@example.com' },
     });
+    fireEvent.change(screen.getByLabelText('register.verification_code'), {
+      target: { value: '123456' },
+    });
     fireEvent.change(screen.getByLabelText('register.display_name'), {
       target: { value: 'Test User' },
     });
@@ -95,6 +99,7 @@ describe('Register Component', () => {
         email: 'test@example.com',
         displayName: 'Test User',
         password: 'password123',
+        verification_code: '123456',
       });
     });
     expect(localStorage.getItem('token')).toBe('fake-token');
@@ -115,6 +120,9 @@ describe('Register Component', () => {
     });
     fireEvent.change(screen.getByLabelText('register.email'), {
       target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('register.verification_code'), {
+      target: { value: '123456' },
     });
     fireEvent.change(screen.getByLabelText('register.display_name'), {
       target: { value: 'Test User' },

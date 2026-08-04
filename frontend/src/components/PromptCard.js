@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../context/NotificationContext';
 import { toggleTemplateLike, toggleTemplateFavorite } from '../services/api';
+import { HeartIcon, StarIcon } from './ui/Icons';
 import './PromptCard.scss';
 
 /**
@@ -48,11 +49,11 @@ const PromptCard = ({ template }) => {
     <div className="prompt-card" onClick={() => navigate(`/templates/${template.id}`)} style={{ cursor: 'pointer' }}>
       <div className="card-header">
         <h4 className="title">{template.title}</h4>
-        <span className={`visibility ${template.visibility.toLowerCase()}`}>
+        <span className={`badge ${template.visibility === 'VISIBILITY_PUBLIC' ? 'badge-public' : 'badge-private'}`}>
           {template.visibility === 'VISIBILITY_PUBLIC' ? t('create_template.visibility_public') : t('create_template.visibility_private')}
         </span>
       </div>
-      <p className="description">{template.description}</p>
+      <p className="card-description">{template.description}</p>
       {template.latest_version && (
         <div className="content-preview">
           <pre>{template.latest_version.content}</pre>
@@ -66,10 +67,10 @@ const PromptCard = ({ template }) => {
         </div>
         <div className="stats">
           <span className="stat-item" onClick={handleLike} title={t('template_details.like')}>
-            {liked ? '❤️' : '🤍'} {likeCount}
+            <HeartIcon size={15} filled={liked} className="emoji" /> {likeCount}
           </span>
           <span className="stat-item" onClick={handleFavorite} title={t('template_details.favorite')}>
-            {favorited ? '⭐' : '☆'} {favCount}
+            <StarIcon size={15} filled={favorited} className="emoji" /> {favCount}
           </span>
         </div>
       </div>

@@ -1,85 +1,80 @@
 .app-layout {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background: transparent;
+}
 
-  .app-body {
-    display: flex;
-    flex: 1;
-    overflow: hidden; // Prevent body scroll, let content scroll
+.app-body {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+}
 
-    .app-content {
-      flex: 1;
-      padding: 30px;
-      overflow-y: auto;
-      background-color: transparent; /* Changed from #ffffff */
-      position: relative;
-    }
+.app-content {
+  flex: 1;
+  min-width: 0;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  width: 100%;
+  padding: 28px 32px 80px;
+}
+
+/* Sidebar backdrop (mobile) */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* Floating create button */
+.floating-create-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 400;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--gradient-brand);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 28px var(--accent-glow);
+  transition: transform var(--t), box-shadow var(--t);
+}
+.floating-create-btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 14px 34px var(--accent-glow);
+}
+.floating-create-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    padding: 18px 14px 90px;
   }
 
-  /* Floating Create Button */
   .floating-create-btn {
-    position: fixed;
-    bottom: 40px;
-    right: 40px;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: #000;
-    border: none;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    z-index: 9999; // Ensure it's above other content
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    &:hover {
-      transform: scale(1.1) rotate(90deg);
-      box-shadow: 0 0 30px rgba(123, 97, 255, 0.6);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
   }
 
   .sidebar-backdrop {
+    display: block;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    visibility: hidden;
+    inset: 0;
+    z-index: 550;
+    background: rgba(5, 7, 12, 0.5);
     opacity: 0;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    backdrop-filter: blur(2px);
-
-    &.visible {
-      visibility: visible;
-      opacity: 1;
-    }
+    pointer-events: none;
+    transition: opacity var(--t);
   }
-
-  @media (max-width: 768px) {
-    .app-body {
-      .app-content {
-        padding: 15px;
-      }
-    }
-
-    .floating-create-btn {
-      bottom: 20px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      font-size: 24px;
-    }
+  .sidebar-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
   }
 }

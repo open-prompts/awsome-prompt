@@ -1,126 +1,124 @@
 .app-sidebar {
-  width: 250px;
-  background-color: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  padding: 20px;
-  height: calc(100vh - 60px); // Full height minus header
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100vh - var(--header-h));
   overflow-y: auto;
-  border-right: var(--glass-border);
-  transition: transform 0.3s ease, left 0.3s ease;
-  z-index: 1001; // Above content but below modals
+  padding: 20px 14px 32px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-right: 1px solid var(--border);
+}
 
-  @media (max-width: 768px) {
+.sidebar-section {
+  margin-bottom: 26px;
+}
+
+.sidebar-section h3 {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-3);
+  margin: 0 0 10px;
+  padding: 0 10px;
+}
+
+.sidebar-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-section li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  margin-bottom: 2px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.sidebar-section li:hover {
+  background: var(--surface-2);
+  color: var(--text-1);
+}
+
+.sidebar-section li.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sidebar-section li .count {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.sidebar-section li.active .count {
+  color: var(--accent);
+}
+
+.btn-more {
+  margin: 8px 10px 0;
+  padding: 5px 10px;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.btn-more:hover {
+  background: var(--accent-soft);
+}
+
+/* Tag cloud */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.tag-cloud .tag {
+  padding: 3px 10px;
+}
+
+.tag-cloud .tag.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.no-tags {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
     position: fixed;
-    top: 60px; // Below header
-    left: -260px; // Hide off-screen
-    height: calc(100vh - 60px);
-    width: 260px;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
-
-    &.mobile-open {
-      left: 0;
-    }
+    left: 0;
+    top: var(--header-h);
+    bottom: 0;
+    z-index: 560;
+    width: min(300px, 82vw);
+    height: auto;
+    transform: translateX(-105%);
+    transition: transform var(--t-slow);
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    border-right: 1px solid var(--border-strong);
   }
 
-  .sidebar-section {
-    margin-bottom: 30px;
-
-    h3 {
-      font-size: 0.85rem;
-      margin-bottom: 15px;
-      color: var(--primary-color);
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      font-weight: 600;
-      font-family: var(--font-heading);
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-
-      li {
-        padding: 10px 12px;
-        cursor: pointer;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        display: flex;
-        justify-content: space-between;
-        border-radius: 6px;
-        transition: all var(--transition-speed);
-        margin-bottom: 4px;
-
-        &.active {
-          font-weight: 600;
-          color: var(--bg-color);
-          background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-          box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
-          padding-left: 12px;
-          margin-left: 0;
-          border-left: none; /* Removed border style */
-
-          .count {
-              color: rgba(0,0,0,0.6);
-          }
-        }
-
-        &:hover:not(.active) {
-          color: var(--text-main);
-          background-color: rgba(255, 255, 255, 0.05);
-          padding-left: 16px; /* Slide effect */
-        }
-
-        .count {
-          font-size: 0.8rem;
-          color: rgba(255,255,255,0.3);
-        }
-      }
-    }
-
-    .btn-more {
-      background: none;
-      border: none;
-      color: var(--primary-color);
-      cursor: pointer;
-      padding: 5px 0;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-
-      &:hover {
-          text-shadow: 0 0 8px var(--primary-color);
-          text-decoration: underline;
-      }
-    }
-
-    .tag-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-
-      .tag {
-        background-color: rgba(255,255,255,0.05);
-        border: 1px solid var(--border-color);
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        cursor: pointer;
-        color: var(--text-secondary);
-        transition: all 0.2s;
-
-        &.active {
-          background-color: rgba(0, 255, 255, 0.15);
-          color: var(--primary-color);
-          border-color: var(--primary-color);
-          box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
-        }
-
-        &:hover {
-          background-color: rgba(255,255,255,0.1);
-          color: var(--text-main);
-          border-color: rgba(255,255,255,0.3);
-        }
-      }
-    }
+  .app-sidebar.mobile-open {
+    transform: translateX(0);
   }
 }

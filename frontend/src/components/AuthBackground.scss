@@ -1,139 +1,104 @@
-/* New tech background for auth pages (light & dark) */
+/* Animated network background for auth pages.
+   Declarative SVG + CSS, respects prefers-reduced-motion. */
+
 .auth-background {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 0;
-  pointer-events: none;
   overflow: hidden;
-  display: block;
-  font-family: Inter, Arial, sans-serif;
+  z-index: 0;
+  --bg-grad-start: var(--bg);
+  --bg-grad-end: var(--bg-soft);
+  --link-start: var(--accent);
+  --link-end: var(--secondary);
+  --node-outer: var(--accent);
+  --node: var(--accent);
+  --brand: var(--text-1);
+  --brand-x: 0px;
+  --brand-y: 0px;
 }
 
 .auth-geo {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
 }
 
-/* overlay to slightly darken/lighten and add grain */
+/* Moving scanning band */
+.moving-band {
+  animation: band-move 9s linear infinite;
+}
+
+.scan-band {
+  mix-blend-mode: screen;
+}
+
+@keyframes band-move {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(140%); }
+}
+
+/* Link lines */
+.links .link {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: link-draw 5s ease forwards infinite;
+  animation-delay: calc(var(--i, 0) * 0.35s);
+}
+
+.links .link.l0 { --i: 0; }
+.links .link.l1 { --i: 1; }
+.links .link.l2 { --i: 2; }
+.links .link.l3 { --i: 3; }
+
+@keyframes link-draw {
+  0% { stroke-dashoffset: 400; opacity: 0; }
+  25% { opacity: 1; }
+  60% { stroke-dashoffset: 0; opacity: 0.8; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* Nodes */
+.node-group {
+  transform-origin: center;
+}
+
+.node-group .node {
+  animation: node-pulse 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.3s);
+}
+
+.node-group.ng0 { --i: 0; }
+.node-group.ng1 { --i: 1; }
+.node-group.ng2 { --i: 2; }
+.node-group.ng3 { --i: 3; }
+.node-group.ng4 { --i: 4; }
+.node-group.ng5 { --i: 5; }
+.node-group.ng6 { --i: 6; }
+.node-group.ng7 { --i: 7; }
+.node-group.ng8 { --i: 8; }
+.node-group.ng9 { --i: 9; }
+
+@keyframes node-pulse {
+  0%, 100% { opacity: 0.9; r: 4; }
+  50% { opacity: 0.45; r: 3; }
+}
+
+/* Brand watermark with parallax */
+.brand {
+  transform: translate(var(--brand-x), var(--brand-y));
+}
+
 .auth-bg-overlay {
   position: absolute;
   inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  mix-blend-mode: overlay;
+  background: radial-gradient(60% 50% at 50% 42%, transparent 40%, var(--bg) 100%);
 }
 
-/* Theme variables (light and dark flavors) */
-.light-theme {
-  --bg-grad-start: #f7fbff;
-  --bg-grad-end: #f7fbff;
-  --link-start: #0ea5b6; /* teal */
-  --link-end: #60a5fa;   /* blue */
-  --node: #0ea5b6;
-  --node-outer: rgba(14,165,182,0.16);
-  --brand: #0b1220;
-  --grid-color: rgba(11,17,32,0.06);
-}
-
-.dark-theme {
-  --bg-grad-start: #02111a;
-  --bg-grad-end: #02111a;
-  --link-start: #00e6ff; /* cyan */
-  --link-end: #7b61ff;   /* purple */
-  --node: #7b61ff;
-  --node-outer: rgba(123,97,255,0.12);
-  --brand: #e6eefb;
-  --grid-color: rgba(255,255,255,0.04);
-}
-
-/* Moving scan band */
-.moving-band {
-  transform-box: fill-box;
-  transform-origin: 0% 50%;
-  animation: slideBand 14s linear infinite;
-}
-
-@keyframes slideBand {
-  0% { transform: translateX(-35%); }
-  100% { transform: translateX(135%); }
-}
-
-/* Links subtle pulsing */
-.link {
-  opacity: 0.95;
-  mix-blend-mode: screen;
-  transition: opacity 300ms ease;
-  animation: linkPulse 4.5s ease-in-out infinite;
-}
-
-@keyframes linkPulse {
-  0%, 100% { opacity: 0.75; }
-  50% { opacity: 1; }
-}
-
-/* Node pulse */
-.node { animation: nodePulse 3.8s ease-in-out infinite; }
-.node-outer { transition: opacity 300ms ease; animation: outerPulse 3.8s ease-in-out infinite; }
-
-@keyframes nodePulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0.9; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes outerPulse {
-  0% { opacity: 0.12; transform: scale(1); }
-  50% { opacity: 0.22; transform: scale(1.12); }
-  100% { opacity: 0.12; transform: scale(1); }
-}
-
-/* stagger different node groups for organic movement */
-.nodes .node-group:nth-child(1) .node, .nodes .node-group:nth-child(1) .node-outer { animation-delay: 0s }
-.nodes .node-group:nth-child(2) .node, .nodes .node-group:nth-child(2) .node-outer { animation-delay: 0.3s }
-.nodes .node-group:nth-child(3) .node, .nodes .node-group:nth-child(3) .node-outer { animation-delay: 0.6s }
-.nodes .node-group:nth-child(4) .node, .nodes .node-group:nth-child(4) .node-outer { animation-delay: 0.9s }
-.nodes .node-group:nth-child(5) .node, .nodes .node-group:nth-child(5) .node-outer { animation-delay: 1.2s }
-.nodes .node-group:nth-child(6) .node, .nodes .node-group:nth-child(6) .node-outer { animation-delay: 1.5s }
-.nodes .node-group:nth-child(7) .node, .nodes .node-group:nth-child(7) .node-outer { animation-delay: 1.8s }
-.nodes .node-group:nth-child(8) .node, .nodes .node-group:nth-child(8) .node-outer { animation-delay: 2.1s }
-.nodes .node-group:nth-child(9) .node, .nodes .node-group:nth-child(9) .node-outer { animation-delay: 2.4s }
-.nodes .node-group:nth-child(10) .node, .nodes .node-group:nth-child(10) .node-outer { animation-delay: 2.7s }
-
-/* subtle grid for structure */
-.grid { opacity: 0.06; mix-blend-mode: overlay; }
-
-/* brand watermark: animated + parallax */
-.brand {
-  transform: translate(var(--brand-x, 0px), var(--brand-y, 0px));
-  animation: brandDrift 18s ease-in-out infinite;
-  will-change: transform, opacity;
-  pointer-events: none;
-  transform-origin: left top;
-}
-.brand text { font-weight: 700; letter-spacing: 0.6px; fill: var(--brand); }
-
-@keyframes brandDrift {
-  0% { transform: translate(var(--brand-x, 0px), var(--brand-y, 0px)) translate(0px, 0px) rotate(0deg); }
-  25% { transform: translate(var(--brand-x, 0px), var(--brand-y, 0px)) translate(-6px, -2px) rotate(-0.4deg); }
-  50% { transform: translate(var(--brand-x, 0px), var(--brand-y, 0px)) translate(4px, 3px) rotate(0.6deg); }
-  75% { transform: translate(var(--brand-x, 0px), var(--brand-y, 0px)) translate(-3px, 4px) rotate(-0.2deg); }
-  100% { transform: translate(var(--brand-x, 0px), var(--brand-y, 0px)) translate(0px, 0px) rotate(0deg); }
-}
-
-/* respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .moving-band, .link, .node, .node-outer { animation: none !important; }
+  .moving-band,
+  .links .link,
+  .node-group .node {
+    animation: none;
+  }
 }
-
-/* ensure forms sit above background */
-.login-page, .register-page { position: relative; z-index: 1; }
-
-/* small screens: hide grid & reduce details */
-@media (max-width: 640px) {
-  .grid { display: none; }
-  .auth-bg-overlay { opacity: 0.95; }
-}
-
-
-
