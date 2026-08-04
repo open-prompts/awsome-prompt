@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/open-prompts/open-prompts/compare/v1.14.0...v1.14.1) (2026-08-04)
+
+
+### Bug Fixes
+
+* **frontend:** resolve backend service at request time in nginx ([f809c31](https://github.com/open-prompts/open-prompts/commit/f809c31398b1e1735dec1eb1595725b179a3bc6a))
+
 # [1.14.0](https://github.com/open-prompts/open-prompts/compare/v1.13.4...v1.14.0) (2026-08-04)
 
 
