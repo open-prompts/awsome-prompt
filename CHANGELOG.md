@@ -1,3 +1,16 @@
+# [1.14.0](https://github.com/open-prompts/open-prompts/compare/v1.13.4...v1.14.0) (2026-08-04)
+
+
+### Bug Fixes
+
+* **frontend:** make auth page logo visible in both themes ([99a9a63](https://github.com/open-prompts/open-prompts/commit/99a9a6327ef997a2ee55754c8c12638112fc2112))
+* **frontend:** prevent modal from stealing input focus ([daa22bb](https://github.com/open-prompts/open-prompts/commit/daa22bb408ab2d07a8ad04655857430dd912ecab))
+
+
+### Features
+
+* **frontend:** fully internationalize UI strings ([f98b958](https://github.com/open-prompts/open-prompts/commit/f98b958dfc88431871f31ea4a60b67c64d4b6d4a))
+
 ## [1.13.4](https://github.com/open-prompts/open-prompts/compare/v1.13.3...v1.13.4) (2026-07-26)
 
 
