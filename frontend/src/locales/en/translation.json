@@ -2,15 +2,21 @@
   "welcome": "Welcome to Open Prompts",
   "login": {
     "title": "Login",
+    "subtitle": "Welcome back",
     "email": "Email",
     "password": "Password",
     "submit": "Login",
     "register_link": "Don't have an account? Register here.",
     "back_to_home": "Back to Home",
-    "error": "Login failed. Please check your credentials."
+    "error": "Login failed. Please check your credentials.",
+    "fill_required": "Please fill in all required fields",
+    "field_required": "{{field}} is required",
+    "ph_email": "user@example.com",
+    "logging_in": "Logging in..."
   },
   "register": {
     "title": "Register",
+    "subtitle": "Create your account",
     "id": "User ID",
     "email": "Email",
     "password": "Password",
@@ -23,7 +29,15 @@
     "resend_in": "Resend in {{seconds}}s",
     "login_link": "Already have an account? Login here.",
     "error": "Registration failed. Please try again.",
-    "password_error": "Password must be longer than 8 characters and contain at least two types: uppercase, lowercase, or numbers."
+    "password_error": "Password must be longer than 8 characters and contain at least two types: uppercase, lowercase, or numbers.",
+    "email_invalid": "Please enter a valid email address",
+    "field_required": "{{field}} is required",
+    "error_required_fields": "Please fill in all required fields",
+    "ph_id": "unique_username",
+    "ph_email": "user@example.com",
+    "ph_code": "123456",
+    "ph_display_name": "John Doe",
+    "registering": "Registering..."
   },
   "common": {
     "save": "Save",
@@ -41,9 +55,25 @@
     "save_changes": "Save Changes",
     "none": "None",
     "loading": "Loading...",
-    "select": "Select..."
+    "select": "Select...",
+    "by": "By",
+    "processing": "Processing...",
+    "remove_tag": "Remove tag",
+    "add_tag": "Add tag",
+    "close": "Close",
+    "close_notification": "Close notification",
+    "toggle_menu": "Toggle menu",
+    "logo_alt": "Logo",
+    "avatar_alt": "Avatar",
+    "avatar_preview_alt": "Avatar Preview",
+    "user_fallback": "User",
+    "initial_fallback": "U",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "id_prefix": "ID: {{id}}"
   },
   "home": {
+    "title": "Home",
     "error_fetch": "Failed to fetch templates.",
     "my_private_prompts": "My Private Prompts",
     "public_prompts": "Public Prompts",
@@ -91,12 +121,15 @@
     "error_required_category_select": "Category is required",
     "error_required_content": "Prompt Content is required",
     "error_load_categories": "Failed to load categories. Using defaults.",
-    "success_created": "Template created successfully"
+    "success_created": "Template created successfully",
+    "title_placeholder": "Template Title",
+    "description_placeholder": "Description",
+    "default_categories": ["General", "Writing", "Coding", "Business"]
   },
   "template": {
     "language": "Language",
     "select_language": "Select Language",
-    "zh": "Chinese",
+    "zh": "中文",
     "en": "English"
   },
   "template_details": {
@@ -159,7 +192,9 @@
     "edit_metadata": "Edit Info",
     "edit_title_desc": "Edit Title & Description",
     "success_meta_update": "Template info updated!",
-    "error_meta_update": "Failed to update info."
+    "error_meta_update": "Failed to update info.",
+    "by": "By {{owner}}",
+    "sdk_no_vars_comment": "# no variables required"
   },
   "profile": {
     "error_fetch": "Failed to fetch profile",
@@ -183,7 +218,9 @@
     "login": "Login",
     "logout": "Logout",
     "profile": "Profile",
-    "switchLanguage": "Switch Language"
+    "switchLanguage": "Switch Language",
+    "switch_to_light": "Switch to light theme",
+    "switch_to_dark": "Switch to dark theme"
   },
   "template_alias": {
     "title": "Environment / API Aliases",
@@ -199,7 +236,8 @@
     "success_delete": "Alias deleted",
     "error_save": "Failed to save alias",
     "error_delete": "Failed to delete alias",
-    "confirm_delete": "Are you sure you want to delete this alias?"
+    "confirm_delete": "Are you sure you want to delete this alias?",
+    "id_fallback": "ID: {{id}}"
   },
   "api_keys": {
     "title": "API Keys",

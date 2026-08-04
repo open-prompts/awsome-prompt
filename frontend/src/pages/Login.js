@@ -34,8 +34,8 @@ const Login = () => {
 
     // Manual Validation
     const errors = {};
-    if (!email) errors.email = t('login.email') + ' is required'; // Or specific translation key
-    if (!password) errors.password = t('login.password') + ' is required';
+    if (!email) errors.email = t('login.field_required', { field: t('login.email') });
+    if (!password) errors.password = t('login.field_required', { field: t('login.password') });
 
     if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
@@ -75,13 +75,13 @@ const Login = () => {
       <div className="auth-card login-card">
         <div className="auth-card-head">
           <h2>{t('login.title')}</h2>
-          <p className="auth-card-sub">{t('login.subtitle', 'Welcome back')}</p>
+          <p className="auth-card-sub">{t('login.subtitle')}</p>
         </div>
         <form onSubmit={handleSubmit} noValidate>
           {Object.keys(formErrors).length > 0 && (
             <div className="form-alert">
               <AlertIcon size={16} />
-              <span>{t('login.fill_required', 'Please fill in all required fields')}</span>
+              <span>{t('login.fill_required')}</span>
             </div>
           )}
 
@@ -96,7 +96,7 @@ const Login = () => {
                   setEmail(e.target.value);
                   if (formErrors.email) setFormErrors({...formErrors, email: ''});
               }}
-              placeholder="user@example.com"
+              placeholder={t('login.ph_email')}
             />
             {formErrors.email && <span className="field-error">{formErrors.email}</span>}
           </div>
@@ -118,7 +118,7 @@ const Login = () => {
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(s => !s)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? t('common.hide_password') : t('common.show_password')}
                 tabIndex={-1}
               >
                 {showPassword ? '🙈' : '👁'}
@@ -132,7 +132,7 @@ const Login = () => {
             className="btn btn-primary btn-block auth-submit"
             disabled={loading}
           >
-            {loading ? 'Logging in...' : t('login.submit')}
+            {loading ? t('login.logging_in') : t('login.submit')}
           </button>
         </form>
         <div className="auth-links">

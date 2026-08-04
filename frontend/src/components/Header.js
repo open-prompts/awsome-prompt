@@ -81,25 +81,25 @@ const Header = ({ onMenuClick }) => {
           <button
             className="menu-toggle-btn"
             onClick={onMenuClick}
-            aria-label="Toggle menu"
+            aria-label={t('common.toggle_menu')}
           >
             <MenuIcon size={22} />
           </button>
         )}
         <Link to="/" className="logo">
-          <img src="/images/logo.jpg" alt="Logo" className="logo-img" />
+          <img src="/images/logo.jpg" alt={t('common.logo_alt')} className="logo-img" />
           <span className="logo-text">Open Prompts</span>
         </Link>
         <nav className="main-nav">
-          <Link to="/" className="nav-link">{t('home.title', 'Home')}</Link>
+          <Link to="/" className="nav-link">{t('home.title')}</Link>
         </nav>
       </div>
       <div className="header-right">
         <button
           className="icon-btn header-icon-btn"
           onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          aria-label={theme === 'dark' ? t('header.switch_to_light') : t('header.switch_to_dark')}
+          title={theme === 'dark' ? t('header.switch_to_light') : t('header.switch_to_dark')}
         >
           {theme === 'dark' ? <SunIcon size={19} /> : <MoonIcon size={19} />}
         </button>
@@ -109,19 +109,19 @@ const Header = ({ onMenuClick }) => {
           aria-label={t('header.switchLanguage') || 'Switch Language'}
         >
           <TranslateIcon size={19} />
-          <span>{isChinese ? 'English' : '中文'}</span>
+          <span>{isChinese ? t('template.en') : t('template.zh')}</span>
         </button>
         {user ? (
           <div className="user-profile" ref={dropdownRef}>
             <button className="user-name-btn" onClick={toggleDropdown}>
               {user.avatar ? (
-                <img src={user.avatar} alt="Avatar" className="user-avatar" />
+                <img src={user.avatar} alt={t('common.avatar_alt')} className="user-avatar" />
               ) : (
                 <span className="user-avatar-placeholder">
                   <UserIcon size={18} />
                 </span>
               )}
-              <span className="user-name">{user.displayName || user.email || 'User'}</span>
+              <span className="user-name">{user.displayName || user.email || t('common.user_fallback')}</span>
               <ChevronDownIcon size={14} className={isDropdownOpen ? 'caret-open' : ''} />
             </button>
 
@@ -129,14 +129,14 @@ const Header = ({ onMenuClick }) => {
               <div className="profile-dropdown">
                 <div className="dropdown-header">
                   {user.avatar ? (
-                    <img src={user.avatar} alt="Avatar" className="dropdown-avatar" />
+                    <img src={user.avatar} alt={t('common.avatar_alt')} className="dropdown-avatar" />
                   ) : (
                     <span className="dropdown-avatar-placeholder">
-                      {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                      {user.displayName ? user.displayName.charAt(0).toUpperCase() : t('common.initial_fallback')}
                     </span>
                   )}
                   <div className="dropdown-user-info">
-                    <div className="dropdown-user-name">{user.displayName || 'User'}</div>
+                    <div className="dropdown-user-name">{user.displayName || t('common.user_fallback')}</div>
                     <div className="dropdown-user-email">{user.email || ''}</div>
                   </div>
                 </div>

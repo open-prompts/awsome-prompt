@@ -137,10 +137,10 @@ const Profile = () => {
                   <div className="avatar-section">
                       <div className="avatar-display">
                           {displayAvatar ? (
-                              <img src={displayAvatar} alt="Avatar" />
+                              <img src={displayAvatar} alt={t('common.avatar_alt')} />
                           ) : (
                               <div className="avatar-placeholder">
-                                  <span>{displayName ? displayName.charAt(0).toUpperCase() : 'U'}</span>
+                                  <span>{displayName ? displayName.charAt(0).toUpperCase() : t('common.initial_fallback')}</span>
                               </div>
                           )}
                       </div>
@@ -171,10 +171,10 @@ const Profile = () => {
                       <div className="avatar-upload-container">
                           <div className="avatar-preview">
                               {displayAvatar ? (
-                                  <img src={displayAvatar} alt="Avatar Preview" />
+                                  <img src={displayAvatar} alt={t('common.avatar_preview_alt')} />
                               ) : (
                                   <div className="avatar-placeholder">
-                                      <span>{displayName ? displayName.charAt(0).toUpperCase() : 'U'}</span>
+                                      <span>{displayName ? displayName.charAt(0).toUpperCase() : t('common.initial_fallback')}</span>
                                   </div>
                               )}
                           </div>
@@ -221,7 +221,7 @@ const Profile = () => {
                             type="button"
                             className="password-toggle"
                             onClick={() => setShowPassword(s => !s)}
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            aria-label={showPassword ? t('common.hide_password') : t('common.show_password')}
                             tabIndex={-1}
                           >
                             {showPassword ? '🙈' : '👁'}

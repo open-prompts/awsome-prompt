@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckIcon, AlertIcon, InfoIcon, CloseIcon } from '../components/ui/Icons';
 import './NotificationContext.scss';
 
@@ -20,6 +21,7 @@ const ICONS = {
 };
 
 export const NotificationProvider = ({ children }) => {
+    const { t } = useTranslation();
     const [notifications, setNotifications] = useState([]);
 
     const removeNotification = useCallback((id) => {
@@ -70,7 +72,7 @@ export const NotificationProvider = ({ children }) => {
                                 type="button"
                                 className="notification-close"
                                 onClick={() => removeNotification(notification.id)}
-                                aria-label="Close notification"
+                                aria-label={t('common.close_notification')}
                             >
                                 <CloseIcon size={16} />
                             </button>

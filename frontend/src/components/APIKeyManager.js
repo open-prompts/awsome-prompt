@@ -10,7 +10,7 @@ import Spinner from './ui/Spinner';
 import './APIKeyManager.scss';
 
 const APIKeyManager = ({ notification }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,8 +38,8 @@ const APIKeyManager = ({ notification }) => {
         id: k.id,
         name: k.name,
         prefix: k.prefix,
-        created_at: new Date(k.created_at).toLocaleString(),
-        last_used_at: k.last_used_at ? new Date(k.last_used_at).toLocaleString() : '-',
+        created_at: new Date(k.created_at).toLocaleString(i18n.language),
+        last_used_at: k.last_used_at ? new Date(k.last_used_at).toLocaleString(i18n.language) : '-',
       }));
       setKeys(formatted);
     } catch (err) {

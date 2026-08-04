@@ -654,7 +654,7 @@ const TemplateDetails = () => {
                         <div className="tags-list">
                             {editTags.map(tag => (
                                 <span key={tag} className="tag-edit-chip">
-                                    {tag} <button onClick={() => handleRemoveTag(tag)} type="button" aria-label="Remove tag">
+                                    {tag} <button onClick={() => handleRemoveTag(tag)} type="button" aria-label={t('common.remove_tag')}>
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <line x1="18" y1="6" x2="6" y2="18"></line>
                                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -671,7 +671,7 @@ const TemplateDetails = () => {
                             placeholder={t('create_template.tags_placeholder') || 'Add tag...'}
                             className="tag-input"
                         />
-                        <button onClick={handleAddTag} className="add-tag-btn" type="button" aria-label="Add tag">
+                        <button onClick={handleAddTag} className="add-tag-btn" type="button" aria-label={t('common.add_tag')}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -689,7 +689,7 @@ const TemplateDetails = () => {
                 </div>
             ) : (
                 <div className="meta">
-                    <span>By {template.owner_id}</span>
+                    <span>{t('template_details.by', { owner: template.owner_id })}</span>
                     <span>•</span>
                     <span className={`visibility ${template.visibility.toLowerCase()}`}>
                     {template.visibility === 'VISIBILITY_PUBLIC'
@@ -727,11 +727,11 @@ const TemplateDetails = () => {
                       <>
                         {template.visibility === 'VISIBILITY_PRIVATE' ? (
                             <button className="action-btn share" onClick={handleShare} disabled={isSharing}>
-                                {isSharing ? 'Processing...' : t('template_details.share_public')}
+                                {isSharing ? t('common.processing') : t('template_details.share_public')}
                             </button>
                         ) : (
                             <button className="action-btn unshare" onClick={handleUnshare} disabled={isSharing}>
-                                {isSharing ? 'Processing...' : t('template_details.unshare_private')}
+                                {isSharing ? t('common.processing') : t('template_details.unshare_private')}
                             </button>
                         )}
                         <button className="action-btn delete" onClick={() => setIsTemplateDeleteModalOpen(true)}>{t('template_details.delete_template')}</button>
@@ -858,14 +858,14 @@ prompt = client.get_prompt(
     template_id="${template.id}",
     prompt_tag="latest",
     variables={
-${uniqueNames.map(name => `        "${name}": "value"`).join(',\n') || '        # no variables required'}
+${uniqueNames.map(name => `        "${name}": "value"`).join(',\n') || '        ' + t('template_details.sdk_no_vars_comment')}
     }
 )
 print(prompt)`}
                     </code>
                   </pre>
                   <button className="copy-code-btn" onClick={() => {
-                      const codeStr = `from openprompts import OpenPromptsClient\n\nclient = OpenPromptsClient(\n    base_url="https://awsomeprompt.top",\n    api_key="YOUR_API_KEY"\n)\n\nprompt = client.get_prompt(\n    template_id="${template.id}",\n    prompt_tag="latest",\n    variables={\n${uniqueNames.map(name => `        "${name}": "value"`).join(',\n') || '        # no variables required'}\n    }\n)\nprint(prompt)`;
+                      const codeStr = `from openprompts import OpenPromptsClient\n\nclient = OpenPromptsClient(\n    base_url="https://awsomeprompt.top",\n    api_key="YOUR_API_KEY"\n)\n\nprompt = client.get_prompt(\n    template_id="${template.id}",\n    prompt_tag="latest",\n    variables={\n${uniqueNames.map(name => `        "${name}": "value"`).join(',\n') || '        ' + t('template_details.sdk_no_vars_comment')}\n    }\n)\nprint(prompt)`;
                       navigator.clipboard.writeText(codeStr).then(() => {
                         addNotification({ kind: 'success', title: t('common.success'), subtitle: t('card.copied') });
                       });
@@ -920,7 +920,7 @@ print(prompt)`}
                         return (
                           <div key={p.id} className="prompt-item">
                             <div className="prompt-meta">
-                              {new Date(p.created_at).toLocaleDateString()}
+                              {new Date(p.created_at).toLocaleDateString(i18n.language)}
                             </div>
                             <div className="prompt-vars">
                               {varPairs.length === 0 ? (

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { CloseIcon } from './Icons';
 
 /**
@@ -33,6 +34,7 @@ const Modal = ({
   className = '',
   size = 'md',
 }) => {
+  const { t } = useTranslation();
   const dialogRef = useRef(null);
   // Keep the latest handler in a ref so the focus/listener effect only runs
   // when `open` toggles. Without this, any inline `onClose` prop (recreated on
@@ -88,7 +90,7 @@ const Modal = ({
             <h3 className="modal-title">{title}</h3>
           </div>
           {onClose && (
-            <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+            <button type="button" className="modal-close" onClick={onClose} aria-label={t('common.close')}>
               <CloseIcon size={18} />
             </button>
           )}

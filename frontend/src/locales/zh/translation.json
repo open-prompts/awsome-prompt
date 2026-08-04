@@ -2,15 +2,21 @@
   "welcome": "欢迎使用 Open Prompts",
   "login": {
     "title": "登录",
+    "subtitle": "欢迎回来",
     "email": "邮箱",
     "password": "密码",
     "submit": "登录",
     "register_link": "没有账号？点击注册。",
     "back_to_home": "返回首页",
-    "error": "登录失败，请检查您的凭证。"
+    "error": "登录失败，请检查您的凭证。",
+    "fill_required": "请填写所有必填字段",
+    "field_required": "{{field}} 为必填项",
+    "ph_email": "user@example.com",
+    "logging_in": "登录中..."
   },
   "register": {
     "title": "注册",
+    "subtitle": "创建您的账号",
     "id": "用户 ID",
     "email": "邮箱",
     "password": "密码",
@@ -23,7 +29,15 @@
     "resend_in": "{{seconds}}秒后重发",
     "login_link": "已有账号？点击登录。",
     "error": "注册失败，请重试。",
-    "password_error": "密码长度必须大于 8 位，且包含大写字母、小写字母或数字中的至少两种。"
+    "password_error": "密码长度必须大于 8 位，且包含大写字母、小写字母或数字中的至少两种。",
+    "email_invalid": "请输入有效的邮箱地址",
+    "field_required": "{{field}} 为必填项",
+    "error_required_fields": "请填写所有必填字段",
+    "ph_id": "unique_username",
+    "ph_email": "user@example.com",
+    "ph_code": "123456",
+    "ph_display_name": "John Doe",
+    "registering": "注册中..."
   },
   "common": {
     "save": "保存",
@@ -41,9 +55,25 @@
     "save_changes": "保存更改",
     "none": "无",
     "loading": "加载中...",
-    "select": "请选择..."
+    "select": "请选择...",
+    "by": "作者",
+    "processing": "处理中...",
+    "remove_tag": "移除标签",
+    "add_tag": "添加标签",
+    "close": "关闭",
+    "close_notification": "关闭通知",
+    "toggle_menu": "切换菜单",
+    "logo_alt": "Logo",
+    "avatar_alt": "头像",
+    "avatar_preview_alt": "头像预览",
+    "user_fallback": "用户",
+    "initial_fallback": "U",
+    "show_password": "显示密码",
+    "hide_password": "隐藏密码",
+    "id_prefix": "ID：{{id}}"
   },
   "home": {
+    "title": "首页",
     "error_fetch": "获取模板失败。",
     "my_private_prompts": "我的私有提示词",
     "public_prompts": "公开提示词",
@@ -58,9 +88,7 @@
   },
   "sidebar": {
     "error_fetch": "获取分类或标签失败。",
-    "no_tags": "无标签",
-    "category_tooltip": "分类",
-    "tag_tooltip": "标签"
+    "no_tags": "无标签"
   },
   "prompt_card": {
     "error_like": "点赞失败",
@@ -93,7 +121,10 @@
     "error_required_category_select": "分类必填",
     "error_required_content": "提示词内容必填",
     "error_load_categories": "加载分类失败，使用默认值。",
-    "success_created": "模板创建成功！"
+    "success_created": "模板创建成功！",
+    "title_placeholder": "模板标题",
+    "description_placeholder": "描述",
+    "default_categories": ["通用", "写作", "编程", "商业"]
   },
   "template": {
     "language": "语言",
@@ -161,7 +192,9 @@
     "edit_metadata": "编辑信息",
     "edit_title_desc": "编辑标题和描述",
     "success_meta_update": "模板信息已更新！",
-    "error_meta_update": "更新信息失败。"
+    "error_meta_update": "更新信息失败。",
+    "by": "作者：{{owner}}",
+    "sdk_no_vars_comment": "# 无需变量"
   },
   "profile": {
     "error_fetch": "获取个人资料失败",
@@ -185,7 +218,9 @@
     "login": "登录",
     "logout": "注销",
     "profile": "个人资料",
-    "switchLanguage": "切换语言"
+    "switchLanguage": "切换语言",
+    "switch_to_light": "切换到浅色主题",
+    "switch_to_dark": "切换到深色主题"
   },
   "template_alias": {
     "title": "环境 / API 别名",
@@ -201,7 +236,8 @@
     "success_delete": "别名已删除",
     "error_save": "保存别名失败",
     "error_delete": "删除别名失败",
-    "confirm_delete": "确定要删除此别名吗？"
+    "confirm_delete": "确定要删除此别名吗？",
+    "id_fallback": "ID：{{id}}"
   },
   "api_keys": {
     "title": "API 密钥",

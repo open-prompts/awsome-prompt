@@ -78,7 +78,7 @@ const Register = () => {
    */
   const handleSendCode = async () => {
     if (!formData.email) {
-      setFormErrors((prev) => ({ ...prev, email: t('register.email') + ' is required' }));
+      setFormErrors((prev) => ({ ...prev, email: t('register.field_required', { field: t('register.email') }) }));
       return;
     }
     if (!validateEmail(formData.email)) {
@@ -117,10 +117,10 @@ const Register = () => {
     setGeneralError('');
 
     const errors = {};
-    if (!formData.id) errors.id = t('register.id') + ' is required';
-    if (!formData.email) errors.email = t('register.email') + ' is required';
-    if (!formData.password) errors.password = t('register.password') + ' is required';
-    if (!formData.verificationCode) errors.verificationCode = t('register.verification_code') + ' is required';
+    if (!formData.id) errors.id = t('register.field_required', { field: t('register.id') });
+    if (!formData.email) errors.email = t('register.field_required', { field: t('register.email') });
+    if (!formData.password) errors.password = t('register.field_required', { field: t('register.password') });
+    if (!formData.verificationCode) errors.verificationCode = t('register.field_required', { field: t('register.verification_code') });
 
     // Check password validity only if it exists
     if (formData.password && !validatePassword(formData.password)) {
@@ -129,7 +129,7 @@ const Register = () => {
 
     if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
-        setGeneralError(t('register.error_required_fields', 'Please fill in all required fields'));
+        setGeneralError(t('register.error_required_fields'));
         return;
     }
 
@@ -173,7 +173,7 @@ const Register = () => {
       <div className="auth-card register-card">
         <div className="auth-card-head">
           <h2>{t('register.title')}</h2>
-          <p className="auth-card-sub">{t('register.subtitle', 'Create your account')}</p>
+          <p className="auth-card-sub">{t('register.subtitle')}</p>
         </div>
         <form onSubmit={handleSubmit} noValidate>
           {generalError && (
@@ -191,7 +191,7 @@ const Register = () => {
               className="input"
               value={formData.id}
               onChange={handleChange}
-              placeholder="unique_username"
+              placeholder={t('register.ph_id')}
             />
             {formErrors.id && <span className="field-error">{formErrors.id}</span>}
           </div>
@@ -204,7 +204,7 @@ const Register = () => {
               className="input"
               value={formData.email}
               onChange={handleChange}
-              placeholder="user@example.com"
+              placeholder={t('register.ph_email')}
             />
             {formErrors.email && <span className="field-error">{formErrors.email}</span>}
           </div>
@@ -218,7 +218,7 @@ const Register = () => {
                 className="input"
                 value={formData.verificationCode}
                 onChange={handleChange}
-                placeholder="123456"
+                placeholder={t('register.ph_code')}
               />
               <button
                 type="button"
@@ -240,7 +240,7 @@ const Register = () => {
               className="input"
               value={formData.displayName}
               onChange={handleChange}
-              placeholder="John Doe"
+              placeholder={t('register.ph_display_name')}
               required
             />
           </div>
@@ -259,7 +259,7 @@ const Register = () => {
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(s => !s)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? t('common.hide_password') : t('common.show_password')}
                 tabIndex={-1}
               >
                 {showPassword ? '🙈' : '👁'}
@@ -273,7 +273,7 @@ const Register = () => {
             className="btn btn-primary btn-block auth-submit"
             disabled={loading}
           >
-            {loading ? 'Registering...' : t('register.submit')}
+            {loading ? t('register.registering') : t('register.submit')}
           </button>
         </form>
         <div className="auth-links">

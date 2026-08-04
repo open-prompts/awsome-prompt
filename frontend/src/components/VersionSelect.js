@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const VersionSelect = ({ options = [], value, onChange, disabled = false, renderLabel }) => {
+  const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(null);
   const rootRef = useRef(null);
@@ -64,7 +66,7 @@ const VersionSelect = ({ options = [], value, onChange, disabled = false, render
     const sel = options.find((o) => o.id === value);
     if (renderLabel) return renderLabel(sel);
     if (!sel) return '';
-    const date = sel.created_at ? new Date(sel.created_at).toLocaleDateString() : '';
+    const date = sel.created_at ? new Date(sel.created_at).toLocaleDateString(i18n.language) : '';
     return `v${sel.version} (${date})`;
   };
 
@@ -101,7 +103,7 @@ const VersionSelect = ({ options = [], value, onChange, disabled = false, render
               onClick={() => selectIndex(idx)}
             >
               <div className="option-main">v{opt.version}</div>
-              <div className="option-sub">{opt.created_at ? new Date(opt.created_at).toLocaleString() : ''}</div>
+              <div className="option-sub">{opt.created_at ? new Date(opt.created_at).toLocaleString(i18n.language) : ''}</div>
             </li>
           ))}
         </ul>

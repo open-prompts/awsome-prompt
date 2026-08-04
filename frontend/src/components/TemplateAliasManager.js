@@ -89,7 +89,7 @@ const TemplateAliasManager = ({ templateId, versions = [] }) => {
         )}
         {aliases.map(alias => {
           const v = versions.find(v => v.id === alias.version_id);
-          const vName = v ? `v${v.version}` : `ID: ${alias.version_id}`;
+          const vName = v ? `v${v.version}` : t('template_alias.id_fallback', { id: alias.version_id });
           return (
             <div key={alias.alias_name} className="alias-item">
               <div className="alias-info">

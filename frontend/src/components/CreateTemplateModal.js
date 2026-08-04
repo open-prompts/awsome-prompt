@@ -50,7 +50,8 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
         console.error('Failed to load categories', err);
         addNotification({ kind: 'warning', title: t('common.warning'), subtitle: t('create_template.error_load_categories') });
         // Fallback categories if API fails
-        setCategories(['General', 'Writing', 'Coding', 'Business']);
+        const fallbackCats = t('create_template.default_categories', { returnObjects: true });
+        setCategories(Array.isArray(fallbackCats) ? fallbackCats : ['General', 'Writing', 'Coding', 'Business']);
       }
     };
 
