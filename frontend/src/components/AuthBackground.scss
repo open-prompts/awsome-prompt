@@ -87,6 +87,18 @@
 /* Brand watermark with parallax */
 .brand {
   transform: translate(var(--brand-x), var(--brand-y));
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.auth-background.light-theme .brand {
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .brand {
+    opacity: 0.55;
+  }
 }
 
 .auth-bg-overlay {

@@ -13,23 +13,49 @@ const LINKS = [
   [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[8,9],[3,7],[2,6]
 ];
 
-const AuthBackground = () => {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
+// Detect the app theme from the saved preference (localStorage 'theme',
+// written by the Header's toggle and applied to <html> by index.js), falling
+// back to the OS preference.
+const getAppTheme = () => {
+  let saved = null;
+  try { saved = localStorage.getItem('theme'); } catch (err) { /* ignore */ }
+  if (saved === 'light' || saved === 'dark') return saved;
+  if (typeof document !== 'undefined' && document.documentElement.classList.contains('light-theme')) {
     return 'light';
-  });
+  }
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return 'light';
+};
 
+const AuthBackground = () => {
+  const [theme, setTheme] = useState(getAppTheme);
+
+  // Keep the background in sync with the app theme toggle (`light-theme` class
+  // on <html>), and fall back to OS scheme changes only when no app theme is set.
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = (e) => setTheme(e.matches ? 'dark' : 'light');
-    if (mq.addEventListener) mq.addEventListener('change', onChange);
-    else if (mq.addListener) mq.addListener(onChange);
+    if (typeof window === 'undefined' || typeof document === 'undefined') return undefined;
+
+    const syncFromClass = () => setTheme(getAppTheme());
+
+    const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    const onSystemChange = (e) => {
+      let stored = null;
+      try { stored = localStorage.getItem('theme'); } catch (err) { /* ignore */ }
+      if (!stored) setTheme(e.matches ? 'dark' : 'light');
+    };
+
+    const observer = new MutationObserver(syncFromClass);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    if (mq && mq.addEventListener) mq.addEventListener('change', onSystemChange);
+    else if (mq && mq.addListener) mq.addListener(onSystemChange);
+
     return () => {
-      if (mq.removeEventListener) mq.removeEventListener('change', onChange);
-      else if (mq.removeListener) mq.removeListener(onChange);
+      observer.disconnect();
+      if (mq && mq.removeEventListener) mq.removeEventListener('change', onSystemChange);
+      else if (mq && mq.removeListener) mq.removeListener(onSystemChange);
     };
   }, []);
 
@@ -123,8 +149,8 @@ const AuthBackground = () => {
         </g>
 
         {/* watermark / brand */}
-        <g className="brand" opacity="0.06">
-          <text x="12%" y="16%" fontFamily="Inter, Arial, sans-serif" fontWeight="700" fontSize="42" fill="var(--brand)">Open Prompts</text>
+        <g className="brand">
+          <text x="12%" y="16%" fontFamily="'Outfit', Inter, Arial, sans-serif" fontWeight="800" fontSize="46" fill="url(#linkGrad)">Open Prompts</text>
         </g>
       </svg>
 
