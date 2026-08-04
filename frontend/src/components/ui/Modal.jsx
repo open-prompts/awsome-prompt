@@ -34,6 +34,11 @@ const Modal = ({
   size = 'md',
 }) => {
   const dialogRef = useRef(null);
+  // Keep the latest handler in a ref so the focus/listener effect only runs
+  // when `open` toggles. Without this, any inline `onClose` prop (recreated on
+  // every parent render, e.g. while typing in a modal input) would re-trigger
+  // the effect and steal focus from the input.
+  const handleKeyDownRef = useRef(null);
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -46,17 +51,24 @@ const Modal = ({
   );
 
   useEffect(() => {
+    handleKeyDownRef.current = handleKeyDown;
+  }, [handleKeyDown]);
+
+  useEffect(() => {
     if (!open) return undefined;
-    document.addEventListener('keydown', handleKeyDown, true);
+    const onKeyDown = (e) => {
+      if (handleKeyDownRef.current) handleKeyDownRef.current(e);
+    };
+    document.addEventListener('keydown', onKeyDown, true);
     // Focus the dialog when opened
     const t = setTimeout(() => {
       if (dialogRef.current) dialogRef.current.focus();
     }, 0);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keydown', onKeyDown, true);
       clearTimeout(t);
     };
-  }, [open, handleKeyDown]);
+  }, [open]);
 
   if (!open) return null;
 
