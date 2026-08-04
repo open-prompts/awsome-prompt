@@ -29,3 +29,13 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
+          env:
+            # Point nginx at the backend Kubernetes Service. The nginx.conf
+            # template resolves this hostname at request time, so nginx can
+            # start even if the backend is not ready yet.
+            - name: BACKEND_HOST
+              value: "{{ include "open-prompts.fullname" . }}-backend"
+            # kube-dns ClusterIP; nginx uses it to resolve BACKEND_HOST on
+            # each request. An IP avoids any startup-time DNS dependency.
+            - name: NGINX_RESOLVER
+              value: "{{ .Values.frontend.nginxResolver }}"

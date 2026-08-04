@@ -33,6 +33,10 @@ frontend:
   service:
     type: ClusterIP
     port: 80
+  # IP of the kube-dns service (nginx resolves the backend Service at request
+  # time through this resolver). Verify with:
+  #   kubectl get svc -n kube-system kube-dns -o jsonpath='{.spec.clusterIP}'
+  nginxResolver: "10.96.0.10"
 
 postgres:
   enabled: true
