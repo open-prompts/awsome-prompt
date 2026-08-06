@@ -1,3 +1,17 @@
+# [1.15.0](https://github.com/open-prompts/open-prompts/compare/v1.14.1...v1.15.0) (2026-08-06)
+
+
+### Bug Fixes
+
+* **frontend:** correct like and favorite counts showing zero on template details ([c3eb0fc](https://github.com/open-prompts/open-prompts/commit/c3eb0fc1ef286fa3374cc9446ffdabdfebdf35dc))
+
+
+### Features
+
+* **frontend:** add variable syntax hint above prompt content input ([4237c6a](https://github.com/open-prompts/open-prompts/commit/4237c6ad0baf8795a937302fbd84523e2f649006))
+* **frontend:** enlarge template variable input to a textarea for long text ([e807085](https://github.com/open-prompts/open-prompts/commit/e8070854795869a86c5a7a0de0525a4c47a98130))
+* **frontend:** extend field component to render nodes before input controls ([d0d35d6](https://github.com/open-prompts/open-prompts/commit/d0d35d60d1f13873ec9a1cad481fa8fb94509d84))
+
 ## [1.14.1](https://github.com/open-prompts/open-prompts/compare/v1.14.0...v1.14.1) (2026-08-04)
 
 
