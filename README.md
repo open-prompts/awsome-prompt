@@ -26,6 +26,7 @@ Whether you are a prompt engineer, a developer, or an AI enthusiast, Open Prompt
 - **🎨 Modern UI/UX**: Custom **Aurora design system** with light & dark themes, fully responsive and accessible.
 - **📱 One-Click Sharing**: Share your best prompts with the community or keep them private.
 - **🔐 Secure Authentication**: Robust user management and authentication system (JWT).
+- **🔑 API Keys & SDKs**: Issue API keys for programmatic access and integrate via the official [Python SDK](./python-sdk/README.md).
 
 ## 🛠 Tech Stack
 
@@ -42,6 +43,10 @@ Whether you are a prompt engineer, a developer, or an AI enthusiast, Open Prompt
 - **Database**: PostgreSQL
 - **Caching**: Redis
 - **Auth**: JWT (JSON Web Tokens)
+
+### Python SDK
+- **Package**: [`openprompts`](https://pypi.org/project/openprompts/) (Python 3.7+)
+- **Docs**: [python-sdk/README.md](./python-sdk/README.md)
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose

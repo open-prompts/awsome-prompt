@@ -26,6 +26,7 @@
 - **🎨 现代 UI/UX**：基于自定义 **Aurora Design System**，支持明暗双主题，完全响应式且无障碍。
 - **📱 一键分享**：与社区分享你的最佳提示词，或将其设为私有。
 - **🔐 安全认证**：强大的用户管理和认证系统 (JWT)。
+- **🔑 API 密钥与 SDK**：签发 API 密钥用于程序化访问，并通过官方 [Python SDK](./python-sdk/README.md) 集成。
 
 ## 🛠 技术栈
 
@@ -42,6 +43,10 @@
 - **数据库**: PostgreSQL
 - **缓存**: Redis
 - **认证**: JWT (JSON Web Tokens)
+
+### Python SDK
+- **包名**: [`openprompts`](https://pypi.org/project/openprompts/) (Python 3.7+)
+- **文档**: [python-sdk/README.md](./python-sdk/README.md)
 
 ### 基础设施 (Infrastructure)
 - **容器化**: Docker & Docker Compose
