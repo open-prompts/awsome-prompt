@@ -439,7 +439,7 @@
 /* Prompt generator */
 .variables-form {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
   margin-bottom: 16px;
 }
@@ -453,16 +453,20 @@
   font-family: 'SF Mono', ui-monospace, monospace;
 }
 
-.variables-form .form-group input {
+.variables-form .form-group textarea {
   width: 100%;
-  padding: 9px 12px;
+  min-height: 88px;
+  padding: 10px 12px;
   font-size: 14px;
+  line-height: 1.55;
+  font-family: inherit;
   color: var(--text-1);
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  resize: vertical;
 }
-.variables-form .form-group input:focus {
+.variables-form .form-group textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);

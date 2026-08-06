@@ -799,11 +799,12 @@ const TemplateDetails = () => {
                     {uniqueNames.map((name) => (
                       <div key={name} className="form-group">
                         <label>{name}</label>
-                        <input
-                          type="text"
+                        <textarea
                           value={variableValues[name] || ''}
                           onChange={(e) => handleVariableChange(name, e.target.value)}
                           placeholder={t('template_details.enter_value')}
+                          rows={3}
+                          className="var-textarea"
                         />
                       </div>
                     ))}
