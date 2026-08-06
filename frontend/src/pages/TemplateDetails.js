@@ -96,8 +96,8 @@ const TemplateDetails = () => {
 
         setIsLiked(tplRes.data.template.is_liked || false);
         setIsFavorited(tplRes.data.template.is_favorited || false);
-        setLikesCount(tplRes.data.template.likes_count || 0);
-        setFavoritesCount(tplRes.data.template.favorites_count || 0);
+        setLikesCount(tplRes.data.template.like_count || 0);
+        setFavoritesCount(tplRes.data.template.favorite_count || 0);
 
         // Select latest version by default
         if (tplRes.data.latest_version) {
