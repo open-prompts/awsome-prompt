@@ -23,7 +23,7 @@
 - **📚 集中式提示词库**：在一个地方存储和整理你所有的 AI 提示词。
 - **🔄 版本控制**：追踪提示词的变更，Fork 现有模板，并维护迭代历史。
 - **🌍 多语言支持**：原生支持国际化（英语和中文）。
-- **🎨 现代 UI/UX**：基于 IBM **Carbon Design System** 构建，提供专业、无障碍且响应式的界面。
+- **🎨 现代 UI/UX**：基于自定义 **Aurora Design System**，支持明暗双主题，完全响应式且无障碍。
 - **📱 一键分享**：与社区分享你的最佳提示词，或将其设为私有。
 - **🔐 安全认证**：强大的用户管理和认证系统 (JWT)。
 
@@ -32,7 +32,7 @@
 ### 前端 (Frontend)
 - **框架**: [React 18](https://reactjs.org/)
 - **状态管理**: [Redux Toolkit](https://redux-toolkit.js.org/)
-- **UI 系统**: [Carbon Design System](https://carbondesignsystem.com/) (SASS)
+- **UI 系统**: 自定义 "Aurora" 设计系统 (SASS，支持明暗双主题)
 - **HTTP 客户端**: Axios
 - **国际化**: i18next
 

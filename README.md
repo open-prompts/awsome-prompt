@@ -23,7 +23,7 @@ Whether you are a prompt engineer, a developer, or an AI enthusiast, Open Prompt
 - **📚 Centralized Prompt Library**: Store and organize all your AI prompts in one place.
 - **🔄 Version Control**: Track changes to your prompts, fork existing templates, and maintain a history of iterations.
 - **🌍 Multi-language Support**: Native support for Internationalization (English & Chinese).
-- **🎨 Modern UI/UX**: Built with IBM's **Carbon Design System** for a professional, accessible, and responsive interface.
+- **🎨 Modern UI/UX**: Custom **Aurora design system** with light & dark themes, fully responsive and accessible.
 - **📱 One-Click Sharing**: Share your best prompts with the community or keep them private.
 - **🔐 Secure Authentication**: Robust user management and authentication system (JWT).
 
@@ -32,7 +32,7 @@ Whether you are a prompt engineer, a developer, or an AI enthusiast, Open Prompt
 ### Frontend
 - **Framework**: [React 18](https://reactjs.org/)
 - **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/)
-- **UI System**: [Carbon Design System](https://carbondesignsystem.com/) (SASS)
+- **UI System**: Custom "Aurora" design system (SASS, light & dark themes)
 - **HTTP Client**: Axios
 - **i18n**: i18next
 
