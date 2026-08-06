@@ -114,6 +114,8 @@
     "ph_description": "Brief description of what this template does",
     "label_content": "Prompt Content",
     "ph_content": "You are a helpful assistant...",
+    "content_variable_hint": "Use ${variable} syntax in your prompt to define variables. Users fill in the values when generating a prompt.",
+    "content_variable_example": "e.g. You are an assistant who speaks ${language}. Please help me ${task}.",
     "error_required_fields": "Please fill in all required fields",
     "error_required_category": "Please enter a category name",
     "error_submit": "Failed to create template",

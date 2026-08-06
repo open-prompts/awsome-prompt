@@ -234,6 +234,10 @@ const CreateTemplateModal = ({ open, onRequestClose, onSuccess }) => {
         </Field>
 
         <Field id="content" label={t('create_template.label_content')} error={formErrors.content} required>
+          <div className="content-variable-hint">
+            <span className="content-variable-hint-text">{t('create_template.content_variable_hint')}</span>
+            <code className="content-variable-hint-example">{t('create_template.content_variable_example')}</code>
+          </div>
           <textarea
             className="textarea"
             placeholder={t('create_template.ph_content')}

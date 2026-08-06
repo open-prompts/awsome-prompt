@@ -114,6 +114,8 @@
     "ph_description": "简要描述此模板的作用",
     "label_content": "提示词内容",
     "ph_content": "你是一个乐于助人的助手...",
+    "content_variable_hint": "在提示词中使用 ${变量名} 语法定义变量，生成提示词时由用户输入对应内容。",
+    "content_variable_example": "例如：你是一个擅长${language}的助手，请帮我${task}。",
     "error_required_fields": "请填写所有必填字段",
     "error_required_category": "请输入分类名称",
     "error_submit": "创建模板失败",
