@@ -60,8 +60,8 @@ Follow these steps to set up the project locally.
 
 ### Prerequisites
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (v16+) - *If running frontend locally*
-- [Go](https://go.dev/) (v1.23+) - *If running backend locally*
+- [Node.js](https://nodejs.org/) (v18+) - *If running frontend locally*
+- [Go](https://go.dev/) (v1.25+) - *If running backend locally*
 
 ### Installation
 

@@ -60,8 +60,8 @@
 
 ### 前置条件
 - [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (v16+) - *如果在本地运行前端*
-- [Go](https://go.dev/) (v1.23+) - *如果在本地运行后端*
+- [Node.js](https://nodejs.org/) (v18+) - *如果在本地运行前端*
+- [Go](https://go.dev/) (v1.25+) - *如果在本地运行后端*
 
 ### 安装与运行
 
