@@ -50,6 +50,7 @@ Whether you are a prompt engineer, a developer, or an AI enthusiast, Open Prompt
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose
+- **Orchestration**: Kubernetes ([Helm chart](deployment/chart/open-prompts))
 - **Reverse Proxy**: Nginx
 - **CI/CD**: Github Actions
 
@@ -81,7 +82,13 @@ Follow these steps to set up the project locally.
    - **Frontend**: `http://localhost:3000`
    - **Backend API**: `http://localhost:3000/api` (Proxied) or `http://localhost:8080` (Direct)
 
-3. **Manual Development Setup**
+3. **Deploy on Kubernetes (Helm)**
+   Prefer Kubernetes? Use the provided [Helm chart](deployment/chart/open-prompts):
+   ```bash
+   helm install open-prompts deployment/chart/open-prompts
+   ```
+
+4. **Manual Development Setup**
 
    **Database**:
    Start Postgres and Redis using Docker:

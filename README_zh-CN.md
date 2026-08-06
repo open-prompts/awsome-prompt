@@ -50,6 +50,7 @@
 
 ### 基础设施 (Infrastructure)
 - **容器化**: Docker & Docker Compose
+- **容器编排**: Kubernetes ([Helm chart](deployment/chart/open-prompts))
 - **反向代理**: Nginx
 - **CI/CD**: Github Actions
 
@@ -81,7 +82,13 @@
    - **前端访问地址**: `http://localhost:3000`
    - **后端 API 地址**: `http://localhost:3000/api` (代理) 或 `http://localhost:8080` (直连)
 
-3. **手动开发环境设置**
+3. **在 Kubernetes 上部署（Helm）**
+   更喜欢 Kubernetes？使用项目提供的 [Helm chart](deployment/chart/open-prompts)：
+   ```bash
+   helm install open-prompts deployment/chart/open-prompts
+   ```
+
+4. **手动开发环境设置**
 
    **数据库**:
    使用 Docker 启动 Postgres 和 Redis：
